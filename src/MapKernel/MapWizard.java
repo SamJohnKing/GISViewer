@@ -3454,6 +3454,9 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 	
 	public FreeWizard.RoadConditionWizard RoadConditionView; 
 	JMenuItem ShowRoadConditionWizard;
+	
+	HtmlMapOutputPaneClass HtmlMapOutputPane;
+	JMenuItem HtmlMapOutputPaneItem;
 //Screen End-----------------------------------------------------
 //Preference Elements--------------------------------------------
 	FreeWizard.GlobalPreferenceWizard Preference;
@@ -4114,6 +4117,19 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					Handle.ScreenFlush();
 			}
 		});
+		
+		HtmlMapOutputPaneItem=new JMenuItem("导出数据库于网页地图上");
+		HtmlMapOutputPaneItem.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				// TODO Auto-generated method stub
+				NowPanel=HtmlMapOutputPane;
+				ClearStateAfterSwitchPane();
+				ToolCard.show(Tool,"HtmlMapOutputPane");
+				HtmlMapOutputPane.emerge();
+			}
+		});
 //MenuAdd---------------------------------------------------------
 		FileMenu=new JMenu("文件      ");
 		EditMenu=new JMenu("编辑      ");
@@ -4149,6 +4165,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		EditMenu.add(LandMarkEditItem);
 		EditMenu.add(ServerSocketPaneItem);
 		EditMenu.add(ClientSocketPaneItem);
+		EditMenu.add(HtmlMapOutputPaneItem);
 		//----------------------------------
 		MapControlMenu.add(TwoPointItem);
 		MapControlMenu.add(CalibrateItem);
@@ -4286,6 +4303,10 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		ClientSocketPane=new ClientSocketPaneClass();
 		ClientSocketPane.setHandle(Handle);
 		Tool.add("ClientSocketPane",ClientSocketPane);
+		
+		HtmlMapOutputPane=new HtmlMapOutputPaneClass();
+		HtmlMapOutputPane.setHandle(Handle);
+		Tool.add("HtmlMapOutputPane",HtmlMapOutputPane);
 	//final----------------------------
 		NowPanel=NULL;
 		ToolCard.show(Tool,"NULL");
