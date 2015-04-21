@@ -33,34 +33,97 @@ public class LineDataSet implements LineDatabaseInterface{
 			BufferedReader in=new BufferedReader(new InputStreamReader(new FileInputStream(Input),"UTF-8"));
 			String buf;
 			double DeltaX=0,DeltaY=0;
-			while((buf=in.readLine())!=null){
-				if(buf.indexOf("Delta:")!=-1){
-					int i,j;
-					i=buf.indexOf(':');
-					j=buf.indexOf(":",i+1);
-					DeltaX=Double.parseDouble(buf.substring(i+1,j));
-					DeltaY=Double.parseDouble(buf.substring(j+1));
+			if (Input.getName().endsWith(".csv")) {
+				buf=in.readLine();
+				String[] AttributionList=buf.split(",");
+				while((buf=in.readLine())!=null){
+					String[] ValueList=buf.split(",");
+					String Latitude_Str=null;
+					String Longitude_Str=null;
+					Latitude_Str="0";
+					Longitude_Str="0";
+					LineHint[LineNum]="";
+					LineVisible[LineNum]=27;
+					isVertical[LineNum]=false;
+					dx[LineNum]=0;
+					dy[LineNum]=0;
+					for(int i=0;i<AttributionList.length;i++){
+						if(i>=ValueList.length) break;
+						String signal=AttributionList[i].toLowerCase();
+						if(signal.endsWith("latitude")){
+							Latitude_Str=ValueList[i];
+						}else if(signal.endsWith("longitude")){
+							Longitude_Str=ValueList[i];
+						}else if(signal.endsWith("hint")){
+							LineHint[LineNum]=ValueList[i];
+						}else if(signal.endsWith("visible")){
+							LineVisible[LineNum]=Integer.parseInt(ValueList[i]);
+						}else if(signal.endsWith("vertical")){
+							isVertical[LineNum] = ValueList[i].equals("0") ? false : true;
+						}else if(signal.equals("dx")){
+							dx[LineNum] = Double.parseDouble(ValueList[i]);
+						}else if(signal.equals("dy")){
+							dy[LineNum] = Double.parseDouble(ValueList[i]);
+						}else{
+							if(i<ValueList.length){
+								LineHint[LineNum]+="["+AttributionList[i]+":"+ValueList[i]+"]";
+							}
+						}
+					}
+					append(LineNum, Double.parseDouble(Longitude_Str),
+							Double.parseDouble(Latitude_Str));
+					while(!buf.isEmpty()){
+						ValueList=buf.split(",");
+						Latitude_Str="0";
+						Longitude_Str="0";
+						for(int i=0;i<AttributionList.length;i++){
+							String signal=AttributionList[i].toLowerCase();
+							if(signal.endsWith("latitude")){
+								Latitude_Str=ValueList[i];
+							}else if(signal.endsWith("longitude")){
+								Longitude_Str=ValueList[i];
+							}
+						}
+						append(LineNum, Double.parseDouble(Longitude_Str),
+								Double.parseDouble(Latitude_Str));
+						buf=in.readLine();
+					}
+					LineNum++;
 				}
-				if(buf.indexOf("LineStart")==-1) continue;
-				String Longitude,Latitude;
-				String Hint;
-				Hint=in.readLine();
-				LineHint[LineNum]=Hint.trim();
-				Hint=in.readLine();
-				LineVisible[LineNum]=Integer.parseInt(Hint);
-				Hint=in.readLine();
-				isVertical[LineNum]=Hint.equals("0")?false:true;
-				Hint=in.readLine();
-				dx[LineNum]=Double.parseDouble(Hint);
-				Hint=in.readLine();
-				dy[LineNum]=Double.parseDouble(Hint);
-				while((buf=in.readLine()).indexOf("LineEnd")==-1){
-					Longitude=buf;
-					Latitude=Longitude.substring(Longitude.indexOf('/')+1);
-					Longitude=Longitude.substring(0,Longitude.indexOf('/'));
-					append(LineNum,Double.parseDouble(Longitude)+DeltaX,Double.parseDouble(Latitude)+DeltaY);
+			} else {
+				while ((buf = in.readLine()) != null) {
+					if (buf.indexOf("Delta:") != -1) {
+						int i, j;
+						i = buf.indexOf(':');
+						j = buf.indexOf(":", i + 1);
+						DeltaX = Double.parseDouble(buf.substring(i + 1, j));
+						DeltaY = Double.parseDouble(buf.substring(j + 1));
+					}
+					if (buf.indexOf("LineStart") == -1)
+						continue;
+					String Longitude, Latitude;
+					String Hint;
+					Hint = in.readLine();
+					LineHint[LineNum] = Hint.trim();
+					Hint = in.readLine();
+					LineVisible[LineNum] = Integer.parseInt(Hint);
+					Hint = in.readLine();
+					isVertical[LineNum] = Hint.equals("0") ? false : true;
+					Hint = in.readLine();
+					dx[LineNum] = Double.parseDouble(Hint);
+					Hint = in.readLine();
+					dy[LineNum] = Double.parseDouble(Hint);
+					while ((buf = in.readLine()).indexOf("LineEnd") == -1) {
+						Longitude = buf;
+						Latitude = Longitude
+								.substring(Longitude.indexOf('/') + 1);
+						Longitude = Longitude.substring(0,
+								Longitude.indexOf('/'));
+						append(LineNum, Double.parseDouble(Longitude) + DeltaX,
+								Double.parseDouble(Latitude) + DeltaY);
+					}
+					LineNum++;
 				}
-				LineNum++;
 			}
 			in.close();
 		}catch(Exception e){
@@ -70,7 +133,27 @@ public class LineDataSet implements LineDatabaseInterface{
 	public void DatabaseFileOutput(File Output){
 		try{
 			if(Output==null) return;
-			BufferedWriter out=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Output,false),"UTF-8"));
+			FileOutputStream fostream=new FileOutputStream(Output,false);
+			BufferedWriter out=new BufferedWriter(new OutputStreamWriter(fostream,"UTF-8"));
+			//-------------------------------------------------------------
+			if (Output.getName().endsWith(".csv")) {
+				fostream.write(new byte[] { (byte) 0xEF, (byte) 0xBB,
+						(byte) 0xBF });
+				out.write("Latitude,Longitude,Hint,Visible,Vertical,dx,dy");
+				out.newLine();
+				for (int i = 0; i < LineNum; i++) {
+					out.write(AllPointY[LineHead[i]] + "," + AllPointX[LineHead[i]] + ","
+							+ LineHint[i].trim() + "," + LineVisible[i]+","+(isVertical[i]?"1":"0")+","+dx[i]+","+dy[i]);
+					out.newLine();
+					int temp=LineHead[i];
+					while(temp!=-1){
+						out.write(AllPointY[temp]+","+AllPointX[temp]+",,,,,");
+						out.newLine();
+						temp=AllPointNext[temp];
+					}
+					out.newLine();
+				}
+			}else
 			for(int i=0;i<LineNum;i++){
 				out.write("[LineStart]------------------------------");
 				out.newLine();

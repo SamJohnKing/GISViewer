@@ -34,34 +34,102 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 			BufferedReader in=new BufferedReader(new InputStreamReader(new FileInputStream(Input),"UTF-8"));
 			double DeltaX=0,DeltaY=0;
 			String buf;
-			while((buf=in.readLine())!=null){
-				if(buf.indexOf("Delta:")!=-1){
-					int i,j;
-					i=buf.indexOf(':');
-					j=buf.indexOf(":",i+1);
-					DeltaX=Double.parseDouble(buf.substring(i+1,j));
-					DeltaY=Double.parseDouble(buf.substring(j+1));
+			if (Input.getName().endsWith(".csv")) {
+				buf = in.readLine();
+				String[] AttributionList = buf.split(",");
+				while ((buf = in.readLine()) != null) {
+					String[] ValueList = buf.split(",");
+					String Latitude_Str = null;
+					String Longitude_Str = null;
+					Latitude_Str = "0";
+					Longitude_Str = "0";
+					PolygonHint[PolygonNum] = "";
+					PolygonVisible[PolygonNum] = 11;
+					isVertical[PolygonNum] = false;
+					dx[PolygonNum] = 0;
+					dy[PolygonNum] = 0;
+					for (int i = 0; i < AttributionList.length; i++) {
+						if (i >= ValueList.length)
+							break;
+						String signal = AttributionList[i].toLowerCase();
+						if (signal.endsWith("latitude")) {
+							Latitude_Str = ValueList[i];
+						} else if (signal.endsWith("longitude")) {
+							Longitude_Str = ValueList[i];
+						} else if (signal.endsWith("hint")) {
+							PolygonHint[PolygonNum] = ValueList[i];
+						} else if (signal.endsWith("visible")) {
+							PolygonVisible[PolygonNum] = Integer
+									.parseInt(ValueList[i]);
+						} else if (signal.endsWith("vertical")) {
+							isVertical[PolygonNum] = ValueList[i].equals("0") ? false
+									: true;
+						} else if (signal.equals("dx")) {
+							dx[PolygonNum] = Double.parseDouble(ValueList[i]);
+						} else if (signal.equals("dy")) {
+							dy[PolygonNum] = Double.parseDouble(ValueList[i]);
+						} else {
+							if (i < ValueList.length) {
+								PolygonHint[PolygonNum] += "["
+										+ AttributionList[i] + ":"
+										+ ValueList[i] + "]";
+							}
+						}
+					}
+					append(PolygonNum, Double.parseDouble(Longitude_Str),
+							Double.parseDouble(Latitude_Str));
+					while (!buf.isEmpty()) {
+						ValueList = buf.split(",");
+						Latitude_Str = "0";
+						Longitude_Str = "0";
+						for (int i = 0; i < AttributionList.length; i++) {
+							String signal = AttributionList[i].toLowerCase();
+							if (signal.endsWith("latitude")) {
+								Latitude_Str = ValueList[i];
+							} else if (signal.endsWith("longitude")) {
+								Longitude_Str = ValueList[i];
+							}
+						}
+						append(PolygonNum, Double.parseDouble(Longitude_Str),
+								Double.parseDouble(Latitude_Str));
+						buf = in.readLine();
+					}
+					PolygonNum++;
 				}
-				if(buf.indexOf("PolygonStart")==-1) continue;
-				String Longitude,Latitude;
-				String Hint;
-				Hint=in.readLine();
-				PolygonHint[PolygonNum]=Hint.trim();
-				Hint=in.readLine();
-				PolygonVisible[PolygonNum]=Integer.parseInt(Hint);
-				Hint=in.readLine();
-				isVertical[PolygonNum]=Hint.equals("0")?false:true;
-				Hint=in.readLine();
-				dx[PolygonNum]=Double.parseDouble(Hint);
-				Hint=in.readLine();
-				dy[PolygonNum]=Double.parseDouble(Hint);
-				while((buf=in.readLine()).indexOf("PolygonEnd")==-1){
-					Longitude=buf;
-					Latitude=Longitude.substring(Longitude.indexOf('/')+1);
-					Longitude=Longitude.substring(0,Longitude.indexOf('/'));
-					append(PolygonNum,Double.parseDouble(Longitude)+DeltaX,Double.parseDouble(Latitude)+DeltaY);
+			} else {
+				while ((buf = in.readLine()) != null) {
+					if (buf.indexOf("Delta:") != -1) {
+						int i, j;
+						i = buf.indexOf(':');
+						j = buf.indexOf(":", i + 1);
+						DeltaX = Double.parseDouble(buf.substring(i + 1, j));
+						DeltaY = Double.parseDouble(buf.substring(j + 1));
+					}
+					if (buf.indexOf("PolygonStart") == -1)
+						continue;
+					String Longitude, Latitude;
+					String Hint;
+					Hint = in.readLine();
+					PolygonHint[PolygonNum] = Hint.trim();
+					Hint = in.readLine();
+					PolygonVisible[PolygonNum] = Integer.parseInt(Hint);
+					Hint = in.readLine();
+					isVertical[PolygonNum] = Hint.equals("0") ? false : true;
+					Hint = in.readLine();
+					dx[PolygonNum] = Double.parseDouble(Hint);
+					Hint = in.readLine();
+					dy[PolygonNum] = Double.parseDouble(Hint);
+					while ((buf = in.readLine()).indexOf("PolygonEnd") == -1) {
+						Longitude = buf;
+						Latitude = Longitude
+								.substring(Longitude.indexOf('/') + 1);
+						Longitude = Longitude.substring(0,
+								Longitude.indexOf('/'));
+						append(PolygonNum, Double.parseDouble(Longitude)
+								+ DeltaX, Double.parseDouble(Latitude) + DeltaY);
+					}
+					PolygonNum++;
 				}
-				PolygonNum++;
 			}
 			in.close();
 		}catch(Exception e){
@@ -71,8 +139,27 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 	public void DatabaseFileOutput(File Output){
 		try{
 			if(Output==null) return;
-			BufferedWriter out=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Output,false),"UTF-8"));
-			for(int i=0;i<PolygonNum;i++){
+			FileOutputStream fostream=new FileOutputStream(Output,false);
+			BufferedWriter out=new BufferedWriter(new OutputStreamWriter(fostream,"UTF-8"));
+			//-------------------------------------------------------------
+			if (Output.getName().endsWith(".csv")) {
+				fostream.write(new byte[] { (byte) 0xEF, (byte) 0xBB,
+						(byte) 0xBF });
+				out.write("Latitude,Longitude,Hint,Visible,Vertical,dx,dy");
+				out.newLine();
+				for (int i = 0; i < PolygonNum; i++) {
+					out.write(AllPointY[PolygonHead[i]] + "," + AllPointX[PolygonHead[i]] + ","
+							+ PolygonHint[i].trim() + "," + PolygonVisible[i]+","+(isVertical[i]?"1":"0")+","+dx[i]+","+dy[i]);
+					out.newLine();
+					int temp=PolygonHead[i];
+					while(temp!=-1){
+						out.write(AllPointY[temp]+","+AllPointX[temp]+",,,,,");
+						out.newLine();
+						temp=AllPointNext[temp];
+					}
+					out.newLine();
+				}
+			}else for(int i=0;i<PolygonNum;i++){
 				out.write("[PolygonStart]------------------------------");
 				out.newLine();
 				out.write(PolygonHint[i].trim());

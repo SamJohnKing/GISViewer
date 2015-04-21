@@ -27,6 +27,35 @@ public class PointDataSet implements PointDatabaseInterface{
 			BufferedReader in=new BufferedReader(new InputStreamReader(new FileInputStream(Input),"UTF-8"));
 			double DeltaX=0,DeltaY=0;
 			String buf;
+			if(Input.getName().endsWith(".csv")){
+				buf=in.readLine();
+				String[] AttributionList=buf.split(",");
+				while((buf=in.readLine())!=null){
+					String[] ValueList=buf.split(",");
+					AllPointY[PointNum]=0;
+					AllPointX[PointNum]=0;
+					PointHint[PointNum]="";
+					PointVisible[PointNum]=7;
+					for(int i=0;i<AttributionList.length;i++){
+						if(i>=ValueList.length) break;
+						String signal=AttributionList[i].toLowerCase();
+						if(signal.indexOf("latitude")!=-1){
+							AllPointY[PointNum]=Double.parseDouble(ValueList[i]);
+						}else if(signal.indexOf("longitude")!=-1){
+							AllPointX[PointNum]=Double.parseDouble(ValueList[i]);
+						}else if(signal.indexOf("hint")!=-1){
+							PointHint[PointNum]=ValueList[i];
+						}else if(signal.indexOf("visible")!=-1){
+							PointVisible[PointNum]=Integer.parseInt(ValueList[i]);
+						}else{
+							if(i<ValueList.length){
+								PointHint[PointNum]+="["+AttributionList[i]+":"+ValueList[i]+"]";
+							}
+						}
+					}
+					PointNum++;
+				}
+			}else
 			while((buf=in.readLine())!=null){
 				if(buf.indexOf("Delta:")!=-1){
 					int i,j;
@@ -59,20 +88,30 @@ public class PointDataSet implements PointDatabaseInterface{
 	public void DatabaseFileOutput(File Output){
 		try{
 			if(Output==null) return;
-			BufferedWriter out=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Output,false),"UTF-8"));
-			for(int i=0;i<PointNum;i++){
-				out.write("[PointStart]------------------------------");
+			FileOutputStream fostream=new FileOutputStream(Output,false);
+			BufferedWriter out=new BufferedWriter(new OutputStreamWriter(fostream,"UTF-8"));
+			//-------------------------------------------------------------
+			if (Output.getName().endsWith(".csv")) {
+				fostream.write(new byte[] { (byte) 0xEF, (byte) 0xBB,
+						(byte) 0xBF });
+				out.write("Latitude,Longitude,Hint,Visible");
 				out.newLine();
-				out.write(PointHint[i].trim());
-				out.newLine();
-				out.write(Integer.toString(PointVisible[i]));
-				out.newLine();
-				
-				out.write(AllPointX[i]+"/"+AllPointY[i]);
-				out.newLine();
-
-				out.write("[PointEnd]------------------------------");
-				out.newLine();
+				for (int i = 0; i < PointNum; i++) {
+					out.write(AllPointY[i] + "," + AllPointX[i] + ","
+							+ PointHint[i].trim() + "," + PointVisible[i]);
+					out.newLine();
+				}
+			} else {
+				for (int i = 0; i < PointNum; i++) {
+					 out.write("[PointStart]------------------------------");
+					 out.newLine(); out.write(PointHint[i].trim());
+					 out.newLine();
+					 out.write(Integer.toString(PointVisible[i]));
+					 out.newLine();
+					 out.write(AllPointX[i]+"/"+AllPointY[i]); out.newLine();
+					 out.write("[PointEnd]------------------------------");
+					 out.newLine();
+				}
 			}
 			out.flush();
 			out.close();

@@ -5105,7 +5105,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				return;
 			}
 			java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-			Handle.getLineDatabase().DatabaseFileOutput(new File(str+"[LineDB]["+df.format(new Date())+"].txt"));
+			Handle.getLineDatabase().DatabaseFileOutput(new File(str+"[LineDB]["+df.format(new Date())+"].csv"));
 		}
 		//[ACMCUP2014]PolygonOutputTransform
 		public void PolygonOutputTransform(){
@@ -5121,7 +5121,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				return;
 			}
 			java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-			Handle.getPolygonDatabase().DatabaseFileOutput(new File(str+"[PolygonDB]["+df.format(new Date())+"].txt"));
+			Handle.getPolygonDatabase().DatabaseFileOutput(new File(str+"[PolygonDB]["+df.format(new Date())+"].csv"));
 		}
 		//[ACMCUP2014]PointInputTransform
 		public void PointInputTransform(){
@@ -5168,7 +5168,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				return;
 			}
 			java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-			Handle.getPointDatabase().DatabaseFileOutput(new File(str+"[PointDB]["+df.format(new Date())+"].txt"));
+			Handle.getPointDatabase().DatabaseFileOutput(new File(str+"[PointDB]["+df.format(new Date())+"].csv"));
 		}
 		void OtherFormatPointInput(File PointDatabaseFile){
 			BufferedReader BIN;
@@ -5209,7 +5209,11 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			try{
 				int state=FileDialog.showOpenDialog(null);
 				if(state==JFileChooser.APPROVE_OPTION){
-					System.out.println(FileDialog.getCurrentDirectory());
+					if(FileDialog.getSelectedFile().getName().endsWith("csv")){
+						PointDatabase.DatabaseInit();
+						PointDatabase.DatabaseFileInput(FileDialog.getSelectedFile());
+						return;
+					}
 					BIN=new BufferedReader(new InputStreamReader(new FileInputStream(FileDialog.getSelectedFile()),"UTF-8"));
 				}else return;
 				PointDatabase.DatabaseInit();
@@ -5255,7 +5259,10 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			try{
 				int state=FileDialog.showOpenDialog(null);
 				if(state==JFileChooser.APPROVE_OPTION){
-					System.out.println(FileDialog.getCurrentDirectory());
+					if(FileDialog.getSelectedFile().getName().endsWith(".csv")){
+						PointDatabase.DatabaseFileInput(FileDialog.getSelectedFile());
+						return;
+					}
 					BIN=new BufferedReader(new InputStreamReader(new FileInputStream(FileDialog.getSelectedFile()),"UTF-8"));
 				}else return;
 				while((s1=BIN.readLine())!=null){
@@ -5391,6 +5398,11 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					try{
 						int state=FileDialog.showOpenDialog(null);
 						if(state==JFileChooser.APPROVE_OPTION){
+							if(FileDialog.getSelectedFile().getName().endsWith("csv")){
+								LineDatabase.DatabaseInit();
+								LineDatabase.DatabaseFileInput(FileDialog.getSelectedFile());
+								return;
+							}
 							BIN=new BufferedReader(new InputStreamReader(new FileInputStream(FileDialog.getSelectedFile()),"UTF-8"));
 						}else return;
 						LineDatabase.DatabaseInit();
@@ -5446,6 +5458,10 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			try{
 				int state=FileDialog.showOpenDialog(null);
 				if(state==JFileChooser.APPROVE_OPTION){
+					if(FileDialog.getSelectedFile().getName().endsWith(".csv")){
+						LineDatabase.DatabaseFileInput(FileDialog.getSelectedFile());
+						return;
+					}
 					BIN=new BufferedReader(new InputStreamReader(new FileInputStream(FileDialog.getSelectedFile()),"UTF-8"));
 				}else return;
 				while((s1=BIN.readLine())!=null){
@@ -5505,7 +5521,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			int state=FileDialog.showOpenDialog(null);
 			if(state==JFileChooser.APPROVE_OPTION){
 				MapKernel.FileAccept File_Accept = new FileAccept();
-				File_Accept.setExtendName("txt");
+				File_Accept.setExtendName("csv");
 				File[] File_list = FileDialog.getCurrentDirectory().listFiles(File_Accept);
 				for(File fin:File_list){
 				//Single File------------------------------------
@@ -5520,7 +5536,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			int state=FileDialog.showOpenDialog(null);
 			if(state==JFileChooser.APPROVE_OPTION){
 				MapKernel.FileAccept File_Accept = new FileAccept();
-				File_Accept.setExtendName("txt");
+				File_Accept.setExtendName("csv");
 				File[] File_list = FileDialog.getCurrentDirectory().listFiles(File_Accept);
 				for(File fin:File_list){
 				//Single File------------------------------------
@@ -5546,7 +5562,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				int state=FileDialog.showOpenDialog(null);
 				if(state==JFileChooser.APPROVE_OPTION){
 					MapKernel.FileAccept File_Accept = new FileAccept();
-					File_Accept.setExtendName("txt");
+					File_Accept.setExtendName("csv");
 					File[] File_list = FileDialog.getCurrentDirectory().listFiles(File_Accept);
 					for(File fin:File_list){
 					//Single File------------------------------------
