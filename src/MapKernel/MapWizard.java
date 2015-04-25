@@ -3467,11 +3467,32 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		Idle(3000);
 		SoftFace.dispose();
 		//Rewrite the scale of Database-----------------
-		Database.PointDataSet.PointMaxNum=50000000;
-		Database.LineDataSet.PointMaxNum=50000000;
-		Database.LineDataSet.LineMaxNum=20000000;
-		Database.PolygonDataSet.PointMaxNum=2000000;
-		Database.PolygonDataSet.PolygonMaxNum=100000;
+		Database.PointDataSet.PointMaxNum=-1;
+		Database.LineDataSet.PointMaxNum=-1;
+		Database.LineDataSet.LineMaxNum=-1;
+		Database.PolygonDataSet.PointMaxNum=-1;
+		Database.PolygonDataSet.PolygonMaxNum=-1;
+		try{
+			BufferedReader Configfin=new BufferedReader(new FileReader(new File("DB.config")));
+			String buf;
+			while((buf=Configfin.readLine())!=null){
+				String[] pair=buf.split("=");
+				if(pair[0].equals("Database.PointDataSet.PointMaxNum"))
+					Database.PointDataSet.PointMaxNum=Integer.parseInt(pair[1]);
+				else if(pair[0].equals("Database.LineDataSet.PointMaxNum"))
+					Database.LineDataSet.PointMaxNum=Integer.parseInt(pair[1]);
+				else if(pair[0].equals("Database.LineDataSet.LineMaxNum"))
+					Database.LineDataSet.LineMaxNum=Integer.parseInt(pair[1]);
+				else if(pair[0].equals("Database.PolygonDataSet.PointMaxNum"))
+					Database.PolygonDataSet.PointMaxNum=Integer.parseInt(pair[1]);
+				else if(pair[0].equals("Database.PolygonDataSet.PolygonMaxNum"))
+					Database.PolygonDataSet.PolygonMaxNum=Integer.parseInt(pair[1]);
+			}
+			Configfin.close();
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null,"Please Check the setting in DB.config");
+			System.exit(0);
+		}
 		//Create All the Frame--------------------------
 		AboutFrame=new About();
 		LandMarkQueryFrame=new LandMarkQueryFrameClass();
@@ -4412,6 +4433,11 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		if(e.getSource()==OpenItem){
 			int state=FileDialog.showOpenDialog(this);
 			if(state==JFileChooser.APPROVE_OPTION){
+				File f=new File(FileDialog.getCurrentDirectory(),"init.txt");
+				if(!f.exists()){
+					JOptionPane.showMessageDialog(null,"Error in Open [init.txt]");
+					return;
+				}
 				if(DIR!=null) ChangeDirPrompt();
 				CleanUp();
 				DIR=FileDialog.getCurrentDirectory();

@@ -285,7 +285,7 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 		add(OpenSourceFile);
 		OpenSourceFile.addActionListener(this);
 		add(OpenSourceFilePath);
-		OpenSourceFilePath.setText("Template.html");
+		OpenSourceFilePath.setText("Template_OSM.html");
 		//----------------------------------------------------------------
 		JLabel Point_Tag_Label=new JLabel("PointTagList");
 		Point_Tag_Label.setForeground(Color.orange);
