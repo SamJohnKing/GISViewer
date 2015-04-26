@@ -119,6 +119,12 @@ public class PointDataSet implements PointDatabaseInterface{
 			e.printStackTrace();
 		}
 	}
+	public void MoveEntireData(double longitude_delta,double latitude_delta){
+		for(int i=0;i<PointNum;i++){
+			AllPointX[i]+=longitude_delta;
+			AllPointY[i]+=latitude_delta;
+		}
+	}
 	public void add(java.util.ArrayList arr,String Hint){
 		Object p=arr.get(arr.size()-1);
 		if(p instanceof PointStructure) add((PointStructure)p,Hint);

@@ -187,6 +187,16 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 			e.printStackTrace();
 		}
 	}
+	public void MoveEntireData(double longitude_delta,double latitude_delta){
+		for(int i=0;i<PolygonNum;i++){
+			int ptr=PolygonHead[i];
+			while(ptr!=-1){
+				AllPointX[ptr]+=longitude_delta;
+				AllPointY[ptr]+=latitude_delta;
+				ptr=AllPointNext[ptr];
+			}
+		}
+	}
 	public int PointAllocate(){
 		PointUse++;
 		int k=FreeHead;

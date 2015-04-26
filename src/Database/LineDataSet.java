@@ -182,6 +182,16 @@ public class LineDataSet implements LineDatabaseInterface{
 			e.printStackTrace();
 		}
 	}
+	public void MoveEntireData(double longitude_delta,double latitude_delta){
+		for(int i=0;i<LineNum;i++){
+			int ptr=LineHead[i];
+			while(ptr!=-1){
+				AllPointX[ptr]+=longitude_delta;
+				AllPointY[ptr]+=latitude_delta;
+				ptr=AllPointNext[ptr];
+			}
+		}
+	}
 	public int PointAllocate(){
 		PointUse++;
 		int k=FreeHead;

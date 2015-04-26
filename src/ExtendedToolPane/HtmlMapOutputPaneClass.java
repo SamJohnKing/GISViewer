@@ -63,6 +63,10 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 			if(Point_AllVisibleOutput.isSelected()){
 				Point_SpecificTagList.setEditable(false);
 			}
+		}else if(e.getSource()==Point_ScreenOutput){
+			if(Point_AllVisibleOutput.isSelected()){
+				Point_SpecificTagList.setEditable(false);
+			}
 		}else if(e.getSource()==Point_NoneOutput){
 			if(Point_NoneOutput.isSelected()){
 				Point_SpecificTagList.setEditable(false);
@@ -78,6 +82,10 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 			if(Line_AllVisibleOutput.isSelected()){
 				Line_SpecificTagList.setEditable(false);
 			}
+		}else if(e.getSource()==Line_ScreenOutput){
+			if(Line_AllVisibleOutput.isSelected()){
+				Line_SpecificTagList.setEditable(false);
+			}
 		}else if(e.getSource()==Line_NoneOutput){
 			if(Line_NoneOutput.isSelected()){
 				Line_SpecificTagList.setEditable(false);
@@ -90,6 +98,10 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 				Polygon_SpecificTagList.setEditable(true);
 			}
 		}else if(e.getSource()==Polygon_AllVisibleOutput){
+			if(Polygon_AllVisibleOutput.isSelected()){
+				Polygon_SpecificTagList.setEditable(false);
+			}
+		}else if(e.getSource()==Polygon_ScreenOutput){
 			if(Polygon_AllVisibleOutput.isSelected()){
 				Polygon_SpecificTagList.setEditable(false);
 			}
@@ -136,6 +148,35 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 			return 0;
 		}
 	}
+	static int MaxRowNum=2000;
+	static int MaxColNum=2000;
+	static int[][] Grid=new int[MaxRowNum][MaxColNum];
+	static double LongitudeStart=0;
+	static double LongitudeEnd=0;
+	static double LatitudeStart=0;
+	static double LatitudeEnd=0;
+	static double LongitudeStep=0;
+	static double LatitudeStep=0;
+	public void ClearGrid(){
+		for(int i=0;i<MaxRowNum;i++)
+			for(int j=0;j<MaxColNum;j++)
+				Grid[i][j]=0;
+		LongitudeStart=MainHandle.getKernel().Screen.ScreenLongitude;
+		LongitudeEnd=MainHandle.getKernel().Screen.LongitudeScale+LongitudeStart;
+		LatitudeEnd=MainHandle.getKernel().Screen.ScreenLatitude;
+		LatitudeStart=LatitudeEnd-MainHandle.getKernel().Screen.LatitudeScale;
+		LongitudeStep=(LongitudeEnd-LongitudeStart)/MaxColNum;
+		LatitudeStep=(LatitudeEnd-LatitudeStart)/MaxRowNum;
+	}
+	public void InsertGrid(double longitude,double latitude){
+		int row=(int)((latitude-LatitudeStart)/LatitudeStep);
+		if(row<0) return;
+		if(row>=MaxRowNum) return;
+		int col=(int)((longitude-LongitudeStart)/LongitudeStep);
+		if(col<0) return;
+		if(col>=MaxColNum) return;
+		Grid[row][col]++;
+	}
 	String GenerateHTML(String FileName){
 		File OutFile=new File(FileName);
 		try{
@@ -148,10 +189,29 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 			String[] Point_tag_list=Point_SpecificTagList.getText().split(",");
 			String[] Line_tag_list=Line_SpecificTagList.getText().split(",");
 			String[] Polygon_tag_list=Polygon_SpecificTagList.getText().split(",");
+			String PointContainerStr="map";
+			String GridContainerStr=null;
+			String HeatMapContainerStr=null;
+			String LineContainerStr="map";
+			String PolygonContainerStr="map";
 			while((buf=in.readLine())!=null){
 				out.write(buf);
 				out.newLine();
-				if(buf.equals("//Insert Point")){
+				if(buf.startsWith("//UseGrid")){
+					ClearGrid();
+				}if(buf.startsWith("//PointContainerStr=")){
+					PointContainerStr=buf.split("=")[1];
+				}else if(buf.startsWith("//LineContainerStr=")){
+					LineContainerStr=buf.split("=")[1];
+				}else if(buf.startsWith("//PolygonContainerStr=")){
+					PolygonContainerStr=buf.split("=")[1];
+				}else if(buf.startsWith("//GridContainerStr=")){
+					PointContainerStr=null;
+					GridContainerStr=buf.split("=")[1];
+				}else if(buf.startsWith("//HeatMapContainerStr=")){
+					PointContainerStr=null;
+					HeatMapContainerStr=buf.split("=")[1];
+				}else if(buf.equals("//Insert HeatMap")&&(HeatMapContainerStr!=null)){		
 					if(Point_NoneOutput.isSelected()) continue;
 					//----------------------------------------------
 					Database.PointDataSet PointDB=MainHandle.getPointDatabase();
@@ -171,12 +231,96 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 						if(Point_AllVisibleOutput.isSelected()){
 							if((PointDB.PointVisible[i]&1)==1) Point_check=true;
 						}
+						//--------------------------------------------
+						if(Point_ScreenOutput.isSelected()){
+							if(MainHandle.getKernel().Screen.CheckInGeoScreen(PointDB.AllPointX[i],PointDB.AllPointY[i])) 
+								Point_check=true;
+						}
+						//--------------------------------------------
 						if(Point_check){
-							out.write("L.circle(["+(PointDB.AllPointY[i]+GetLatLngDelta(Point_LatitudeDelta.getText()))+","+(PointDB.AllPointX[i]+GetLatLngDelta(Point_LongitudeDelta.getText()))+"],50,{color:'green',fillColor: 'green',fillOpacity: 0.5}).addTo(map);");
+							InsertGrid((PointDB.AllPointX[i]+GetLatLngDelta(Point_LongitudeDelta.getText())),(PointDB.AllPointY[i]+GetLatLngDelta(Point_LatitudeDelta.getText())));
+						}
+					}
+					int limit=Math.max(0,MainHandle.getKernel().AlphaPercentScale);
+					for(int row=0;row<MaxRowNum;row++){
+						for(int col=0;col<MaxColNum;col++){
+							if(Grid[row][col]<limit) continue;
+							//heatmap.pushData(39.9075,116.3925,22018);
+							out.write("heatmap.pushData("+((row+0.5)*LatitudeStep+LatitudeStart)+","+((col+0.5)*LongitudeStep+LongitudeStart)+","+Grid[row][col]+");");
 							out.newLine();
 						}
 					}
-				}else if(buf.equals("//Insert Polyline")){
+				}else if(buf.equals("//Insert Grid")&&(GridContainerStr!=null)){
+					if(Point_NoneOutput.isSelected()) continue;
+					//----------------------------------------------
+					Database.PointDataSet PointDB=MainHandle.getPointDatabase();
+					for(int i=0;i<PointDB.PointNum;i++){
+						Point_check=false;
+						if(Point_AllTagOutput.isSelected()) Point_check=true;
+						//-------------------------------------------
+						if(Point_SpecificTagOutput.isSelected()){
+							for(String tag: Point_tag_list){
+								if(PointDB.PointHint[i].indexOf(tag)!=-1){
+									Point_check=true;
+									break;
+								}
+							}
+						}
+						//--------------------------------------------
+						if(Point_AllVisibleOutput.isSelected()){
+							if((PointDB.PointVisible[i]&1)==1) Point_check=true;
+						}
+						//--------------------------------------------
+						if(Point_ScreenOutput.isSelected()){
+							if(MainHandle.getKernel().Screen.CheckInGeoScreen(PointDB.AllPointX[i],PointDB.AllPointY[i])) 
+								Point_check=true;
+						}
+						//--------------------------------------------
+						if(Point_check){
+							InsertGrid((PointDB.AllPointX[i]+GetLatLngDelta(Point_LongitudeDelta.getText())),(PointDB.AllPointY[i]+GetLatLngDelta(Point_LatitudeDelta.getText())));
+						}
+					}
+					int limit=Math.max(0,MainHandle.getKernel().AlphaPercentScale);
+					for(int row=0;row<MaxRowNum;row++){
+						for(int col=0;col<MaxColNum;col++){
+							if(Grid[row][col]<=limit) continue;
+							//insert_into_quadtree(Quadtree_root,109.1335,21.4275,50);
+							out.write("insert_into_quadtree(Quadtree_root,"+((col+0.5)*LongitudeStep+LongitudeStart)+","+((row+0.5)*LatitudeStep+LatitudeStart)+","+Grid[row][col]+");");
+							out.newLine();
+						}
+					}
+				}else if(buf.equals("//Insert Point")&&(PointContainerStr!=null)){
+					if(Point_NoneOutput.isSelected()) continue;
+					//----------------------------------------------
+					Database.PointDataSet PointDB=MainHandle.getPointDatabase();
+					for(int i=0;i<PointDB.PointNum;i++){
+						Point_check=false;
+						if(Point_AllTagOutput.isSelected()) Point_check=true;
+						//-------------------------------------------
+						if(Point_SpecificTagOutput.isSelected()){
+							for(String tag: Point_tag_list){
+								if(PointDB.PointHint[i].indexOf(tag)!=-1){
+									Point_check=true;
+									break;
+								}
+							}
+						}
+						//--------------------------------------------
+						if(Point_AllVisibleOutput.isSelected()){
+							if((PointDB.PointVisible[i]&1)==1) Point_check=true;
+						}
+						//--------------------------------------------
+						if(Point_ScreenOutput.isSelected()){
+							if(MainHandle.getKernel().Screen.CheckInGeoScreen(PointDB.AllPointX[i],PointDB.AllPointY[i])) 
+								Point_check=true;
+						}
+						//--------------------------------------------
+						if(Point_check){
+							out.write("L.circle(["+(PointDB.AllPointY[i]+GetLatLngDelta(Point_LatitudeDelta.getText()))+","+(PointDB.AllPointX[i]+GetLatLngDelta(Point_LongitudeDelta.getText()))+"],50,{color:'green',fillColor: 'green',fillOpacity: 0.5}).addTo("+PointContainerStr+");");
+							out.newLine();
+						}
+					}
+				}else if(buf.equals("//Insert Polyline")&&(LineContainerStr!=null)){
 					if(Line_NoneOutput.isSelected()) continue;
 					//----------------------------------------------
 					Database.LineDataSet LineDB=MainHandle.getLineDatabase();
@@ -196,6 +340,13 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 						if(Line_AllVisibleOutput.isSelected()){
 							if((LineDB.LineVisible[i]&1)==1) Line_check=true;
 						}
+						//--------------------------------------------
+						if(Line_ScreenOutput.isSelected()){
+							if(MainHandle.getKernel().Screen.CheckInGeoScreen(
+									LineDB.GetMBRX1(i),LineDB.GetMBRY1(i),
+									LineDB.GetMBRX2(i),LineDB.GetMBRY2(i))) Line_check=true;
+						}
+						//--------------------------------------------
 						if(Line_check){
 							out.write("L.polyline([");
 							out.newLine();
@@ -205,11 +356,11 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 								ptr=LineDB.AllPointNext[ptr];
 								if(ptr!=-1) out.write(",\n"); else out.newLine();
 							}
-							out.write("], {color: 'orange'}).addTo(map);");
+							out.write("], {color: 'orange'}).addTo("+LineContainerStr+");");
 							out.newLine();
 						}
 					}
-				}else if(buf.equals("//Insert Polygon")){
+				}else if(buf.equals("//Insert Polygon")&&(PolygonContainerStr!=null)){
 					if(Polygon_NoneOutput.isSelected()) continue;
 					//----------------------------------------------
 					Database.PolygonDataSet PolygonDB=MainHandle.getPolygonDatabase();
@@ -229,6 +380,15 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 						if(Polygon_AllVisibleOutput.isSelected()){
 							if((PolygonDB.PolygonVisible[i]&1)==1) Polygon_check=true;
 						}
+						//--------------------------------------------
+						if(Polygon_ScreenOutput.isSelected()){
+							if(MainHandle.getKernel().Screen.CheckInGeoScreen(
+									PolygonDB.GetMBRX1(i),PolygonDB.GetMBRY1(i),
+									PolygonDB.GetMBRX2(i),PolygonDB.GetMBRY2(i))){
+								Polygon_check=true;
+							}
+						}
+						//--------------------------------------------
 						if(Polygon_check){
 							out.write("L.polygon([");
 							out.newLine();
@@ -238,7 +398,7 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 								ptr=PolygonDB.AllPointNext[ptr];
 								if(ptr!=-1) out.write(",\n"); else out.newLine();
 							}
-							out.write("], {color: 'red'}).addTo(map);");
+							out.write("], {color: 'red'}).addTo("+PolygonContainerStr+");");
 							out.newLine();
 						}
 					}
@@ -256,20 +416,23 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 	}
 	JButton 		OpenSourceFile=new JButton("打开源文件");
 	JTextField 		OpenSourceFilePath=new JTextField(12);
-	JRadioButton 	Point_AllTagOutput=new JRadioButton("[PointDB]::全部导出");
+	JRadioButton 	Point_AllTagOutput=new JRadioButton("全部导出");
 	JRadioButton 	Point_SpecificTagOutput=new JRadioButton("按照特定标签导出");
 	JTextField		Point_SpecificTagList=new JTextField(16);
 	JRadioButton 	Point_AllVisibleOutput=new JRadioButton("全部可视元素导出");
+	JRadioButton 	Point_ScreenOutput=new JRadioButton("屏幕导出");
 	JRadioButton 	Point_NoneOutput=new JRadioButton("不导出");
-	JRadioButton 	Line_AllTagOutput=new JRadioButton("[LineDB]::全部导出");
+	JRadioButton 	Line_AllTagOutput=new JRadioButton("全部导出");
 	JRadioButton 	Line_SpecificTagOutput=new JRadioButton("按照特定标签导出");
 	JTextField 		Line_SpecificTagList=new JTextField(16);
 	JRadioButton 	Line_AllVisibleOutput=new JRadioButton("全部可视元素导出");
+	JRadioButton	Line_ScreenOutput=new JRadioButton("屏幕导出");
 	JRadioButton 	Line_NoneOutput=new JRadioButton("不导出");
-	JRadioButton 	Polygon_AllTagOutput=new JRadioButton("[PolygonDB]::全部导出");
+	JRadioButton 	Polygon_AllTagOutput=new JRadioButton("全部导出");
 	JRadioButton 	Polygon_SpecificTagOutput=new JRadioButton("按照特定标签导出");
 	JTextField		Polygon_SpecificTagList=new JTextField(16);
 	JRadioButton 	Polygon_AllVisibleOutput=new JRadioButton("全部可视元素导出");
+	JRadioButton	Polygon_ScreenOutput=new JRadioButton("屏幕导出");
 	JRadioButton 	Polygon_NoneOutput=new JRadioButton("不导出");
 	JButton 		InstantView=new JButton("立即打开HTML");
 	JButton			OutputToFile=new JButton("导出HTML文件");
@@ -302,6 +465,9 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 		add(Point_AllTagOutput);
 		Point_AllTagOutput.setOpaque(false);
 		Point_AllTagOutput.setForeground(Color.orange);
+		add(Point_ScreenOutput);
+		Point_ScreenOutput.setOpaque(false);
+		Point_ScreenOutput.setForeground(Color.orange);
 		add(Point_NoneOutput);
 		Point_NoneOutput.setOpaque(false);
 		Point_NoneOutput.setForeground(Color.orange);
@@ -316,11 +482,13 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 		Group_Point.add(Point_AllTagOutput);
 		Group_Point.add(Point_SpecificTagOutput);
 		Group_Point.add(Point_AllVisibleOutput);
+		Group_Point.add(Point_ScreenOutput);
 		Group_Point.add(Point_NoneOutput);
 		Point_NoneOutput.setSelected(true);
 		Point_AllTagOutput.addActionListener(this);
 		Point_SpecificTagOutput.addActionListener(this);
 		Point_AllVisibleOutput.addActionListener(this);
+		Point_ScreenOutput.addActionListener(this);
 		Point_NoneOutput.addActionListener(this);
 		//----------------------------------------------------------------
 		JLabel Line_Tag_Label=new JLabel("LineTagList");
@@ -338,6 +506,9 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 		add(Line_AllTagOutput);
 		Line_AllTagOutput.setOpaque(false);
 		Line_AllTagOutput.setForeground(Color.orange);
+		add(Line_ScreenOutput);
+		Line_ScreenOutput.setOpaque(false);
+		Line_ScreenOutput.setForeground(Color.orange);
 		add(Line_NoneOutput);
 		Line_NoneOutput.setOpaque(false);
 		Line_NoneOutput.setForeground(Color.orange);
@@ -352,11 +523,13 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 		Group_Line.add(Line_AllTagOutput);
 		Group_Line.add(Line_SpecificTagOutput);
 		Group_Line.add(Line_AllVisibleOutput);
+		Group_Line.add(Line_ScreenOutput);
 		Group_Line.add(Line_NoneOutput);
 		Line_NoneOutput.setSelected(true);
 		Line_AllTagOutput.addActionListener(this);
 		Line_SpecificTagOutput.addActionListener(this);
 		Line_AllVisibleOutput.addActionListener(this);
+		Line_ScreenOutput.addActionListener(this);
 		Line_NoneOutput.addActionListener(this);
 		//-------------------------------------------------------------------
 		JLabel Polygon_Tag_Label=new JLabel("PolygonTagList");
@@ -374,6 +547,9 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 		add(Polygon_AllTagOutput);
 		Polygon_AllTagOutput.setOpaque(false);
 		Polygon_AllTagOutput.setForeground(Color.orange);
+		add(Polygon_ScreenOutput);
+		Polygon_ScreenOutput.setOpaque(false);
+		Polygon_ScreenOutput.setForeground(Color.orange);
 		add(Polygon_NoneOutput);
 		Polygon_NoneOutput.setOpaque(false);
 		Polygon_NoneOutput.setForeground(Color.orange);
@@ -388,11 +564,13 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 		Group_Polygon.add(Polygon_AllTagOutput);
 		Group_Polygon.add(Polygon_SpecificTagOutput);
 		Group_Polygon.add(Polygon_AllVisibleOutput);
+		Group_Polygon.add(Polygon_ScreenOutput);
 		Group_Polygon.add(Polygon_NoneOutput);
 		Polygon_NoneOutput.setSelected(true);
 		Polygon_AllTagOutput.addActionListener(this);
 		Polygon_SpecificTagOutput.addActionListener(this);
 		Polygon_AllVisibleOutput.addActionListener(this);
+		Polygon_ScreenOutput.addActionListener(this);
 		Polygon_NoneOutput.addActionListener(this);
 		//-------------------------------------------------------------------
 		add(InstantView);

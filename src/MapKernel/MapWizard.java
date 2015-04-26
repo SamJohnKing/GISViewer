@@ -2123,7 +2123,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		double rate;
 		boolean lock;
 		boolean ShowCenter=false;
-		double ScreenLongitude,ScreenLatitude;
+		public double ScreenLongitude,ScreenLatitude;
 		public double LongitudeScale,LatitudeScale;
 		public int ScreenWidth,ScreenHeight;
 		boolean IsShowDirection=false;
@@ -2150,6 +2150,20 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			showDirectionY2=y2;
 			IsShowDirection=true;
 			repaint();
+		}
+		public boolean CheckInGeoScreen(double x,double y){
+			if(x<ScreenLongitude) return false;
+			if(x>ScreenLongitude+LongitudeScale) return false;
+			if(y>ScreenLatitude) return false;
+			if(y<ScreenLatitude-LatitudeScale) return false;
+			return true;
+		}
+		public boolean CheckInGeoScreen(double x1,double y1,double x2,double y2){
+			if(CheckInGeoScreen(x1,y1)) return true;
+			if(CheckInGeoScreen(x1,y2)) return true;
+			if(CheckInGeoScreen(x2,y1)) return true;
+			if(CheckInGeoScreen(x2,y2)) return true;
+			return false;
 		}
 		public boolean CheckInScreen(int x,int y){
 			if(x<0) return false;
@@ -3424,7 +3438,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 	int AlphaGridsRow=100;
 	int AlphaGridsColumn=100;
 	JMenuItem SetAlphaPercentScale;
-	int AlphaPercentScale=0;
+	public int AlphaPercentScale=0;
 	
 	JMenuItem CaptureScreenItem;
 	JMenuItem ExtractLineDBItem;
@@ -3457,6 +3471,10 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 	
 	HtmlMapOutputPaneClass HtmlMapOutputPane;
 	JMenuItem HtmlMapOutputPaneItem;
+	
+	public JMenuItem PointDBDeviationItem;
+	public JMenuItem LineDBDeviationItem;
+	public JMenuItem PolygonDBDeviationItem;
 //Screen End-----------------------------------------------------
 //Preference Elements--------------------------------------------
 	FreeWizard.GlobalPreferenceWizard Preference;
@@ -4151,6 +4169,66 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				HtmlMapOutputPane.emerge();
 			}
 		});
+		
+		PointDBDeviationItem=new JMenuItem("平移PointDB数据");
+		PointDBDeviationItem.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				String str=JOptionPane.showInputDialog("[Longitude,Latitude]平移PointDB数据");
+				if((str==null)||(str.equals(""))){
+					JOptionPane.showMessageDialog(null,"Setting Error");
+					return;
+				}else{
+					try{
+						String[] str_list=str.split(",");
+						double longitude_delta=java.lang.Double.parseDouble(str_list[0]);
+						double latitude_delta=java.lang.Double.parseDouble(str_list[1]);
+						PointDatabase.MoveEntireData(longitude_delta, latitude_delta);
+					}catch(Exception ex){
+						JOptionPane.showMessageDialog(null,"Setting Error");
+					}
+				}
+			}
+		});
+		
+		LineDBDeviationItem=new JMenuItem("平移LineDB数据");
+		LineDBDeviationItem.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				String str=JOptionPane.showInputDialog("[Longitude,Latitude]平移LineDB数据");
+				if((str==null)||(str.equals(""))){
+					JOptionPane.showMessageDialog(null,"Setting Error");
+					return;
+				}else{
+					try{
+						String[] str_list=str.split(",");
+						double longitude_delta=java.lang.Double.parseDouble(str_list[0]);
+						double latitude_delta=java.lang.Double.parseDouble(str_list[1]);
+						LineDatabase.MoveEntireData(longitude_delta, latitude_delta);
+					}catch(Exception ex){
+						JOptionPane.showMessageDialog(null,"Setting Error");
+					}
+				}
+			}
+		});
+		
+		PolygonDBDeviationItem=new JMenuItem("平移PolygonDB数据");
+		PolygonDBDeviationItem.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				String str=JOptionPane.showInputDialog("[Longitude,Latitude]平移PolygonDB数据");
+				if((str==null)||(str.equals(""))){
+					JOptionPane.showMessageDialog(null,"Setting Error");
+					return;
+				}else{
+					try{
+						String[] str_list=str.split(",");
+						double longitude_delta=java.lang.Double.parseDouble(str_list[0]);
+						double latitude_delta=java.lang.Double.parseDouble(str_list[1]);
+						PolygonDatabase.MoveEntireData(longitude_delta, latitude_delta);
+					}catch(Exception ex){
+						JOptionPane.showMessageDialog(null,"Setting Error");
+					}
+				}
+			}
+		});
 //MenuAdd---------------------------------------------------------
 		FileMenu=new JMenu("文件      ");
 		EditMenu=new JMenu("编辑      ");
@@ -4184,6 +4262,9 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		EditMenu.add(ShowLineAddPane);
 		EditMenu.add(ShowPointAddPane);
 		EditMenu.add(LandMarkEditItem);
+		EditMenu.add(PointDBDeviationItem);
+		EditMenu.add(LineDBDeviationItem);
+		EditMenu.add(PolygonDBDeviationItem);
 		EditMenu.add(ServerSocketPaneItem);
 		EditMenu.add(ClientSocketPaneItem);
 		EditMenu.add(HtmlMapOutputPaneItem);

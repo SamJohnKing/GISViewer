@@ -1,0 +1,1205 @@
+<html lang="zh-cn">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<head>
+	<title>Leaflet</title>
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+	<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+	<style type="text/css">
+		.leaflet-div-icon{
+			background:transparent;
+			border:0
+		}
+	</style>
+	<script type='text/javascript'>
+		//heatcanvas.js
+		/**
+		 * Copyright 2010-2011 Sun Ning <classicning@gmail.com>
+		 *
+		 * Permission is hereby granted, free of charge, to any person obtaining a copy
+		 * of this software and associated documentation files (the "Software"), to deal
+		 * in the Software without restriction, including without limitation the rights
+		 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		 * copies of the Software, and to permit persons to whom the Software is
+		 * furnished to do so, subject to the following conditions:
+		 *
+		 * The above copyright notice and this permission notice shall be included in all
+		 * copies or substantial portions of the Software.
+		 *
+		 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		 * SOFTWARE.
+		 */
+
+		/**
+		 * Heatmap api based on canvas
+		 *
+		 */
+		var HeatCanvas = function(canvas){
+			if (typeof(canvas) == "string") {
+				this.canvas = document.getElementById(canvas);
+			} else {
+				this.canvas = canvas;
+			}
+			if(this.canvas == null){
+				return null;
+			}
+
+			this.worker = new Worker('heatcanvas-worker.js');
+
+			this.width = this.canvas.width;
+			this.height = this.canvas.height;
+
+			this.onRenderingStart = null;
+			this.onRenderingEnd = null;
+
+			this.data = {};
+		};
+
+		HeatCanvas.prototype.resize = function( w, h ) {
+			this.width = this.canvas.width = w;
+			this.height = this.canvas.height = h;
+
+			this.canvas.style.width = w + 'px';
+			this.canvas.style.height = h + 'px';
+		};
+
+		HeatCanvas.prototype.push = function(x, y, data){
+			// ignore all data out of extent
+			if (x < 0 || x > this.width) {
+				return ;
+			}
+			if (y < 0 || y > this.height) {
+				return;
+			}
+
+			var id = x+y*this.width;
+			if(this.data[id]){
+				this.data[id] = this.data[id] + data;
+			} else {
+				this.data[id] = data;
+			}
+		};
+
+		HeatCanvas.prototype.render = function(step, degree, f_value_color){
+			step = step || 1;
+			degree = degree || HeatCanvas.LINEAR ;
+
+			var self = this;
+			this.worker.onmessage = function(e){
+				self.value = e.data.value;
+				self.data = {};
+				self._render(f_value_color);
+				if (self.onRenderingEnd){
+					self.onRenderingEnd();
+				}
+			}
+			var msg = {
+				'data': self.data,
+				'width': self.width,
+				'height': self.height,
+				'step': step,
+				'degree': degree,
+				'value': self.value
+			};
+			this.worker.postMessage(msg);
+			if (this.onRenderingStart){
+				this.onRenderingStart();
+			}
+		};
+
+
+		HeatCanvas.prototype._render = function(f_value_color){
+			f_value_color = f_value_color || HeatCanvas.defaultValue2Color;
+
+			var ctx = this.canvas.getContext("2d");
+			ctx.clearRect(0, 0, this.width, this.height);
+
+			defaultColor = this.bgcolor || [0, 0, 0, 255];
+			var canvasData = ctx.createImageData(this.width, this.height);
+			for (var i=0; i<canvasData.data.length; i+=4){
+				canvasData.data[i] = defaultColor[0]; // r
+				canvasData.data[i+1] = defaultColor[1];
+				canvasData.data[i+2] = defaultColor[2];
+				canvasData.data[i+3] = defaultColor[3];
+			}
+
+			// maximum
+			var maxValue = 0;
+			for(var id in this.value){
+				maxValue = Math.max(this.value[id], maxValue);
+			}
+
+			for(var pos in this.value){
+				var x = Math.floor(pos%this.width);
+				var y = Math.floor(pos/this.width);
+
+				// MDC ImageData:
+				// data = [r1, g1, b1, a1, r2, g2, b2, a2 ...]
+				var pixelColorIndex = y*this.width*4+x*4;
+
+				var color = HeatCanvas.hsla2rgba.apply(
+						null, f_value_color(this.value[pos] / maxValue));
+				canvasData.data[pixelColorIndex] = color[0]; //r
+				canvasData.data[pixelColorIndex+1] = color[1]; //g
+				canvasData.data[pixelColorIndex+2] = color[2]; //b
+				canvasData.data[pixelColorIndex+3] = color[3]; //a
+			}
+
+			ctx.putImageData(canvasData, 0, 0);
+
+		};
+
+		HeatCanvas.prototype.clear = function(){
+			this.data = {};
+			this.value = {};
+
+			this.canvas.getContext("2d").clearRect(0, 0, this.width, this.height);
+		};
+
+		HeatCanvas.prototype.exportImage = function() {
+			return this.canvas.toDataURL();
+		};
+
+		HeatCanvas.defaultValue2Color = function(value){
+			var h = (1 - value);
+			var l = value * 0.6;
+			var s = 0.8;
+			var a = 1;
+			return [h, s, l, a];
+		}
+
+		// function copied from:
+		// http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
+		HeatCanvas.hsla2rgba = function(h, s, l, a){
+			var r, g, b;
+
+			if(s == 0){
+				r = g = b = l;
+			}else{
+				function hue2rgb(p, q, t){
+					if(t < 0) t += 1;
+					if(t > 1) t -= 1;
+					if(t < 1/6) return p + (q - p) * 6 * t;
+					if(t < 1/2) return q;
+					if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+					return p;
+				}
+
+				var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+				var p = 2 * l - q;
+				r = hue2rgb(p, q, h + 1/3);
+				g = hue2rgb(p, q, h);
+				b = hue2rgb(p, q, h - 1/3);
+			}
+
+			return [r * 255, g * 255, b * 255, a * 255];
+		}
+
+		HeatCanvas.LINEAR = 1;
+		HeatCanvas.QUAD = 2;
+		HeatCanvas.CUBIC = 3;
+
+		HeatCanvas.getPath = function() {
+			var scriptTags = document.getElementsByTagName("script");
+			for (var i=0; i<scriptTags.length; i++) {
+				var src = scriptTags[i].src;
+				var match = src.match(/heatcanvas(-[a-z0-9]{32})?\.js/);
+				var pos = match ? match.index : 0;
+				if (pos > 0) {
+					return src.substring(0, pos);
+				}
+			}
+			return "";
+		}
+	</script>
+	<script type='text/javascript'>
+		//heatcanvas-leaflet.js
+		/**
+		 * Copyright 2010 Sun Ning <classicning@gmail.com>
+		 *
+		 * Permission is hereby granted, free of charge, to any person obtaining a copy
+		 * of this software and associated documentation files (the "Software"), to deal
+		 * in the Software without restriction, including without limitation the rights
+		 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		 * copies of the Software, and to permit persons to whom the Software is
+		 * furnished to do so, subject to the following conditions:
+		 *
+		 * The above copyright notice and this permission notice shall be included in all
+		 * copies or substantial portions of the Software.
+		 *
+		 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		 * SOFTWARE.
+		 */
+
+		L.TileLayer.HeatCanvas = L.Class.extend({
+
+			initialize: function(options, heatCanvasOptions){
+				this.heatCanvasOptions = heatCanvasOptions;
+				this.data= [];
+				this._onRenderingStart = null;
+				this._onRenderingEnd = null;
+			},
+
+			onRenderingStart: function(cb){
+				this._onRenderingStart = cb;
+			},
+
+			onRenderingEnd: function(cb) {
+				this._onRenderingEnd = cb;
+			},
+
+			onAdd: function(map) {
+				this.map = map;
+				this._initHeatCanvas(this.map, this.heatCanvasOptions);
+				map.on("moveend", this._redraw, this);
+				this._redraw();
+			},
+
+			onRemove: function(map) {
+				map.getPanes().overlayPane.removeChild(this._div);
+				map.off("moveend", this._redraw, this);
+			},
+
+			_initHeatCanvas: function(map, options){
+				options = options || {};
+				this._step = options.step || 1;
+				this._degree = options.degree || HeatCanvas.LINEAR;
+				this._opacity = options.opacity || 0.6;
+				this._colorscheme = options.colorscheme || null;
+
+				var container = L.DomUtil.create('div', 'leaflet-heatmap-container');
+				container.style.position = 'absolute';
+				container.style.width = this.map.getSize().x+"px";
+				container.style.height = this.map.getSize().y+"px";
+
+				var canv = document.createElement("canvas");
+				canv.width = this.map.getSize().x;
+				canv.height = this.map.getSize().y;
+				canv.style.width = canv.width+"px";
+				canv.style.height = canv.height+"px";
+				canv.style.opacity = this._opacity;
+				container.appendChild(canv);
+
+				this.heatmap = new HeatCanvas(canv);
+				this.heatmap.onRenderingStart = this._onRenderingStart;
+				this.heatmap.onRenderingEnd = this._onRenderingEnd;
+				this.heatmap.bgcolor = options.bgcolor || null;
+				this._div = container;
+				this.map.getPanes().overlayPane.appendChild(this._div);
+			},
+
+			pushData: function(lat, lon, value) {
+				this.data.push({"lat":lat, "lon":lon, "v":value});
+			},
+
+			_resetCanvasPosition: function() {
+				var bounds = this.map.getBounds();
+				var topLeft = this.map.latLngToLayerPoint(bounds.getNorthWest());
+				L.DomUtil.setPosition(this._div, topLeft);
+			},
+
+			_redraw: function() {
+				this._resetCanvasPosition();
+				this.heatmap.clear();
+				if (this.data.length > 0) {
+					for (var i=0, l=this.data.length; i<l; i++) {
+						var lonlat = new L.LatLng(this.data[i].lat, this.data[i].lon);
+						var localXY = this.map.latLngToLayerPoint(lonlat);
+						localXY = this.map.layerPointToContainerPoint(localXY);
+						this.heatmap.push(
+								Math.floor(localXY.x),
+								Math.floor(localXY.y),
+								this.data[i].v);
+					}
+
+					this.heatmap.render(this._step, this._degree, this._colorscheme);
+				}
+				return this;
+			},
+
+			clear: function(){
+				this.heatmap.clear();
+				this.data = [];
+			},
+
+			redraw: function(){
+				this._redraw();
+			}
+
+		});
+
+		L.TileLayer.heatcanvas = function (options) {
+			return new L.TileLayer.HeatCanvas(options);
+		};
+
+	</script>
+	<!--<script src="../layer/tile/Bing.js"></script>-->
+	<script type='text/javascript'>
+	L.BingLayer = L.TileLayer.extend({
+	options: {
+		subdomains: [0, 1, 2, 3],
+		type: 'Aerial',
+		attribution: 'Bing',
+		culture: ''
+	},
+
+	initialize: function(key, options) {
+		L.Util.setOptions(this, options);
+
+		this._key = key;
+		this._url = null;
+		this.meta = {};
+		this.loadMetadata();
+	},
+
+	tile2quad: function(x, y, z) {
+		var quad = '';
+		for (var i = z; i > 0; i--) {
+			var digit = 0;
+			var mask = 1 << (i - 1);
+			if ((x & mask) !== 0) digit += 1;
+			if ((y & mask) !== 0) digit += 2;
+			quad = quad + digit;
+		}
+		return quad;
+	},
+
+	getTileUrl: function(p, z) {
+		var zoom = this._getZoomForUrl();
+		var subdomains = this.options.subdomains,
+			s = this.options.subdomains[Math.abs((p.x + p.y) % subdomains.length)];
+		if(this.options.culture=="zh") return "http://r2.tiles.ditu.live.com/tiles/r{quadkey}.png?g=41".replace('{quadkey}',this.tile2quad(p.x, p.y, zoom));
+		return this._url.replace('{subdomain}', s)
+				.replace('{quadkey}', this.tile2quad(p.x, p.y, zoom))
+				.replace('{culture}', this.options.culture);
+	},
+
+	loadMetadata: function() {
+		var _this = this;
+		var cbid = '_bing_metadata_' + L.Util.stamp(this);
+		window[cbid] = function (meta) {
+			_this.meta = meta;
+			window[cbid] = undefined;
+			var e = document.getElementById(cbid);
+			e.parentNode.removeChild(e);
+			if (meta.errorDetails) {
+				return;
+			}
+			_this.initMetadata();
+		};
+		var url = 'http:' + '//dev.virtualearth.net/REST/v1/Imagery/Metadata/' + this.options.type + '?include=ImageryProviders&jsonp=' + cbid +
+		          '&key=' + this._key + '&UriScheme=' + 'http:'.slice(0, -1);
+		var script = document.createElement('script');
+		script.type = 'text/javascript';
+		script.src = url;
+		script.id = cbid;
+		document.getElementsByTagName('head')[0].appendChild(script);
+	},
+
+	initMetadata: function() {
+		var r = this.meta.resourceSets[0].resources[0];
+		this.options.subdomains = r.imageUrlSubdomains;
+		this._url = r.imageUrl;
+		this._providers = [];
+		if (r.imageryProviders) {
+			for (var i = 0; i < r.imageryProviders.length; i++) {
+				var p = r.imageryProviders[i];
+				for (var j = 0; j < p.coverageAreas.length; j++) {
+					var c = p.coverageAreas[j];
+					var coverage = {zoomMin: c.zoomMin, zoomMax: c.zoomMax, active: false};
+					var bounds = new L.LatLngBounds(
+							new L.LatLng(c.bbox[0]+0.01, c.bbox[1]+0.01),
+							new L.LatLng(c.bbox[2]-0.01, c.bbox[3]-0.01)
+					);
+					coverage.bounds = bounds;
+					coverage.attrib = p.attribution;
+					this._providers.push(coverage);
+				}
+			}
+		}
+		this._update();
+	},
+
+	_update: function() {
+		if (this._url === null || !this._map) return;
+		this._update_attribution();
+		L.TileLayer.prototype._update.apply(this, []);
+	},
+
+	_update_attribution: function() {
+		var bounds = this._map.getBounds();
+		var zoom = this._map.getZoom();
+		for (var i = 0; i < this._providers.length; i++) {
+			var p = this._providers[i];
+			if ((zoom <= p.zoomMax && zoom >= p.zoomMin) &&
+					bounds.intersects(p.bounds)) {
+				if (!p.active && this._map.attributionControl)
+					this._map.attributionControl.addAttribution(p.attrib);
+				p.active = true;
+			} else {
+				if (p.active && this._map.attributionControl)
+					this._map.attributionControl.removeAttribution(p.attrib);
+				p.active = false;
+			}
+		}
+	},
+
+	onRemove: function(map) {
+		for (var i = 0; i < this._providers.length; i++) {
+			var p = this._providers[i];
+			if (p.active && this._map.attributionControl) {
+				this._map.attributionControl.removeAttribution(p.attrib);
+				p.active = false;
+			}
+		}
+        	L.TileLayer.prototype.onRemove.apply(this, [map]);
+	}
+});
+
+L.bingLayer = function (key, options) {
+    return new L.BingLayer(key, options);
+};
+	</script>
+</head>
+<script type="text/javascript">
+//UseGrid
+//GridContainerStr=GridLayers
+//HeatMapContainerStr=Heatmap
+//LineContainerStr=DrawerLayers
+//PolygonContainerStr=DrawerLayers
+	function heatmap_init(){
+		var heatmap = new
+				L.TileLayer.HeatCanvas({},{'step':1, 'degree':HeatCanvas.QUAD, 'opacity':0.7});	
+//Insert HeatMap
+//heatmap.pushData(39.9075,116.3925,22018);
+		return heatmap;
+	}
+</script>
+<body onload="init();">
+	<div style="width:100%; height:100%" id="map"></div>
+<script type='text/javascript'>
+var map = new L.Map('map', {center: new L.LatLng(40,117), zoom: 8, zoomAnimation: true});
+var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+var bing_AerialWithLabels = new L.BingLayer("ArZCNayugTS_wpkhFYJHjCM6ojGG_fvv7rXLhd4WmDXNOE-7rs6NpUsigWq34s3y",{type: 'AerialWithLabels',culture: 'ja'});
+var bing_Aerial = new L.BingLayer("ArZCNayugTS_wpkhFYJHjCM6ojGG_fvv7rXLhd4WmDXNOE-7rs6NpUsigWq34s3y",{type: 'Aerial',culture:"ja"});
+var bing_Road = new L.BingLayer("AgZFkKYNJZSnxDxVbTF3DvKQy07rbMIGqngMRjrk4AiiA9grf1CzElkVFe43L2Bh",{type: 'Road', culture: "zh"});
+var heatmap=heatmap_init();
+var DrawerLayers = new L.LayerGroup();
+var GridLayers=new L.LayerGroup();
+var StackLayers=new L.LayerGroup();
+map.addLayer(bing_Road);
+var MapSwitcher=new L.Control.Layers({'OSM':osm, "Bing_AerialWithLabels":bing_AerialWithLabels, "Bing_Aerial":bing_Aerial, "Bing_Road":bing_Road}, {"DrawerLayers":DrawerLayers,"heatmap":heatmap,"GridLayers":GridLayers,"StackLayer":StackLayers});
+map.addControl(MapSwitcher);
+//------------------------------------------------------------------------------------
+//Insert Marker
+/*
+var myIcon = L.icon({
+    iconUrl: 'icon.png',
+    iconRetinaUrl: 'icon.png',
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+});
+L.marker([40, 116.1],{icon: myIcon}).addTo(map)
+.bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();
+*/
+//------------------------------------------------------------------------------------
+//Insert Point
+/*
+		L.circle([40,116.2], 50, {
+			color: 'red',
+			fillColor: 'red',
+			fillOpacity: 0.5
+		}).addTo(map).bindPopup("I am a circle.");
+
+		L.circle([41,117.2], 50, {
+			color: '0000FF',
+			fillColor: '0000FF',
+			fillOpacity: 0.5
+		}).addTo(map).bindPopup("I am a circle.");
+*/
+//------------------------------------------------------------------------------------
+//Iinsert Rectangle
+/*
+var bounds = [[39.6,116.5], [40.6, 116.8]];
+L.rectangle(bounds, {color: "#123456", weight: 1}).addTo(map);
+var bounds = [[38.6,116.5], [39.6, 116.8]];
+L.rectangle(bounds, {color: "#564321", weight: 1}).addTo(map);
+*/
+//------------------------------------------------------------------------------------
+//Insert Polygon
+/*
+		L.polygon([
+			[39.509, 116.08],
+			[39.509, 116.08],
+			[39.503, 116.06],
+			[39.51, 116.047]
+		]).addTo(map).bindPopup("I am a polygon.");
+*/
+//------------------------------------------------------------------------------------
+//Insert Polyline
+/*
+var polyline = L.polyline([
+[40.233095,117.396814],
+[40.242128,117.360068],
+[40.25027,117.348757],
+[40.283717,117.343034],
+[40.284012,117.30242],
+[40.298824,117.300909],
+[40.307248,117.294971],
+[40.31483,117.280908]
+], {color: 'red'}).addTo(map);
+*/
+//Quadtree Grids Component-----------------------------------------------------------------------------------
+	QuadTreeNode_Minimal_Longitude_Span=0.007;
+	QuadTreeNode_Minimal_Latitude_Span=0.005;
+	var QuadTreeNode ={
+		LongitudeStart	:0,
+		LongitudeEnd	:0,
+		LatitudeStart	:0,
+		LatitudeEnd		:0,
+		counter			:0,
+		ch_left_down	:null,
+		ch_left_up		:null,
+		ch_right_down	:null,
+		ch_right_up		:null,
+		ptr_grid		:null
+	}
+	var Quadtree_root=Object.create(QuadTreeNode);
+	Quadtree_root.LongitudeStart=70;
+	Quadtree_root.LongitudeEnd	=140;
+	Quadtree_root.LatitudeStart	=5;
+	Quadtree_root.LatitudeEnd	=55;
+	function insert_into_quadtree(Father,longitude,latitude,counter){
+		if(longitude>Father.LongitudeEnd) return;
+		if(longitude<Father.LongitudeStart) return;
+		if(latitude>Father.LatitudeEnd) return;
+		if(latitude<Father.LatitudeStart) return;
+		//console.log(Father.LongitudeStart+"->"+Father.LongitudeEnd+"\n"+Father.LatitudeStart+"->"+Father.LatitudeEnd+"\n==============================\n");
+		Father.counter+=counter;
+		if((Father.LongitudeEnd-Father.LongitudeStart>QuadTreeNode_Minimal_Longitude_Span)
+		&& (Father.LatitudeEnd-Father.LatitudeStart>QuadTreeNode_Minimal_Latitude_Span)){
+			var longitude_mid=(Father.LongitudeStart+Father.LongitudeEnd)/2;
+			var latitude_mid=(Father.LatitudeStart+Father.LatitudeEnd)/2;
+			var ch=null;
+			if((longitude<=longitude_mid)&&(latitude<=latitude_mid)){
+				if(Father.ch_left_down==null){
+					Father.ch_left_down=Object.create(QuadTreeNode);
+					Father.ch_left_down.LongitudeStart=Father.LongitudeStart;
+					Father.ch_left_down.LongitudeEnd=longitude_mid;
+					Father.ch_left_down.LatitudeStart=Father.LatitudeStart;
+					Father.ch_left_down.LatitudeEnd=latitude_mid;
+				}
+				ch=Father.ch_left_down;
+			}else if((longitude<=longitude_mid)&&(latitude>latitude_mid)){
+				if(Father.ch_left_up==null){
+					Father.ch_left_up=Object.create(QuadTreeNode);
+					Father.ch_left_up.LongitudeStart=Father.LongitudeStart;
+					Father.ch_left_up.LongitudeEnd=longitude_mid;
+					Father.ch_left_up.LatitudeStart=latitude_mid;
+					Father.ch_left_up.LatitudeEnd=Father.LatitudeEnd;
+				}
+				ch=Father.ch_left_up;
+			}else if((longitude>longitude_mid)&&(latitude<=latitude_mid)){
+				if(Father.ch_right_down==null){
+					Father.ch_right_down=Object.create(QuadTreeNode);
+					Father.ch_right_down.LongitudeStart=longitude_mid;
+					Father.ch_right_down.LongitudeEnd=Father.LongitudeEnd;
+					Father.ch_right_down.LatitudeStart=Father.LatitudeStart;
+					Father.ch_right_down.LatitudeEnd=latitude_mid;
+				}
+				ch=Father.ch_right_down;
+			}else if((longitude>longitude_mid)&&(latitude>latitude_mid)){
+				if(Father.ch_right_up==null){
+					Father.ch_right_up=Object.create(QuadTreeNode);
+					Father.ch_right_up.LongitudeStart=longitude_mid;
+					Father.ch_right_up.LongitudeEnd=Father.LongitudeEnd;
+					Father.ch_right_up.LatitudeStart=latitude_mid;
+					Father.ch_right_up.LatitudeEnd=Father.LatitudeEnd;
+				}
+				ch=Father.ch_right_up;
+			}
+			insert_into_quadtree(ch,longitude,latitude,counter);
+		}
+	}
+	var Quadtree_Max_Counter;
+	function Query_Quadtree_Max_Counter(Father,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd){
+		if(Father==null) return;
+		//console.log(Father.LongitudeStart+"->"+Father.LongitudeEnd+"\n"+Father.LatitudeStart+"->"+Father.LatitudeEnd+"\n==============================\n");
+		var row_num=(LatitudeEnd-LatitudeStart)/(Father.LatitudeEnd-Father.LatitudeStart);
+		var col_num=(LongitudeEnd-LongitudeStart)/(Father.LongitudeEnd-Father.LongitudeStart);
+		var ans=0;
+		if(((row_num+col_num>=200)&&(row_num+col_num<400))
+		||((Father.LongitudeEnd-Father.LongitudeStart<=QuadTreeNode_Minimal_Longitude_Span)
+				|| (Father.LatitudeEnd-Father.LatitudeStart<=QuadTreeNode_Minimal_Latitude_Span))){
+			if((Father.LongitudeEnd>LongitudeStart)&&(Father.LongitudeStart<LongitudeEnd)&&(Father.LatitudeEnd>LatitudeStart)&&(Father.LatitudeStart<LatitudeEnd)){
+				//console.log("Max==========>",Father.counter);
+				Quadtree_Max_Counter=Math.max(Quadtree_Max_Counter,Father.counter);
+			}
+		}else if(row_num+col_num<200){
+			Query_Quadtree_Max_Counter(Father.ch_left_down,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd);
+			Query_Quadtree_Max_Counter(Father.ch_left_up,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd);
+			Query_Quadtree_Max_Counter(Father.ch_right_down,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd);
+			Query_Quadtree_Max_Counter(Father.ch_right_up,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd);
+		}
+	}
+	function clear_quadtree(Father){
+		if(Father==null) return;
+		if(Father.ptr_grid!=null) GridLayers.removeLayer(Father.ptr_grid);
+		Father.ptr_grid=null;
+		if(Father.ch_left_down!=null) clear_quadtree(Father.ch_left_down);
+		Father.ch_left_down=null;
+		if(Father.ch_left_up!=null)	clear_quadtree(Father.ch_left_up);
+		Father.ch_left_up=null;
+		if(Father.ch_right_down!=null) clear_quadtree(Father.ch_right_down);
+		Father.ch_right_down=null;
+		if(Father.ch_right_up!=null) clear_quadtree(Father.ch_right_up);
+		Father.ch_right_up=null;
+	}
+	function ChooseAlphaColor(Max_Counter,Grid_Counter){
+		//console.log(Max_Counter,Grid_Counter);
+		//if(Grid_Counter*16<=Max_Counter*1) return "#110208";
+		//if(Grid_Counter*16<=Max_Counter*2) return "#22041b";
+		//if(Grid_Counter*16<=Max_Counter*3) return "#2e0634";
+		//if(Grid_Counter*16<=Max_Counter*4) return "#260845";
+		//if(Grid_Counter*16<=Max_Counter*5) return "#130a56";
+		//if(Grid_Counter*16<=Max_Counter*6) return "#0b2267";
+		if(Grid_Counter*10<=Max_Counter*1) return "#0d5078";
+		if(Grid_Counter*10<=Max_Counter*2) return "#0f8a8a";
+		if(Grid_Counter*10<=Max_Counter*3) return "#119b67";
+		if(Grid_Counter*10<=Max_Counter*4) return "#13ac39";
+		if(Grid_Counter*10<=Max_Counter*5) return "#2abd15";
+		if(Grid_Counter*10<=Max_Counter*6) return "#73cf17";
+		if(Grid_Counter*10<=Max_Counter*7) return "#c7e019";
+		if(Grid_Counter*10<=Max_Counter*8) return "#e7b625";
+		if(Grid_Counter*10<=Max_Counter*9) return "#e97936";
+		if(Grid_Counter*10>Max_Counter*9) return "#eb4747";
+	}
+	var Quadtree_Candraw;
+	function VisualizationQuadTree(Father,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,max_counter){
+		if(Father==null) return;
+		//console.log(Father.LongitudeStart+"->"+Father.LongitudeEnd+"\n"+Father.LatitudeStart+"->"+Father.LatitudeEnd+"\n==============================\n");
+		var row_num=(LatitudeEnd-LatitudeStart)/(Father.LatitudeEnd-Father.LatitudeStart);
+		var col_num=(LongitudeEnd-LongitudeStart)/(Father.LongitudeEnd-Father.LongitudeStart);
+		if(((row_num+col_num>=200)&&(row_num+col_num<400))
+		||(Quadtree_Candraw&&((Father.LongitudeEnd-Father.LongitudeStart<=QuadTreeNode_Minimal_Longitude_Span) || (Father.LatitudeEnd-Father.LatitudeStart<=QuadTreeNode_Minimal_Latitude_Span)))){
+			if((Father.LongitudeEnd>LongitudeStart)&&(Father.LongitudeStart<LongitudeEnd)&&(Father.LatitudeEnd>LatitudeStart)&&(Father.LatitudeStart<LatitudeEnd)){
+				if(Father.ptr_grid==null) Father.ptr_grid= L.rectangle([[Father.LatitudeStart,Father.LongitudeStart],[Father.LatitudeEnd,Father.LongitudeEnd]], {color: ChooseAlphaColor(max_counter,Father.counter), weight: 1, fillOpacity: 0.7});
+				Father.ptr_grid.addTo(GridLayers);
+				if((Father.LongitudeEnd-Father.LongitudeStart>QuadTreeNode_Minimal_Longitude_Span)
+						&& (Father.LatitudeEnd-Father.LatitudeStart>QuadTreeNode_Minimal_Latitude_Span)) Quadtree_Candraw=false;
+				//console.log(Father.LongitudeStart+"->"+Father.LongitudeEnd+"\n"+Father.LatitudeStart+"->"+Father.LatitudeEnd+"\n==============================\n");
+			}else{
+				if(Father.ptr_grid!=null) GridLayers.removeLayer(Father.ptr_grid);
+			}
+		}else{
+			if(Father.ptr_grid!=null) GridLayers.removeLayer(Father.ptr_grid);
+		}
+		VisualizationQuadTree(Father.ch_left_down,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,max_counter);
+		VisualizationQuadTree(Father.ch_left_up,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,max_counter);
+		VisualizationQuadTree(Father.ch_right_down,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,max_counter);
+		VisualizationQuadTree(Father.ch_right_up,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,max_counter);
+	}
+	function DisplayQuadTree(LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd){
+		Quadtree_Max_Counter=0;
+		Query_Quadtree_Max_Counter(Quadtree_root,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd);
+		Quadtree_Candraw=true;
+		VisualizationQuadTree(Quadtree_root,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,Quadtree_Max_Counter);
+	}
+//----------------------------------------------------------------------------------------------------
+var StackNode={
+	MaxZoom:	0,
+	MinZoom:	0,
+	Content:	null,
+	NextNode:	null
+}
+var StackNodeContent={
+	longitude	:0,
+	latitude	:0,
+	Name		:null,
+	Info		:null,
+	NextNode	:null,
+	VisualObj	:null
+}
+var StackHead=null;
+var StackTail=null;
+function AppendStack(MaxZoom,MinZoom){
+	if(StackTail==null){
+		StackHead=Object.create(StackNode);
+		StackTail=StackHead;
+	}else{
+		StackTail.NextNode=Object.create(StackNode);
+		StackTail=StackTail.NextNode;
+	}
+	if(MaxZoom!=null) StackTail.MaxZoom=MaxZoom;
+	if(MinZoom!=null) StackTail.MinZoom=MinZoom;
+}
+function InsertIntoStackTail(ContentNode){
+	if(StackTail==null)	AppendStack();
+	ContentNode.NextNode=StackTail.Content;
+	StackTail.Content=ContentNode;
+}
+function ClearStack(){
+	while(StackHead!=null){
+		var temp=null;
+		var ptr_content_node=StackHead.Content;
+		StackHead.Content=null;
+		while(ptr_content_node!=null){
+			temp=ptr_content_node.NextNode;
+			ptr_content_node.NextNode=null;
+			StackLayers.removeLayer(ptr_content_node.VisualObj);
+			ptr_content_node.VisualObj=null;
+			ptr_content_node=temp;
+		}
+		temp=StackHead.NextNode;
+		StackHead.NextNode=null;
+		StackHead=temp;
+	}
+}
+function GetGeoIcon(Name,Info){
+	return L.divIcon({iconSize:[100,20],popupAnchor:[0,-10],html:"<center><b>"+Name+"</b></center>"});
+}
+function DisplayStack(){
+	var ptr_stack=StackHead;
+	var now_zoom=map.getZoom();
+	while(ptr_stack!=null){
+		var result=(ptr_stack.MaxZoom-now_zoom)*(ptr_stack.MinZoom-now_zoom);
+		var ptr_content=ptr_stack.Content;
+		while(ptr_content!=null){
+			if(result<=0){
+				if(ptr_content.VisualObj==null){
+					ptr_content.VisualObj=L.marker([ptr_content.latitude,ptr_content.longitude],{title:ptr_content.Name});
+					//ptr_content.VisualObj=L.marker([ptr_content.latitude,ptr_content.longitude],{icon:GetGeoIcon(ptr_content.Name,ptr_content.Info),title:ptr_content.Name});
+				}
+				ptr_content.VisualObj.addTo(StackLayers).bindPopup(ptr_content.Name+"\t"+ptr_content.Info);
+			}else{
+				if(ptr_content.VisualObj!=null) StackLayers.removeLayer(ptr_content.VisualObj);
+			}
+			ptr_content=ptr_content.NextNode;
+		}
+		ptr_stack=ptr_stack.NextNode;
+	}
+}
+//----------------------------------------------------------------------------------------------------
+AppendStack(7,5);
+var temp=null;
+temp=Object.create(StackNodeContent);temp.Name='山西省';temp.Info='2147';temp.longitude=112.502495;temp.latitude=37.860152;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='福建省';temp.Info='2541';temp.longitude=117.973638;temp.latitude=26.047082;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='天津市';temp.Info='1790';temp.longitude=117.197969;temp.latitude=39.136952;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='广西';temp.Info='1712';temp.longitude=108.913804;temp.latitude=23.549297;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='湖北省';temp.Info='4314';temp.longitude=112.398044;temp.latitude=31.205356;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='辽宁省';temp.Info='2892';temp.longitude=122.741802;temp.latitude=41.613116;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='重庆市';temp.Info='1718';temp.longitude=106.520297;temp.latitude=29.541476;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='河南省';temp.Info='6830';temp.longitude=113.473982;temp.latitude=34.152582;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='北京市';temp.Info='12448';temp.longitude=116.391248;temp.latitude=39.907140;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='浙江省';temp.Info='5113';temp.longitude=119.946154;temp.latitude=29.156653;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='贵州省';temp.Info='504';temp.longitude=106.724620;temp.latitude=26.900524;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='四川省';temp.Info='4115';temp.longitude=102.891028;temp.latitude=30.364619;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='内蒙古';temp.Info='932';temp.longitude=114.402181;temp.latitude=43.460174;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='吉林省';temp.Info='1066';temp.longitude=126.250525;temp.latitude=43.670129;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='河北省';temp.Info='4576';temp.longitude=115.649032;temp.latitude=38.607185;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='宁夏';temp.Info='256';temp.longitude=106.144462;temp.latitude=37.314956;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='广东省';temp.Info='9423';temp.longitude=113.382821;temp.latitude=23.404171;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='安徽省';temp.Info='2985';temp.longitude=117.204024;temp.latitude=31.855133;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='甘肃省';temp.Info='868';temp.longitude=102.449087;temp.latitude=38.096690;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='西藏';temp.Info='83';temp.longitude=89.128971;temp.latitude=31.363547;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='江苏省';temp.Info='7688';temp.longitude=119.356436;temp.latitude=33.009512;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='新疆';temp.Info='768';temp.longitude=85.605910;temp.latitude=42.120017;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='上海市';temp.Info='4690';temp.longitude=121.476814;temp.latitude=31.245355;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='云南省';temp.Info='1185';temp.longitude=101.584997;temp.latitude=24.861664;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='江西省';temp.Info='2220';temp.longitude=115.664684;temp.latitude=27.754270;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='山东省';temp.Info='6554';temp.longitude=118.515584;temp.latitude=36.093362;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='湖南省';temp.Info='2523';temp.longitude=111.708734;temp.latitude=27.692865;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='海南省';temp.Info='414';temp.longitude=109.723048;temp.latitude=19.176457;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='陕西省';temp.Info='3385';temp.longitude=109.491866;temp.latitude=35.854479;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='青海省';temp.Info='167';temp.longitude=96.195304;temp.latitude=35.494531;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='黑龙江省';temp.Info='1447';temp.longitude=128.034085;temp.latitude=47.347781;InsertIntoStackTail(temp);
+AppendStack(20,8);
+temp=Object.create(StackNodeContent);temp.Name='七台河市';temp.Info='21';temp.longitude=131.004852;temp.latitude=45.766595;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='三亚市';temp.Info='129';temp.longitude=109.512120;temp.latitude=18.253712;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='三明市';temp.Info='115';temp.longitude=117.630794;temp.latitude=26.268361;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='三门峡市';temp.Info='158';temp.longitude=111.168637;temp.latitude=34.778571;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='上海市';temp.Info='4690';temp.longitude=121.476814;temp.latitude=31.245355;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='上饶市';temp.Info='200';temp.longitude=117.944035;temp.latitude=28.454663;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='东莞市';temp.Info='852';temp.longitude=113.751804;temp.latitude=23.039401;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='东营市';temp.Info='217';temp.longitude=118.571902;temp.latitude=37.480255;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='中卫市';temp.Info='24';temp.longitude=105.186399;temp.latitude=37.514790;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='中山市';temp.Info='321';temp.longitude=113.410131;temp.latitude=22.541626;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='临夏回族自治州';temp.Info='31';temp.longitude=103.206596;temp.latitude=35.592628;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='临汾市';temp.Info='172';temp.longitude=111.526011;temp.latitude=36.094226;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='临沂市';temp.Info='419';temp.longitude=118.328616;temp.latitude=35.066645;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='临沧市';temp.Info='10';temp.longitude=100.084926;temp.latitude=23.884093;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='丹东市';temp.Info='108';temp.longitude=124.326371;temp.latitude=40.121249;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='丽水市';temp.Info='103';temp.longitude=119.918594;temp.latitude=28.453947;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='丽江市';temp.Info='57';temp.longitude=100.222022;temp.latitude=26.872746;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='乌兰察布市';temp.Info='41';temp.longitude=113.098954;temp.latitude=41.014874;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='乌海市';temp.Info='24';temp.longitude=106.820810;temp.latitude=39.676185;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='乌鲁木齐市';temp.Info='390';temp.longitude=87.555453;temp.latitude=43.833325;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='乐山市';temp.Info='107';temp.longitude=103.752051;temp.latitude=29.597942;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='九江市';temp.Info='223';temp.longitude=115.988235;temp.latitude=29.716454;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='云浮市';temp.Info='97';temp.longitude=112.039097;temp.latitude=22.934706;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='亳州市';temp.Info='110';temp.longitude=115.775938;temp.latitude=33.866386;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='伊春市';temp.Info='28';temp.longitude=128.897280;temp.latitude=47.726421;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='伊犁哈萨克自治州';temp.Info='51';temp.longitude=81.288288;temp.latitude=43.915276;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='佛山市';temp.Info='751';temp.longitude=113.122022;temp.latitude=23.031712;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='佳木斯市';temp.Info='72';temp.longitude=130.270447;temp.latitude=46.805856;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='保定市';temp.Info='688';temp.longitude=115.481951;temp.latitude=38.879957;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='保山市';temp.Info='29';temp.longitude=99.170498;temp.latitude=25.117614;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='信阳市';temp.Info='255';temp.longitude=114.073098;temp.latitude=32.124601;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='克孜勒苏柯尔克孜自治州';temp.Info='6';temp.longitude=76.127790;temp.latitude=39.744068;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='克拉玛依市';temp.Info='43';temp.longitude=84.872248;temp.latitude=45.587544;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='六安市';temp.Info='151';temp.longitude=116.493681;temp.latitude=31.751317;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='六盘水市';temp.Info='40';temp.longitude=104.843030;temp.latitude=26.589618;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='兰州市';temp.Info='378';temp.longitude=103.814423;temp.latitude=36.058253;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='兴安盟';temp.Info='30';temp.longitude=122.035668;temp.latitude=46.075425;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='内江市';temp.Info='79';temp.longitude=105.063245;temp.latitude=29.596338;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='凉山彝族自治州';temp.Info='59';temp.longitude=102.251651;temp.latitude=27.889570;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='包头市';temp.Info='133';temp.longitude=109.833958;temp.latitude=40.640223;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='北京市';temp.Info='12448';temp.longitude=116.391248;temp.latitude=39.907140;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='北海市';temp.Info='106';temp.longitude=109.111826;temp.latitude=21.469165;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='十堰市';temp.Info='188';temp.longitude=110.789371;temp.latitude=32.633253;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='南京市';temp.Info='1679';temp.longitude=118.766361;temp.latitude=32.053174;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='南充市';temp.Info='187';temp.longitude=106.095074;temp.latitude=30.797165;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='南宁市';temp.Info='639';temp.longitude=108.286719;temp.latitude=22.803614;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='南平市';temp.Info='124';temp.longitude=118.170396;temp.latitude=26.640810;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='南昌市';temp.Info='739';temp.longitude=115.882133;temp.latitude=28.687015;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='南通市';temp.Info='423';temp.longitude=120.863090;temp.latitude=32.010700;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='南阳市';temp.Info='411';temp.longitude=112.530519;temp.latitude=33.007300;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='博尔塔拉蒙古自治州';temp.Info='10';temp.longitude=82.042650;temp.latitude=44.906752;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='厦门市';temp.Info='670';temp.longitude=118.092448;temp.latitude=24.485620;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='双鸭山市';temp.Info='29';temp.longitude=131.156935;temp.latitude=46.646517;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='台州市';temp.Info='342';temp.longitude=121.429784;temp.latitude=28.664882;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='合肥市';temp.Info='840';temp.longitude=117.270672;temp.latitude=31.863048;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='吉安市';temp.Info='139';temp.longitude=114.980628;temp.latitude=27.111146;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='吉林市';temp.Info='178';temp.longitude=126.552259;temp.latitude=43.864000;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='吐鲁番地区';temp.Info='17';temp.longitude=89.256865;temp.latitude=42.671343;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='吕梁市';temp.Info='142';temp.longitude=111.130367;temp.latitude=37.520299;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='吴忠市';temp.Info='35';temp.longitude=106.197465;temp.latitude=37.986700;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='周口市';temp.Info='327';temp.longitude=114.642152;temp.latitude=33.619640;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='呼伦贝尔市';temp.Info='103';temp.longitude=119.747109;temp.latitude=49.193332;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='呼和浩特市';temp.Info='204';temp.longitude=111.646981;temp.latitude=40.821344;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='和田地区';temp.Info='4';temp.longitude=79.346206;temp.latitude=35.677998;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='咸阳市';temp.Info='361';temp.longitude=108.696402;temp.latitude=34.340580;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='哈密地区';temp.Info='39';temp.longitude=93.521251;temp.latitude=42.337200;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='哈尔滨市';temp.Info='783';temp.longitude=126.645072;temp.latitude=45.765622;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='唐山市';temp.Info='398';temp.longitude=118.170659;temp.latitude=39.643075;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='商丘市';temp.Info='255';temp.longitude=115.629842;temp.latitude=34.434214;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='商洛市';temp.Info='74';temp.longitude=109.922824;temp.latitude=33.869278;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='喀什地区';temp.Info='14';temp.longitude=76.004757;temp.latitude=39.506973;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='嘉兴市';temp.Info='461';temp.longitude=120.749568;temp.latitude=30.770351;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='嘉峪关市';temp.Info='26';temp.longitude=98.274672;temp.latitude=39.795322;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='四平市';temp.Info='79';temp.longitude=124.378515;temp.latitude=43.167260;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='固原市';temp.Info='23';temp.longitude=106.274497;temp.latitude=36.015777;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='塔城地区';temp.Info='8';temp.longitude=83.180222;temp.latitude=46.804402;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='大兴安岭地区';temp.Info='21';temp.longitude=124.181972;temp.latitude=51.983873;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='大同市';temp.Info='173';temp.longitude=113.277116;temp.latitude=40.106240;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='大庆市';temp.Info='80';temp.longitude=125.008576;temp.latitude=46.588618;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='大理白族自治州';temp.Info='102';temp.longitude=100.216095;temp.latitude=25.593646;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='大连市';temp.Info='676';temp.longitude=121.582049;temp.latitude=38.941815;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='天水市';temp.Info='85';temp.longitude=105.726544;temp.latitude=34.579385;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='天津市';temp.Info='1790';temp.longitude=117.197969;temp.latitude=39.136952;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='太原市';temp.Info='654';temp.longitude=112.538136;temp.latitude=37.883478;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='威海市';temp.Info='202';temp.longitude=122.082314;temp.latitude=37.522009;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='娄底市';temp.Info='92';temp.longitude=111.984346;temp.latitude=27.738490;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='孝感市';temp.Info='223';temp.longitude=113.923669;temp.latitude=30.924749;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='宁德市';temp.Info='128';temp.longitude=119.530982;temp.latitude=26.653711;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='宁波市';temp.Info='786';temp.longitude=121.568442;temp.latitude=29.881596;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='安庆市';temp.Info='174';temp.longitude=117.046721;temp.latitude=30.534540;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='安康市';temp.Info='68';temp.longitude=109.026598;temp.latitude=32.700657;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='安阳市';temp.Info='291';temp.longitude=114.339362;temp.latitude=36.103903;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='安顺市';temp.Info='55';temp.longitude=105.918429;temp.latitude=26.226255;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='定西市';temp.Info='44';temp.longitude=104.617541;temp.latitude=35.580406;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='宜宾市';temp.Info='114';temp.longitude=104.624256;temp.latitude=28.766930;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='宜昌市';temp.Info='258';temp.longitude=111.298685;temp.latitude=30.729469;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='宜春市';temp.Info='175';temp.longitude=114.388212;temp.latitude=27.808323;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='宝鸡市';temp.Info='241';temp.longitude=107.159442;temp.latitude=34.359070;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='宣城市';temp.Info='111';temp.longitude=118.740390;temp.latitude=30.948197;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='宿州市';temp.Info='162';temp.longitude=116.976800;temp.latitude=33.632031;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='宿迁市';temp.Info='228';temp.longitude=118.284908;temp.latitude=33.947278;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='山南地区';temp.Info='5';temp.longitude=91.742822;temp.latitude=29.226378;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='岳阳市';temp.Info='171';temp.longitude=113.133823;temp.latitude=29.374310;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='崇左市';temp.Info='52';temp.longitude=107.346658;temp.latitude=22.412468;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='巴中市';temp.Info='71';temp.longitude=106.747201;temp.latitude=31.865603;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='巴彦淖尔市';temp.Info='53';temp.longitude=107.411793;temp.latitude=40.761496;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='巴音郭楞蒙古自治州';temp.Info='61';temp.longitude=86.112366;temp.latitude=41.764015;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='常州市';temp.Info='591';temp.longitude=119.970661;temp.latitude=31.767352;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='常德市';temp.Info='132';temp.longitude=111.641688;temp.latitude=29.009538;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='平凉市';temp.Info='41';temp.longitude=106.678226;temp.latitude=35.544225;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='平顶山市';temp.Info='317';temp.longitude=113.288144;temp.latitude=33.740530;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='广元市';temp.Info='78';temp.longitude=105.809415;temp.latitude=32.437304;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='广安市';temp.Info='87';temp.longitude=106.625379;temp.latitude=30.461002;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='广州市';temp.Info='2656';temp.longitude=113.295803;temp.latitude=23.116604;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='庆阳市';temp.Info='34';temp.longitude=107.633120;temp.latitude=35.720900;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='廊坊市';temp.Info='267';temp.longitude=116.691032;temp.latitude=39.511836;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='延安市';temp.Info='94';temp.longitude=109.488504;temp.latitude=36.597537;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='延边朝鲜族自治州';temp.Info='55';temp.longitude=129.472476;temp.latitude=42.887498;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='开封市';temp.Info='293';temp.longitude=114.339327;temp.latitude=34.796436;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='张家口市';temp.Info='187';temp.longitude=114.881065;temp.latitude=40.804126;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='张家界市';temp.Info='49';temp.longitude=110.470101;temp.latitude=29.121958;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='张掖市';temp.Info='38';temp.longitude=100.451771;temp.latitude=38.932423;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='徐州市';temp.Info='507';temp.longitude=117.175729;temp.latitude=34.267094;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='德宏傣族景颇族自治州';temp.Info='16';temp.longitude=98.582716;temp.latitude=24.438702;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='德州市';temp.Info='221';temp.longitude=116.315740;temp.latitude=37.454271;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='德阳市';temp.Info='196';temp.longitude=104.393294;temp.latitude=31.126982;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='忻州市';temp.Info='114';temp.longitude=112.714783;temp.latitude=38.454707;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='怀化市';temp.Info='89';temp.longitude=109.975770;temp.latitude=27.555173;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='恩施土家族苗族自治州';temp.Info='71';temp.longitude=109.480446;temp.latitude=30.282653;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='惠州市';temp.Info='278';temp.longitude=114.399132;temp.latitude=23.110272;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='成都市';temp.Info='2177';temp.longitude=104.058972;temp.latitude=30.676242;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='扬州市';temp.Info='355';temp.longitude=119.415813;temp.latitude=32.404295;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='承德市';temp.Info='196';temp.longitude=117.921037;temp.latitude=40.985053;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='抚州市';temp.Info='92';temp.longitude=116.349376;temp.latitude=27.951936;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='抚顺市';temp.Info='105';temp.longitude=123.917589;temp.latitude=41.869286;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='拉萨市';temp.Info='55';temp.longitude=91.103841;temp.latitude=29.659126;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='揭阳市';temp.Info='140';temp.longitude=116.368288;temp.latitude=23.544304;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='攀枝花市';temp.Info='48';temp.longitude=101.714295;temp.latitude=26.585397;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='文山壮族苗族自治州';temp.Info='24';temp.longitude=104.237693;temp.latitude=23.370886;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='新乡市';temp.Info='381';temp.longitude=113.900282;temp.latitude=35.301776;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='新余市';temp.Info='61';temp.longitude=114.935808;temp.latitude=27.819508;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='无锡市';temp.Info='848';temp.longitude=120.294251;temp.latitude=31.566279;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='日喀则地区';temp.Info='9';temp.longitude=88.947471;temp.latitude=29.265408;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='日照市';temp.Info='188';temp.longitude=119.495207;temp.latitude=35.414171;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='昆明市';temp.Info='590';temp.longitude=102.706741;temp.latitude=25.045967;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='昌吉回族自治州';temp.Info='88';temp.longitude=87.286363;temp.latitude=44.000009;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='昌都地区';temp.Info='3';temp.longitude=97.237080;temp.latitude=31.444776;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='昭通市';temp.Info='49';temp.longitude=103.716389;temp.latitude=27.338237;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='晋中市';temp.Info='217';temp.longitude=112.725422;temp.latitude=37.687014;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='晋城市';temp.Info='138';temp.longitude=112.854650;temp.latitude=35.494583;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='普洱市';temp.Info='23';temp.longitude=100.972316;temp.latitude=22.786040;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='景德镇市';temp.Info='77';temp.longitude=117.174602;temp.latitude=29.300516;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='曲靖市';temp.Info='101';temp.longitude=103.774006;temp.latitude=25.517703;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='朔州市';temp.Info='62';temp.longitude=112.466651;temp.latitude=39.330704;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='朝阳市';temp.Info='76';temp.longitude=120.433904;temp.latitude=41.563594;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='本溪市';temp.Info='63';temp.longitude=123.765534;temp.latitude=41.318084;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='来宾市';temp.Info='58';temp.longitude=109.221049;temp.latitude=23.737702;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='杭州市';temp.Info='1830';temp.longitude=120.208338;temp.latitude=30.255575;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='松原市';temp.Info='45';temp.longitude=124.820207;temp.latitude=45.127989;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='林芝地区';temp.Info='5';temp.longitude=94.372637;temp.latitude=29.780154;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='果洛藏族自治州';temp.Info='1';temp.longitude=100.215912;temp.latitude=34.475670;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='枣庄市';temp.Info='143';temp.longitude=117.266976;temp.latitude=34.802867;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='柳州市';temp.Info='261';temp.longitude=109.411325;temp.latitude=24.325660;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='株洲市';temp.Info='174';temp.longitude=113.119341;temp.latitude=27.824629;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='梅州市';temp.Info='120';temp.longitude=116.115046;temp.latitude=24.301286;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='梧州市';temp.Info='87';temp.longitude=111.293766;temp.latitude=23.482277;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='楚雄彝族自治州';temp.Info='33';temp.longitude=101.521470;temp.latitude=25.063062;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='榆林市';temp.Info='111';temp.longitude=109.733733;temp.latitude=38.273229;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='武威市';temp.Info='52';temp.longitude=102.631932;temp.latitude=37.926916;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='武汉市';temp.Info='2372';temp.longitude=114.304199;temp.latitude=30.577725;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='毕节市';temp.Info='21';temp.longitude=105.323453;temp.latitude=27.405959;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='永州市';temp.Info='107';temp.longitude=111.602962;temp.latitude=26.433237;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='汉中市';temp.Info='159';temp.longitude=107.034497;temp.latitude=33.077089;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='汕头市';temp.Info='291';temp.longitude=116.717598;temp.latitude=23.380596;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='汕尾市';temp.Info='63';temp.longitude=115.361470;temp.latitude=22.775628;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='江门市';temp.Info='257';temp.longitude=113.066152;temp.latitude=22.571905;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='池州市';temp.Info='63';temp.longitude=117.482553;temp.latitude=30.656003;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='沈阳市';temp.Info='1054';temp.longitude=123.420005;temp.latitude=41.800545;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='沧州市';temp.Info='319';temp.longitude=116.851556;temp.latitude=38.290961;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='河池市';temp.Info='44';temp.longitude=108.059159;temp.latitude=24.696616;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='河源市';temp.Info='94';temp.longitude=114.702568;temp.latitude=23.753661;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='泉州市';temp.Info='461';temp.longitude=118.589390;temp.latitude=24.898729;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='泰安市';temp.Info='301';temp.longitude=117.076832;temp.latitude=36.181904;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='泰州市';temp.Info='268';temp.longitude=119.908353;temp.latitude=32.472367;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='泸州市';temp.Info='112';temp.longitude=105.433814;temp.latitude=28.893166;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='洛阳市';temp.Info='725';temp.longitude=112.434851;temp.latitude=34.652021;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='济南市';temp.Info='1182';temp.longitude=117.012660;temp.latitude=36.676251;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='济宁市';temp.Info='379';temp.longitude=116.588941;temp.latitude=35.396832;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='海东地区';temp.Info='12';temp.longitude=102.076568;temp.latitude=36.511659;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='海北藏族自治州';temp.Info='4';temp.longitude=100.871755;temp.latitude=36.954929;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='海南藏族自治州';temp.Info='16';temp.longitude=100.616181;temp.latitude=36.279036;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='海口市';temp.Info='285';temp.longitude=110.319929;temp.latitude=20.018352;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='海西蒙古族藏族自治州';temp.Info='19';temp.longitude=97.335488;temp.latitude=37.367133;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='淄博市';temp.Info='422';temp.longitude=118.046605;temp.latitude=36.798073;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='淮北市';temp.Info='85';temp.longitude=116.779550;temp.latitude=33.955336;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='淮南市';temp.Info='151';temp.longitude=117.006733;temp.latitude=32.638578;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='淮安市';temp.Info='215';temp.longitude=119.018271;temp.latitude=33.601627;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='深圳市';temp.Info='2052';temp.longitude=114.014454;temp.latitude=22.542769;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='清远市';temp.Info='151';temp.longitude=113.028923;temp.latitude=23.694656;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='温州市';temp.Info='539';temp.longitude=120.680064;temp.latitude=28.000256;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='渭南市';temp.Info='218';temp.longitude=109.472128;temp.latitude=34.497652;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='湘潭市';temp.Info='170';temp.longitude=112.923710;temp.latitude=27.832327;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='湘西土家族苗族自治州';temp.Info='67';temp.longitude=109.734429;temp.latitude=28.315653;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='湛江市';temp.Info='226';temp.longitude=110.354032;temp.latitude=21.253928;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='滁州市';temp.Info='190';temp.longitude=118.312751;temp.latitude=32.313015;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='滨州市';temp.Info='201';temp.longitude=117.956033;temp.latitude=37.398347;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='漯河市';temp.Info='140';temp.longitude=114.033517;temp.latitude=33.571956;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='漳州市';temp.Info='172';temp.longitude=117.664801;temp.latitude=24.514244;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='潍坊市';temp.Info='574';temp.longitude=119.130227;temp.latitude=36.709506;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='潜江市';temp.Info='40';temp.longitude=112.756517;temp.latitude=30.339741;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='潮州市';temp.Info='123';temp.longitude=116.619243;temp.latitude=23.658312;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='濮阳市';temp.Info='165';temp.longitude=115.014181;temp.latitude=35.747664;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='烟台市';temp.Info='505';temp.longitude=121.298059;temp.latitude=37.529414;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='焦作市';temp.Info='295';temp.longitude=113.198840;temp.latitude=35.229324;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='牡丹江市';temp.Info='87';temp.longitude=129.594617;temp.latitude=44.580215;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='玉林市';temp.Info='150';temp.longitude=110.140690;temp.latitude=22.640474;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='玉树藏族自治州';temp.Info='5';temp.longitude=97.006346;temp.latitude=33.002537;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='玉溪市';temp.Info='64';temp.longitude=102.537215;temp.latitude=24.367801;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='珠海市';temp.Info='316';temp.longitude=113.550830;temp.latitude=22.253970;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='甘南藏族自治州';temp.Info='12';temp.longitude=102.909138;temp.latitude=34.987591;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='甘孜藏族自治州';temp.Info='22';temp.longitude=101.961172;temp.latitude=30.052094;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='白城市';temp.Info='35';temp.longitude=122.828281;temp.latitude=45.613397;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='白山市';temp.Info='29';temp.longitude=126.423367;temp.latitude=41.937610;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='白银市';temp.Info='40';temp.longitude=104.162065;temp.latitude=36.540313;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='百色市';temp.Info='61';temp.longitude=106.621817;temp.latitude=23.898718;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='益阳市';temp.Info='92';temp.longitude=112.354239;temp.latitude=28.585449;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='盐城市';temp.Info='281';temp.longitude=120.137362;temp.latitude=33.375138;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='盘锦市';temp.Info='104';temp.longitude=122.061293;temp.latitude=41.133077;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='眉山市';temp.Info='71';temp.longitude=103.832776;temp.latitude=30.057930;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='石嘴山市';temp.Info='20';temp.longitude=106.368017;temp.latitude=39.013676;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='石家庄市';temp.Info='1231';temp.longitude=114.509547;temp.latitude=38.042423;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='福州市';temp.Info='751';temp.longitude=119.318815;temp.latitude=26.044412;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='秦皇岛市';temp.Info='266';temp.longitude=119.592017;temp.latitude=39.938594;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='红河哈尼族彝族自治州';temp.Info='63';temp.longitude=103.375500;temp.latitude=23.364517;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='绍兴市';temp.Info='378';temp.longitude=120.581945;temp.latitude=29.998752;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='绥化市';temp.Info='95';temp.longitude=126.976260;temp.latitude=46.638064;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='绵阳市';temp.Info='213';temp.longitude=104.696236;temp.latitude=31.501239;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='聊城市';temp.Info='255';temp.longitude=115.974615;temp.latitude=36.450092;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='肇庆市';temp.Info='206';temp.longitude=112.467868;temp.latitude=23.075364;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='自贡市';temp.Info='90';temp.longitude=104.766954;temp.latitude=29.355747;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='舟山市';temp.Info='96';temp.longitude=122.159167;temp.latitude=30.031961;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='芜湖市';temp.Info='241';temp.longitude=118.372099;temp.latitude=31.362202;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='苏州市';temp.Info='1756';temp.longitude=120.609301;temp.latitude=31.313891;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='茂名市';temp.Info='171';temp.longitude=110.920200;temp.latitude=21.665234;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='荆州市';temp.Info='281';temp.longitude=112.229635;temp.latitude=30.329241;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='荆门市';temp.Info='136';temp.longitude=112.205095;temp.latitude=31.038609;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='莆田市';temp.Info='119';temp.longitude=119.066301;temp.latitude=25.445169;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='莱芜市';temp.Info='63';temp.longitude=117.672238;temp.latitude=36.227905;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='菏泽市';temp.Info='248';temp.longitude=115.450999;temp.latitude=35.256510;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='萍乡市';temp.Info='60';temp.longitude=113.848103;temp.latitude=27.636844;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='营口市';temp.Info='79';temp.longitude=122.221593;temp.latitude=40.661430;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='葫芦岛市';temp.Info='108';temp.longitude=120.849182;temp.latitude=40.735327;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='蚌埠市';temp.Info='171';temp.longitude=117.344878;temp.latitude=32.924890;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='衡水市';temp.Info='198';temp.longitude=115.673922;temp.latitude=37.739932;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='衡阳市';temp.Info='225';temp.longitude=112.572118;temp.latitude=26.895500;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='衢州市';temp.Info='126';temp.longitude=118.864478;temp.latitude=28.954262;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='西双版纳傣族自治州';temp.Info='24';temp.longitude=100.795449;temp.latitude=22.006004;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='西宁市';temp.Info='93';temp.longitude=101.759553;temp.latitude=36.634484;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='西安市';temp.Info='2008';temp.longitude=108.942029;temp.latitude=34.273155;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='许昌市';temp.Info='265';temp.longitude=113.822810;temp.latitude=34.022484;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='贵港市';temp.Info='115';temp.longitude=109.602963;temp.latitude=23.100494;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='贵阳市';temp.Info='278';temp.longitude=106.698966;temp.latitude=26.627348;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='贺州市';temp.Info='52';temp.longitude=111.540844;temp.latitude=24.408354;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='资阳市';temp.Info='73';temp.longitude=104.627092;temp.latitude=30.128737;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='赣州市';temp.Info='285';temp.longitude=114.924690;temp.latitude=25.842403;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='赤峰市';temp.Info='118';temp.longitude=118.918184;temp.latitude=42.288828;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='辽源市';temp.Info='16';temp.longitude=125.120735;temp.latitude=42.914813;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='辽阳市';temp.Info='75';temp.longitude=123.160040;temp.latitude=41.265436;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='达州市';temp.Info='136';temp.longitude=107.483814;temp.latitude=31.210458;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='运城市';temp.Info='229';temp.longitude=110.994678;temp.latitude=35.033293;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='连云港市';temp.Info='230';temp.longitude=119.161793;temp.latitude=34.596135;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='通化市';temp.Info='52';temp.longitude=125.930396;temp.latitude=41.728614;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='通辽市';temp.Info='63';temp.longitude=122.248351;temp.latitude=43.625272;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='遂宁市';temp.Info='105';temp.longitude=105.554887;temp.latitude=30.554466;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='遵义市';temp.Info='70';temp.longitude=106.921047;temp.latitude=27.697180;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='邢台市';temp.Info='392';temp.longitude=114.508081;temp.latitude=37.063179;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='那曲地区';temp.Info='2';temp.longitude=92.026961;temp.latitude=31.248535;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='邯郸市';temp.Info='434';temp.longitude=114.470304;temp.latitude=36.602706;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='郑州市';temp.Info='2184';temp.longitude=113.637183;temp.latitude=34.751442;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='郴州市';temp.Info='116';temp.longitude=113.025732;temp.latitude=25.778852;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='鄂尔多斯市';temp.Info='100';temp.longitude=109.981421;temp.latitude=39.809797;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='鄂州市';temp.Info='89';temp.longitude=114.883944;temp.latitude=30.381458;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='酒泉市';temp.Info='50';temp.longitude=98.501348;temp.latitude=39.734502;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='重庆市';temp.Info='1718';temp.longitude=106.520297;temp.latitude=29.541476;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='金华市';temp.Info='452';temp.longitude=119.641455;temp.latitude=29.099515;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='金昌市';temp.Info='19';temp.longitude=102.199623;temp.latitude=38.509778;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='钦州市';temp.Info='87';temp.longitude=108.628564;temp.latitude=21.970323;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='铁岭市';temp.Info='71';temp.longitude=123.842594;temp.latitude=42.291274;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='铜仁市';temp.Info='18';temp.longitude=109.157417;temp.latitude=27.672200;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='铜川市';temp.Info='51';temp.longitude=108.956915;temp.latitude=34.903099;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='铜陵市';temp.Info='42';temp.longitude=117.807623;temp.latitude=30.937124;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='银川市';temp.Info='154';temp.longitude=106.195667;temp.latitude=38.495815;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='锡林郭勒盟';temp.Info='44';temp.longitude=116.014170;temp.latitude=43.931310;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='锦州市';temp.Info='137';temp.longitude=121.135517;temp.latitude=41.123173;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='镇江市';temp.Info='307';temp.longitude=119.443825;temp.latitude=32.200664;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='长春市';temp.Info='612';temp.longitude=125.300722;temp.latitude=43.889900;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='长沙市';temp.Info='1039';temp.longitude=112.967224;temp.latitude=28.211238;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='长治市';temp.Info='158';temp.longitude=113.107059;temp.latitude=36.195709;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='阜新市';temp.Info='59';temp.longitude=121.648976;temp.latitude=42.011064;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='阜阳市';temp.Info='260';temp.longitude=115.809097;temp.latitude=32.896944;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='防城港市';temp.Info='110';temp.longitude=108.341348;temp.latitude=21.613659;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='阳江市';temp.Info='98';temp.longitude=111.965490;temp.latitude=21.868040;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='阳泉市';temp.Info='88';temp.longitude=113.556205;temp.latitude=37.863254;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='阿克苏地区';temp.Info='27';temp.longitude=81.146644;temp.latitude=40.342864;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='阿勒泰地区';temp.Info='10';temp.longitude=87.916666;temp.latitude=47.883264;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='阿坝藏族羌族自治州';temp.Info='38';temp.longitude=102.220475;temp.latitude=31.901827;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='阿拉善盟';temp.Info='19';temp.longitude=105.685031;temp.latitude=38.836502;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='阿里地区';temp.Info='4';temp.longitude=81.098640;temp.latitude=30.401187;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='陇南市';temp.Info='30';temp.longitude=104.925109;temp.latitude=33.390625;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='随州市';temp.Info='98';temp.longitude=113.366659;temp.latitude=31.713627;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='雅安市';temp.Info='52';temp.longitude=103.000989;temp.latitude=29.996590;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='青岛市';temp.Info='1034';temp.longitude=120.372887;temp.latitude=36.098689;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='鞍山市';temp.Info='177';temp.longitude=122.995859;temp.latitude=41.110449;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='韶关市';temp.Info='160';temp.longitude=113.582696;temp.latitude=24.800340;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='马鞍山市';temp.Info='127';temp.longitude=118.504133;temp.latitude=31.684771;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='驻马店市';temp.Info='291';temp.longitude=114.036671;temp.latitude=32.979197;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='鸡西市';temp.Info='26';temp.longitude=130.928028;temp.latitude=45.313209;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='鹤壁市';temp.Info='77';temp.longitude=114.285248;temp.latitude=35.749836;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='鹤岗市';temp.Info='29';temp.longitude=130.278126;temp.latitude=47.330288;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='鹰潭市';temp.Info='41';temp.longitude=117.023743;temp.latitude=28.238608;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='黄冈市';temp.Info='277';temp.longitude=114.894999;temp.latitude=30.443124;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='黄南藏族自治州';temp.Info='5';temp.longitude=101.999376;temp.latitude=35.517011;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='黄山市';temp.Info='107';temp.longitude=118.281944;temp.latitude=29.731015;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='黄石市';temp.Info='171';temp.longitude=115.038780;temp.latitude=30.212625;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='黑河市';temp.Info='27';temp.longitude=127.486742;temp.latitude=50.243332;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='黔西南布依族苗族自治州';temp.Info='22';temp.longitude=104.891647;temp.latitude=25.091993;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='齐齐哈尔市';temp.Info='114';temp.longitude=123.974104;temp.latitude=47.339474;InsertIntoStackTail(temp);
+temp=Object.create(StackNodeContent);temp.Name='龙岩市';temp.Info='129';temp.longitude=117.006701;temp.latitude=25.075208;InsertIntoStackTail(temp);
+//----------------------------------------------------------------------------------------------------
+//Insert Grid
+//insert_into_quadtree(Quadtree_root,109.1335,21.4275,50);
+//----------------------------------------------------------------------------------------------------
+var popup = L.popup();
+function onMapClick(e) {
+	popup
+			.setLatLng(e.latlng)
+			.setContent("You clicked the map at " + e.latlng.toString())
+			.openOn(map);
+	//clear_quadtree(Quadtree_root);
+	//ClearStack();
+}
+function onZoomEnd(e){
+	var bbx=map.getBounds();
+	DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
+	DisplayStack();
+}
+function onMoveEnd(e){
+	var bbx=map.getBounds();
+	DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
+}
+function onBaseLayerChange(e){
+	//var bbx=map.getBounds();
+	//DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
+	//DisplayStack();
+}
+function onDragStart(e){
+	map.removeLayer(heatmap);
+}
+function onZoomStart(e){
+	map.removeLayer(heatmap);
+}
+map.on('click', onMapClick);
+map.on('zoomend',onZoomEnd);
+map.on('moveend',onMoveEnd);
+map.on('baselayerchange',onBaseLayerChange);
+map.on('dragstart',onDragStart);
+map.on('zoomstart',onZoomStart);
+function init(){
+	var bbx=map.getBounds();
+	DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
+	DisplayStack();
+}
+//------------------------------------------
+</script>
+ 
+</body>
+</html>
