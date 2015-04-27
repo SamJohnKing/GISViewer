@@ -12,6 +12,41 @@
 			background:transparent;
 			border:0
 		}
+		.BarLegendPane {
+			position:relative;
+			margin-left:50px;
+			margin-top:5px;
+			width:auto;
+			float:left;
+			z-index:1000;
+			background-color:white;
+		}
+
+		.BarLegendItem {
+			position:relative;
+			width:auto;
+			float:left;
+			margin-top:1px;
+			font-size:12px;
+			margin-right:8px;
+			margin-left:8px;
+			background-color:white;
+		}
+
+		.BarLegendColor {
+			position:relative;
+			float:left;
+			width:11px;
+			height:11px;
+			margin-top:3px;
+		}
+
+		.BarLegendContent {
+			position:relative;
+			float:left;
+			margin-left:5px;
+			font-size:12px;
+		}
 	</style>
 	<script type='text/javascript'>
 		//heatcanvas.js
@@ -114,7 +149,10 @@
 			}
 		};
 
-
+		//var OutputIS=false;
+		//function Ts(color){
+		//	return "#"+(Math.round(color[0])).toString(16)+","+(Math.round(color[1])).toString(16)+","+(Math.round(color[2])).toString(16);
+		//}
 		HeatCanvas.prototype._render = function(f_value_color){
 			f_value_color = f_value_color || HeatCanvas.defaultValue2Color;
 
@@ -146,6 +184,27 @@
 
 				var color = HeatCanvas.hsla2rgba.apply(
 						null, f_value_color(this.value[pos] / maxValue));
+
+				/*if(!OutputIS){
+					OutputIS=true;
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(0))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(1/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(2/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(3/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(4/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(5/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(6/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(7/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(8/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(9/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(10/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(11/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(12/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(13/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(14/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(15/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(16/16))));
+				}*/
 				canvasData.data[pixelColorIndex] = color[0]; //r
 				canvasData.data[pixelColorIndex+1] = color[1]; //g
 				canvasData.data[pixelColorIndex+2] = color[2]; //b
@@ -481,18 +540,61 @@ L.bingLayer = function (key, options) {
 //PolygonContainerStr=DrawerLayers
 	function heatmap_init(){
 		var heatmap = new
-				L.TileLayer.HeatCanvas({},{'step':1, 'degree':HeatCanvas.QUAD, 'opacity':0.7});	
+				L.TileLayer.HeatCanvas({},{'step':1, 'degree':HeatCanvas.QUAD, 'opacity':0.7});
 //Insert HeatMap
-//heatmap.pushData(39.9075,116.3925,22018);
+//heatmap.pushData(39.9075,116.3925,22018);		
 		return heatmap;
 	}
 </script>
 <body onload="init();">
-	<div style="width:100%; height:100%" id="map"></div>
+	<div style="width:100%; height:100%" id="map">
+		<div class="BarLegendPane" id="bar">
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color0"></div>
+				<div class="BarLegendContent" id="Scale0">0%~10%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color1"></div>
+				<div class="BarLegendContent" id="Scale1">10%~20%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color2"></div>
+				<div class="BarLegendContent" id="Scale2">20%~30%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color3"></div>
+				<div class="BarLegendContent" id="Scale3">30%~40%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color4"></div>
+				<div class="BarLegendContent" id="Scale4">40%~50%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color5"></div>
+				<div class="BarLegendContent" id="Scale5">50%~60%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color6"></div>
+				<div class="BarLegendContent" id="Scale6">60%~70%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color7"></div>
+				<div class="BarLegendContent" id="Scale7">70%~80%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color8"></div>
+				<div class="BarLegendContent" id="Scale8">80%~90%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color9"></div>
+				<div class="BarLegendContent" id="Scale9">90%~100%</div>
+			</div>
+		</div>
+	</div>
 <script type='text/javascript'>
 var map = new L.Map('map', {center: new L.LatLng(40,117), zoom: 8, zoomAnimation: true});
 var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-var bing_AerialWithLabels = new L.BingLayer("ArZCNayugTS_wpkhFYJHjCM6ojGG_fvv7rXLhd4WmDXNOE-7rs6NpUsigWq34s3y",{type: 'AerialWithLabels',culture: 'ja'});
+var bing_AerialWithLabels = new L.BingLayer("ArZCNayugTS_wpkhFYJHjCM6ojGG_fvv7rXLhd4WmDXNOE-7rs6NpUsigWq34s3y",{type: 'AerialWithLabels',culture: 'en-US'});
 var bing_Aerial = new L.BingLayer("ArZCNayugTS_wpkhFYJHjCM6ojGG_fvv7rXLhd4WmDXNOE-7rs6NpUsigWq34s3y",{type: 'Aerial',culture:"ja"});
 var bing_Road = new L.BingLayer("AgZFkKYNJZSnxDxVbTF3DvKQy07rbMIGqngMRjrk4AiiA9grf1CzElkVFe43L2Bh",{type: 'Road', culture: "zh"});
 var heatmap=heatmap_init();
@@ -669,22 +771,8 @@ var polyline = L.polyline([
 	}
 	function ChooseAlphaColor(Max_Counter,Grid_Counter){
 		//console.log(Max_Counter,Grid_Counter);
-		//if(Grid_Counter*16<=Max_Counter*1) return "#110208";
-		//if(Grid_Counter*16<=Max_Counter*2) return "#22041b";
-		//if(Grid_Counter*16<=Max_Counter*3) return "#2e0634";
-		//if(Grid_Counter*16<=Max_Counter*4) return "#260845";
-		//if(Grid_Counter*16<=Max_Counter*5) return "#130a56";
-		//if(Grid_Counter*16<=Max_Counter*6) return "#0b2267";
-		if(Grid_Counter*10<=Max_Counter*1) return "#0d5078";
-		if(Grid_Counter*10<=Max_Counter*2) return "#0f8a8a";
-		if(Grid_Counter*10<=Max_Counter*3) return "#119b67";
-		if(Grid_Counter*10<=Max_Counter*4) return "#13ac39";
-		if(Grid_Counter*10<=Max_Counter*5) return "#2abd15";
-		if(Grid_Counter*10<=Max_Counter*6) return "#73cf17";
-		if(Grid_Counter*10<=Max_Counter*7) return "#c7e019";
-		if(Grid_Counter*10<=Max_Counter*8) return "#e7b625";
-		if(Grid_Counter*10<=Max_Counter*9) return "#e97936";
-		if(Grid_Counter*10>Max_Counter*9) return "#eb4747";
+		var color = HeatCanvas.hsla2rgba.apply(null, HeatCanvas.defaultValue2Color(Grid_Counter/Max_Counter));
+		return "rgba("+Math.round(color[0])+","+Math.round(color[1])+","+Math.round(color[2])+","+(0.5+Grid_Counter/(2*Max_Counter))+")";
 	}
 	var Quadtree_Candraw;
 	function VisualizationQuadTree(Father,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,max_counter){
@@ -695,7 +783,8 @@ var polyline = L.polyline([
 		if(((row_num+col_num>=200)&&(row_num+col_num<400))
 		||(Quadtree_Candraw&&((Father.LongitudeEnd-Father.LongitudeStart<=QuadTreeNode_Minimal_Longitude_Span) || (Father.LatitudeEnd-Father.LatitudeStart<=QuadTreeNode_Minimal_Latitude_Span)))){
 			if((Father.LongitudeEnd>LongitudeStart)&&(Father.LongitudeStart<LongitudeEnd)&&(Father.LatitudeEnd>LatitudeStart)&&(Father.LatitudeStart<LatitudeEnd)){
-				if(Father.ptr_grid==null) Father.ptr_grid= L.rectangle([[Father.LatitudeStart,Father.LongitudeStart],[Father.LatitudeEnd,Father.LongitudeEnd]], {color: ChooseAlphaColor(max_counter,Father.counter), weight: 1, fillOpacity: 0.7});
+				if(Father.ptr_grid!=null) GridLayers.removeLayer(Father.ptr_grid);
+				Father.ptr_grid= L.rectangle([[Father.LatitudeStart,Father.LongitudeStart],[Father.LatitudeEnd,Father.LongitudeEnd]], {color: ChooseAlphaColor(max_counter,Father.counter), weight: 1, fillOpacity: 0.7});
 				Father.ptr_grid.addTo(GridLayers);
 				if((Father.LongitudeEnd-Father.LongitudeStart>QuadTreeNode_Minimal_Longitude_Span)
 						&& (Father.LatitudeEnd-Father.LatitudeStart>QuadTreeNode_Minimal_Latitude_Span)) Quadtree_Candraw=false;
@@ -711,11 +800,51 @@ var polyline = L.polyline([
 		VisualizationQuadTree(Father.ch_right_down,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,max_counter);
 		VisualizationQuadTree(Father.ch_right_up,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,max_counter);
 	}
+	function IntegerRound(num){
+		if(num>1000) return Math.round(num/1000)+"K";
+		if(num>100) return Math.round(num/100)*100;
+		if(num>10) return Math.round(num/10)*10;
+		return num;
+	}
 	function DisplayQuadTree(LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd){
 		Quadtree_Max_Counter=0;
 		Query_Quadtree_Max_Counter(Quadtree_root,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd);
 		Quadtree_Candraw=true;
 		VisualizationQuadTree(Quadtree_root,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,Quadtree_Max_Counter);
+		ShowColorBar();
+		document.getElementById("Scale0").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.1));
+		document.getElementById("Scale1").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.2));
+		document.getElementById("Scale2").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.3));
+		document.getElementById("Scale3").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.4));
+		document.getElementById("Scale4").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.5));
+		document.getElementById("Scale5").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.6));
+		document.getElementById("Scale6").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.7));
+		document.getElementById("Scale7").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.8));
+		document.getElementById("Scale8").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.9));
+		document.getElementById("Scale9").innerText="<"+IntegerRound(Quadtree_Max_Counter);
+	}
+	function ShowColorBar(){
+		document.getElementById("Scale0").innerText="<10%";
+		document.getElementById("Scale1").innerText="<20%";
+		document.getElementById("Scale2").innerText="<30%";
+		document.getElementById("Scale3").innerText="<40%";
+		document.getElementById("Scale4").innerText="<50%";
+		document.getElementById("Scale5").innerText="<60%";
+		document.getElementById("Scale6").innerText="<70%";
+		document.getElementById("Scale7").innerText="<80%";
+		document.getElementById("Scale8").innerText="<90%";
+		document.getElementById("Scale9").innerText="<100%";
+		document.getElementById("Color0").style.cssText="background-color:"+ChooseAlphaColor(10,1)+";";
+		document.getElementById("Color1").style.cssText="background-color:"+ChooseAlphaColor(10,2)+";";
+		document.getElementById("Color2").style.cssText="background-color:"+ChooseAlphaColor(10,3)+";";
+		document.getElementById("Color3").style.cssText="background-color:"+ChooseAlphaColor(10,4)+";";
+		document.getElementById("Color4").style.cssText="background-color:"+ChooseAlphaColor(10,5)+";";
+		document.getElementById("Color5").style.cssText="background-color:"+ChooseAlphaColor(10,6)+";";
+		document.getElementById("Color6").style.cssText="background-color:"+ChooseAlphaColor(10,7)+";";
+		document.getElementById("Color7").style.cssText="background-color:"+ChooseAlphaColor(10,8)+";";
+		document.getElementById("Color8").style.cssText="background-color:"+ChooseAlphaColor(10,9)+";";
+		document.getElementById("Color9").style.cssText="background-color:"+ChooseAlphaColor(10,10)+";";
+		document.getElementById("bar").style.cssText="visibility:visible;";
 	}
 //----------------------------------------------------------------------------------------------------
 var StackNode={
@@ -1167,39 +1296,70 @@ function onMapClick(e) {
 	//clear_quadtree(Quadtree_root);
 	//ClearStack();
 }
+var IsHeatExist=false;
 function onZoomEnd(e){
 	var bbx=map.getBounds();
-	DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
-	DisplayStack();
+	if(map.hasLayer(GridLayers))
+		DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
+	if(map.hasLayer(StackLayers))
+		DisplayStack();
+	if(IsHeatExist){
+		map.addLayer(heatmap);
+	}
 }
 function onMoveEnd(e){
 	var bbx=map.getBounds();
-	DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
+	if(map.hasLayer(GridLayers))
+		DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
+	if(IsHeatExist){
+		map.addLayer(heatmap);
+	}
 }
-function onBaseLayerChange(e){
+function onOverLayerRemove(e){
 	//var bbx=map.getBounds();
 	//DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
 	//DisplayStack();
+	if((!map.hasLayer(GridLayers))&&(!map.hasLayer(heatmap)))
+		document.getElementById("bar").style.cssText="visibility:hidden;";
+	if(e.layer==heatmap){
+		IsHeatExist=false;
+	}
+}
+function onOverLayerAdd(e){
+	if(e.layer==GridLayers){
+		var bbx=map.getBounds();
+		DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
+	}
+	if(e.layer==StackLayers){
+		DisplayStack();
+	}
+	if(e.layer==heatmap){
+		ShowColorBar();
+	}
 }
 function onDragStart(e){
-	map.removeLayer(heatmap);
+	if(map.hasLayer(heatmap)){
+		map.removeLayer(heatmap);
+		IsHeatExist=true;
+	}
 }
 function onZoomStart(e){
-	map.removeLayer(heatmap);
+	if(map.hasLayer(heatmap)){
+		map.removeLayer(heatmap);
+		IsHeatExist=true;
+	}
 }
 map.on('click', onMapClick);
 map.on('zoomend',onZoomEnd);
 map.on('moveend',onMoveEnd);
-map.on('baselayerchange',onBaseLayerChange);
+map.on('overlayremove',onOverLayerRemove);
+map.on('overlayadd',onOverLayerAdd);
 map.on('dragstart',onDragStart);
 map.on('zoomstart',onZoomStart);
 function init(){
-	var bbx=map.getBounds();
-	DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
-	DisplayStack();
+	document.getElementById("bar").style.cssText="visibility:hidden;";
 }
-//------------------------------------------
+//----------------------------------------------------------------------------------------------------
 </script>
- 
 </body>
 </html>
