@@ -174,6 +174,10 @@ public class PointDataSet implements PointDatabaseInterface{
 			PointVisible[count]=PointVisible[i];
 			count++;
 		}
+		for(int i=count;i<PointNum;i++){
+			PointHint[i]=null;
+			PointVisible[i]=0;
+		}
 		PointNum=count;
 	}
 	public static int PointMaxNum=10000000;

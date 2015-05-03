@@ -38,6 +38,7 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 				buf = in.readLine();
 				String[] AttributionList = buf.split(",");
 				while ((buf = in.readLine()) != null) {
+					//System.out.println(buf);
 					String[] ValueList = buf.split(",");
 					String Latitude_Str = null;
 					String Longitude_Str = null;
@@ -78,7 +79,8 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 					}
 					append(PolygonNum, Double.parseDouble(Longitude_Str),
 							Double.parseDouble(Latitude_Str));
-					while (!buf.isEmpty()) {
+					buf = in.readLine();
+					while ((buf!=null)&&(!buf.isEmpty())) {
 						ValueList = buf.split(",");
 						Latitude_Str = "0";
 						Longitude_Str = "0";
@@ -298,6 +300,15 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 			dx[count]=dx[i];
 			dy[count]=dy[i];
 			count++;
+		}
+		for(int i=count;i<PolygonNum;i++){
+			PolygonHead[i]=-1;
+			PolygonTail[i]=-1;
+			PolygonHint[i]=null;
+			PolygonVisible[i]=0;
+			isVertical[i]=false;
+			dx[i]=0;
+			dy[i]=0;
 		}
 		PolygonNum=count;
 	}

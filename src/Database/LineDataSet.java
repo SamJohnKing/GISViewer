@@ -72,7 +72,8 @@ public class LineDataSet implements LineDatabaseInterface{
 					}
 					append(LineNum, Double.parseDouble(Longitude_Str),
 							Double.parseDouble(Latitude_Str));
-					while(!buf.isEmpty()){
+					buf = in.readLine();
+					while ((buf!=null)&&(!buf.isEmpty())) {
 						ValueList=buf.split(",");
 						Latitude_Str="0";
 						Longitude_Str="0";
@@ -336,6 +337,15 @@ public class LineDataSet implements LineDatabaseInterface{
 			dx[count]=dx[i];
 			dy[count]=dy[i];
 			count++;
+		}
+		for(int i=count;i<LineNum;i++){
+			LineHead[i]=-1;
+			LineTail[i]=-1;
+			LineHint[i]=null;
+			LineVisible[i]=0;
+			isVertical[i]=false;
+			dx[i]=0;
+			dy[i]=0;
 		}
 		LineNum=count;
 	}
