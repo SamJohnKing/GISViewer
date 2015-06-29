@@ -29,7 +29,7 @@ public class PointAddPaneClass extends ToolPanel implements ExtendedToolPaneInte
 		this.MainHandle=MainHandle;
 	}
 	public PointAddPaneClass(){
-		JLabel Title=new JLabel("兴趣点批量插入面板");
+		JLabel Title=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("兴趣点批量插入面板"));
 		Title.setFont(new Font("华文新魏",Font.BOLD,28));
 		Title.setForeground(Color.red);
 		add(Title);
@@ -65,19 +65,21 @@ public class PointAddPaneClass extends ToolPanel implements ExtendedToolPaneInte
 			MainHandle.PointEmpty();
 		}else if(e.getSource()==Submit){
 			if(MainHandle.getPointCount()<1){
-				JOptionPane.showMessageDialog(null,"不允许空提交","拒绝提交",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("不允许空提交"),
+						MapKernel.MapWizard.LanguageDic.GetWords("拒绝提交"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			String str;
 			if(MainHandle.getPreference().ValidizeCommonString.isSelected()) 
 				str=MainHandle.getPreference().CommonString.getText();
-			else str=JOptionPane.showInputDialog(null,"输入地理线路标签","确认提交",JOptionPane.PLAIN_MESSAGE);
+			else str=JOptionPane.showInputDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("输入地理线路标签"),
+					MapKernel.MapWizard.LanguageDic.GetWords("确认提交"),JOptionPane.PLAIN_MESSAGE);
 			if(str!=null){
-				MainHandle.ChangeTitle("成功提交了【"+str+"】");
+				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("成功提交了")+"【"+str+"】");
 				MainHandle.PointDatabaseAppend(str);
 				MainHandle.PointEmpty();
 			}else{
-				MainHandle.ChangeTitle("放弃提交,仍然为您保留未提交数据");
+				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("放弃提交,仍然为您保留未提交数据"));
 			}
 		}
 	}
@@ -85,43 +87,43 @@ public class PointAddPaneClass extends ToolPanel implements ExtendedToolPaneInte
 	JCheckBox ConfirmLink,ShowPointHint;
 	JButton CancelLastOne,CancelAll,Submit;
 	public void SpecificProcess(){
-		ConfirmLink=new JCheckBox("勾选则开始创建兴趣点，取消则放弃");
+		ConfirmLink=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("勾选则开始创建兴趣点，取消则放弃"));
 		ConfirmLink.setOpaque(false);
 		ConfirmLink.addItemListener(this);
 		ConfirmLink.setForeground(Color.red);
 		add(ConfirmLink);
-		ShowPointHint=new JCheckBox("勾选则显示添加顺序，取消则不显示");
+		ShowPointHint=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("勾选则显示添加顺序，取消则不显示"));
 		ShowPointHint.setOpaque(false);
 		ShowPointHint.addItemListener(this);
 		ShowPointHint.setForeground(Color.red);
 		add(ShowPointHint);
-		CancelLastOne=new JButton("取消最近");
+		CancelLastOne=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("取消最近"));
 		CancelLastOne.addActionListener(this);
 		add(CancelLastOne);
-		CancelAll=new JButton("取消全部");
+		CancelAll=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("取消全部"));
 		CancelAll.addActionListener(this);
 		add(CancelAll);
-		Submit=new JButton("提交信息");
+		Submit=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("提交信息"));
 		Submit.addActionListener(this);
 		add(Submit);
 	}
 	public void itemStateChanged(ItemEvent e) {
 		if(e.getSource()==ConfirmLink){
 			if(ConfirmLink.isSelected()){
-				MainHandle.ChangeTitle("兴趣点批量插入中");
+				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("兴趣点批量插入中"));
 				MainHandle.PointEmpty();
 				MainHandle.setPointVisible(true);
 			}else{
-				MainHandle.ChangeTitle("放弃了兴趣点批量插入");
+				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("放弃了兴趣点批量插入"));
 				MainHandle.PointEmpty();
 				MainHandle.setPointVisible(false);
 			}
 		}else if(e.getSource()==ShowPointHint){
 			if(ShowPointHint.isSelected()){
-				MainHandle.ChangeTitle("显示创建顺序");
+				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("显示创建顺序"));
 				MainHandle.setPointHintVisible(true);
 			}else{
-				MainHandle.ChangeTitle("不显示创建顺序");
+				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("不显示创建顺序"));
 				MainHandle.setPointHintVisible(false);
 			}
 		}
@@ -135,11 +137,12 @@ public class PointAddPaneClass extends ToolPanel implements ExtendedToolPaneInte
 	public void convey(double x,double y){
 		if(ConfirmLink.isSelected()){
 			MainHandle.PointPush(x,y,"T"+MainHandle.getPointCount());
-		}else MainHandle.ChangeTitle("没有开始插入兴趣点，点击无效");
+		}else MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("没有开始插入兴趣点，点击无效"));
 	}
 	public void convey(double x1,double y1,double x2,double y2){
 		MainHandle.PointSelect(x1,y1,x2,y2);
-		int n=JOptionPane.showConfirmDialog(null,"是则删除，否则区域截图生成","确认删除",JOptionPane.YES_NO_OPTION);
+		int n=JOptionPane.showConfirmDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("是则删除，否则区域截图生成"),
+				MapKernel.MapWizard.LanguageDic.GetWords("确认删除"),JOptionPane.YES_NO_OPTION);
 		if(n==JOptionPane.YES_OPTION){
 			MainHandle.PointSelectDelete();
 			MainHandle.ResetPointHint("T");
@@ -153,19 +156,21 @@ public class PointAddPaneClass extends ToolPanel implements ExtendedToolPaneInte
 	public void confirm() {
 		// TODO Auto-generated method stub
 		if(MainHandle.getPointCount()<1){
-			JOptionPane.showMessageDialog(null,"不允许空提交","拒绝提交",JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("不允许空提交"),
+					MapKernel.MapWizard.LanguageDic.GetWords("拒绝提交"),JOptionPane.WARNING_MESSAGE);
 			return;
 		}
 		String str;
 		if(MainHandle.getPreference().ValidizeCommonString.isSelected()) 
 			str=MainHandle.getPreference().CommonString.getText();
-		else str=JOptionPane.showInputDialog(null,"输入地理线路标签","确认提交",JOptionPane.PLAIN_MESSAGE);
+		else str=JOptionPane.showInputDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("输入地理线路标签"),
+				MapKernel.MapWizard.LanguageDic.GetWords("确认提交"),JOptionPane.PLAIN_MESSAGE);
 		if(str!=null){
-			MainHandle.ChangeTitle("成功提交了【"+str+"】");
+			MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("成功提交了")+"【"+str+"】");
 			MainHandle.PointDatabaseAppend(str);
 			MainHandle.PointEmpty();
 		}else{
-			MainHandle.ChangeTitle("放弃提交,仍然为您保留未提交数据");
+			MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("放弃提交,仍然为您保留未提交数据"));
 		}
 	}
 	@Override

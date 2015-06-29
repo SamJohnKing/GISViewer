@@ -34,7 +34,9 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 		JLabel l0,l1,l2;
 		JTextField KeyWordA,KeyWordB;
 		String[][] Result=new String[Math.min(100000,Database.PolygonDataSet.PolygonMaxNum)][3];
-		String[] Title={"序号","显示","备注"};
+		String[] Title={MapKernel.MapWizard.LanguageDic.GetWords("序号"),
+				MapKernel.MapWizard.LanguageDic.GetWords("显示"),
+				MapKernel.MapWizard.LanguageDic.GetWords("备注")};
 		JTable ResultTable;
 		TableModel Content;
 		JScrollPane Handle;
@@ -42,16 +44,16 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 		public FacePic(){
 			ResultTable=new JTable();
 			setBounds(0,0,600,435);
-			Hide=new JButton("返回");
+			Hide=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("返回"));
 			Hide.addActionListener(this);
-			l1=new JLabel("关键字A");
+			l1=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("关键字A"));
 			KeyWordA=new JTextField(10);
-			l2=new JLabel("关键字B");
+			l2=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("关键字B"));
 			KeyWordB=new JTextField(10);
-			Query=new JButton("查询");
+			Query=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("查询"));
 			l1.setForeground(Color.orange);
 			l2.setForeground(Color.orange);
-			l0=new JLabel("【二维多边形地理区域数据库检索视窗】");
+			l0=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("【二维多边形地理区域数据库检索视窗】"));
 			l0.setForeground(Color.orange);
 			l0.setFont(new Font("华文新魏",Font.BOLD,30));
 			
@@ -80,12 +82,12 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 			addMouseListener(this);
 			addMouseMotionListener(this);
 			Query.addActionListener(this);
-			DeleteRow=new JButton("删除所在行");
-			Delete=new JButton("删除全部行");
-			UpdateRow=new JButton("写回所在行");
-			Update=new JButton("写回全部行");
-			MoreInfo=new JButton("配置");
-			Locate=new JButton("定位");
+			DeleteRow=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("删除所在行"));
+			Delete=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("删除全部行"));
+			UpdateRow=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("写回所在行"));
+			Update=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("写回全部行"));
+			MoreInfo=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("配置"));
+			Locate=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("定位"));
 			DeleteRow.setVisible(false);
 			Delete.setVisible(false);
 			UpdateRow.setVisible(false);
@@ -123,7 +125,7 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 						continue;
 				}
 				if(HitNum==Math.min(100000,Database.PolygonDataSet.PolygonMaxNum)){
-					JOptionPane.showMessageDialog(null,"结果过多只返回前一部分");
+					JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("结果过多只返回前一部分"));
 					break;
 				}
 				Hit[HitNum]=i;
@@ -134,7 +136,8 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 			TableColumn Column = ResultTable.getColumnModel().getColumn(0);
 			Column.setPreferredWidth(3);
 			if(HitNum==0){
-				JOptionPane.showMessageDialog(null,"对不起没要您要的结果","未命中",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("对不起没要您要的结果"),
+						MapKernel.MapWizard.LanguageDic.GetWords("未命中"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			for(int i=0;i<HitNum;i++){
@@ -168,7 +171,8 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 				ProcessQuery();
 			}else if(e.getSource()==DeleteRow){
 				if(ResultTable.getCellEditor()!=null){
-					JOptionPane.showMessageDialog(null,"您正在编辑单元格,为了数据安全请提前确认","更改内容时不可编辑单元格",JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("您正在编辑单元格,为了数据安全请提前确认"),
+							MapKernel.MapWizard.LanguageDic.GetWords("更改内容时不可编辑单元格"),JOptionPane.WARNING_MESSAGE);
 					return;
 				}
 				int selectRows=ResultTable.getSelectedRowCount();
@@ -179,12 +183,14 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 				  MainHandle.getPolygonDatabase().DatabaseDelete(Integer.parseInt(str));
 				  ProcessQuery();
 				}else{
-					JOptionPane.showMessageDialog(null,"请您选中一行","选中行异常",JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("请您选中一行"),
+							MapKernel.MapWizard.LanguageDic.GetWords("选中行异常"),JOptionPane.WARNING_MESSAGE);
 					return;
 				}
 			}else if(e.getSource()==Delete){
 				if(ResultTable.getCellEditor()!=null){
-					JOptionPane.showMessageDialog(null,"您正在编辑单元格,为了数据安全请提前确认","更改内容时不可编辑单元格",JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("您正在编辑单元格,为了数据安全请提前确认"),
+							MapKernel.MapWizard.LanguageDic.GetWords("更改内容时不可编辑单元格"),JOptionPane.WARNING_MESSAGE);
 					return;
 				}
 				int RowCount=ResultTable.getRowCount();
@@ -197,7 +203,8 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 				ProcessQuery();
 			}else if(e.getSource()==UpdateRow){
 				if(ResultTable.getCellEditor()!=null){
-					JOptionPane.showMessageDialog(null,"您正在编辑单元格,为了数据安全请提前确认","更改内容时不可编辑单元格",JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("您正在编辑单元格,为了数据安全请提前确认"),
+							MapKernel.MapWizard.LanguageDic.GetWords("更改内容时不可编辑单元格"),JOptionPane.WARNING_MESSAGE);
 					return;
 				}
 				int selectRows=ResultTable.getSelectedRowCount();
@@ -210,16 +217,19 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 						  					 (String)tableModel.getValueAt(selectedRowIndex,1),
 						  					(String)tableModel.getValueAt(selectedRowIndex,2));
 				  }catch(Exception ex){
-					  JOptionPane.showMessageDialog(null,"数据库检查到异常格式","数据格式异常",JOptionPane.WARNING_MESSAGE);
+					  JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("数据库检查到异常格式"),
+							  MapKernel.MapWizard.LanguageDic.GetWords("数据格式异常"),JOptionPane.WARNING_MESSAGE);
 				  }
 				  ProcessQuery();
 				}else{
-					JOptionPane.showMessageDialog(null,"请您选中一行","选中行异常",JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("请您选中一行"),
+							MapKernel.MapWizard.LanguageDic.GetWords("选中行异常"),JOptionPane.WARNING_MESSAGE);
 					return;
 				}
 			}else if(e.getSource()==Update){
 				if(ResultTable.getCellEditor()!=null){
-					JOptionPane.showMessageDialog(null,"您正在编辑单元格,为了数据安全请提前确认","更改内容时不可编辑单元格",JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("您正在编辑单元格,为了数据安全请提前确认"),
+							MapKernel.MapWizard.LanguageDic.GetWords("更改内容时不可编辑单元格"),JOptionPane.WARNING_MESSAGE);
 					return;
 				}
 				int RowCount=ResultTable.getRowCount();
@@ -231,7 +241,8 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 						  					 (String)tableModel.getValueAt(i,1),
 						  					(String)tableModel.getValueAt(i,2));
 				  }catch(Exception ex){
-					  JOptionPane.showMessageDialog(null,"数据库检查到异常格式","数据格式异常",JOptionPane.WARNING_MESSAGE);
+					  JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("数据库检查到异常格式"),
+							  MapKernel.MapWizard.LanguageDic.GetWords("数据格式异常"),JOptionPane.WARNING_MESSAGE);
 				  }
 				}
 				ProcessQuery();
@@ -243,7 +254,8 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 					MainHandle.getKernel().PolygonPreferenceView.Convey(Integer.parseInt((String)tableModel.getValueAt(selectedRowIndex,0)));
 					MainHandle.getKernel().PolygonPreferenceView.emerge();
 				}else{
-					JOptionPane.showMessageDialog(null,"请您选中一行","选中行异常",JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("请您选中一行"),
+							MapKernel.MapWizard.LanguageDic.GetWords("选中行异常"),JOptionPane.WARNING_MESSAGE);
 					return;
 				}
 			}else if(e.getSource()==Locate){
@@ -259,7 +271,8 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 					MainHandle.getKernel().Screen.MoveMiddle(midx,midy);
 					MainHandle.ScreenFlush();
 				}else{
-					JOptionPane.showMessageDialog(null,"请您选中一行","选中行异常",JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("请您选中一行"),
+							MapKernel.MapWizard.LanguageDic.GetWords("选中行异常"),JOptionPane.WARNING_MESSAGE);
 					return;
 				}
 			}else if((e.getSource()==KeyWordA)||(e.getSource()==KeyWordB)){

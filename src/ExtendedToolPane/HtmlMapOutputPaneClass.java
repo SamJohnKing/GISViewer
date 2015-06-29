@@ -24,7 +24,7 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 		this.MainHandle=MainHandle;
 	}
 	public HtmlMapOutputPaneClass(){
-		JLabel Title=new JLabel("HtmlMapOutput");
+		JLabel Title=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("HtmlMapOutput"));
 		Title.setFont(new Font("华文新魏",Font.BOLD,30));
 		Title.setForeground(Color.orange);
 		add(Title);
@@ -124,7 +124,7 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 		}else if(e.getSource()==OutputToFile){
 			if((OutputDirectoryPath.getText()==null)||(OutputDirectoryPath.getText().isEmpty()))
 			{
-				JOptionPane.showMessageDialog(null,"Please Set The Directory");
+				JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("Please Set The Directory"));
 				return;
 			}
 			String FullFileName=OutputDirectoryPath.getText()+"\\";
@@ -414,28 +414,28 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 			return OutFile.getAbsolutePath();
 		}
 	}
-	JButton 		OpenSourceFile=new JButton("打开源文件");
+	JButton 		OpenSourceFile=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("打开源文件"));
 	JTextField 		OpenSourceFilePath=new JTextField(12);
-	JRadioButton 	Point_AllTagOutput=new JRadioButton("全部导出");
-	JRadioButton 	Point_SpecificTagOutput=new JRadioButton("按照特定标签导出");
+	JRadioButton 	Point_AllTagOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("全部导出"));
+	JRadioButton 	Point_SpecificTagOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("按照特定标签导出"));
 	JTextField		Point_SpecificTagList=new JTextField(16);
-	JRadioButton 	Point_AllVisibleOutput=new JRadioButton("全部可视元素导出");
-	JRadioButton 	Point_ScreenOutput=new JRadioButton("屏幕导出");
-	JRadioButton 	Point_NoneOutput=new JRadioButton("不导出");
-	JRadioButton 	Line_AllTagOutput=new JRadioButton("全部导出");
-	JRadioButton 	Line_SpecificTagOutput=new JRadioButton("按照特定标签导出");
+	JRadioButton 	Point_AllVisibleOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("全部可视元素导出"));
+	JRadioButton 	Point_ScreenOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("屏幕导出"));
+	JRadioButton 	Point_NoneOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("不导出"));
+	JRadioButton 	Line_AllTagOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("全部导出"));
+	JRadioButton 	Line_SpecificTagOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("按照特定标签导出"));
 	JTextField 		Line_SpecificTagList=new JTextField(16);
-	JRadioButton 	Line_AllVisibleOutput=new JRadioButton("全部可视元素导出");
-	JRadioButton	Line_ScreenOutput=new JRadioButton("屏幕导出");
-	JRadioButton 	Line_NoneOutput=new JRadioButton("不导出");
-	JRadioButton 	Polygon_AllTagOutput=new JRadioButton("全部导出");
-	JRadioButton 	Polygon_SpecificTagOutput=new JRadioButton("按照特定标签导出");
+	JRadioButton 	Line_AllVisibleOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("全部可视元素导出"));
+	JRadioButton	Line_ScreenOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("屏幕导出"));
+	JRadioButton 	Line_NoneOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("不导出"));
+	JRadioButton 	Polygon_AllTagOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("全部导出"));
+	JRadioButton 	Polygon_SpecificTagOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("按照特定标签导出"));
 	JTextField		Polygon_SpecificTagList=new JTextField(16);
-	JRadioButton 	Polygon_AllVisibleOutput=new JRadioButton("全部可视元素导出");
-	JRadioButton	Polygon_ScreenOutput=new JRadioButton("屏幕导出");
-	JRadioButton 	Polygon_NoneOutput=new JRadioButton("不导出");
-	JButton 		InstantView=new JButton("立即打开HTML");
-	JButton			OutputToFile=new JButton("导出HTML文件");
+	JRadioButton 	Polygon_AllVisibleOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("全部可视元素导出"));
+	JRadioButton	Polygon_ScreenOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("屏幕导出"));
+	JRadioButton 	Polygon_NoneOutput=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("不导出"));
+	JButton 		InstantView=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("立即打开HTML"));
+	JButton			OutputToFile=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("导出HTML文件"));
 	JTextField		OutputDirectoryPath=new JTextField(15);
 	JTextField		OutputFileName=new JTextField(15);
 	JTextField		Point_LongitudeDelta=new JTextField(8);
@@ -577,11 +577,11 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 		add(OutputToFile);
 		InstantView.addActionListener(this);
 		OutputToFile.addActionListener(this);
-		JLabel Directory_Label=new JLabel("Directory");
+		JLabel Directory_Label=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("Directory"));
 		Directory_Label.setForeground(Color.orange);
 		add(Directory_Label);
 		add(OutputDirectoryPath);
-		JLabel FileName_Label=new JLabel("FileName");
+		JLabel FileName_Label=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("FileName"));
 		FileName_Label.setForeground(Color.orange);
 		add(FileName_Label);
 		add(FileName_Label);
@@ -594,14 +594,14 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 		//-----------------
 	}
 	public void convey(double x,double y){
-		JOptionPane.showMessageDialog(null,"ConveyPoint");
+		JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("ConveyPoint"));
 	}
 	public void convey(double x1,double y1,double x2,double y2){
-		JOptionPane.showMessageDialog(null,"ConveyRectangle");
+		JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("ConveyRectangle"));
 	}
 	@Override
 	public void confirm() {
-		JOptionPane.showMessageDialog(null, "ConfirmFunction");
+		JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("ConfirmFunction"));
 		// TODO Auto-generated method stub
 	}
 	private int SocketTransactionCounter=0;

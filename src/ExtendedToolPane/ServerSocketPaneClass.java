@@ -25,7 +25,7 @@ public  class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPan
 		ServerHandle.setProcessor(this);
 	}
 	public ServerSocketPaneClass(){
-		JLabel Title=new JLabel("ServerSocketPane");
+		JLabel Title=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("ServerSocketPane"));
 		Title.setFont(new Font("华文新魏",Font.BOLD,30));
 		Title.setForeground(Color.orange);
 		add(Title);
@@ -76,21 +76,21 @@ public  class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPan
 		ServerHandle=new InternetHandle.ServerHandle();
 		ServerHandle.setHandle(MainHandle);
 		ServerHandle.setProcessor(this);
-		JLabel port=new JLabel("ServerSocketPort");
+		JLabel port=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("ServerSocketPort"));
 		port.setFont(new Font("华文新魏",Font.BOLD,16));
 		port.setForeground(Color.orange);
 		add(port);
 		SocketNumField=new JTextField(10);
 		add(SocketNumField);
-		IsProcessingTransaction=new JCheckBox("Order Server to Process Transaction");
+		IsProcessingTransaction=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("Order Server to Process Transaction"));
 		IsProcessingTransaction.setSelected(true);
 		IsProcessingTransaction.setOpaque(false);
 		IsProcessingTransaction.setForeground(Color.orange);
 		add(IsProcessingTransaction);
-		StartButton=new JButton("ServerStart");
+		StartButton=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("ServerStart"));
 		add(StartButton);
 		StartButton.addActionListener(this);
-		EndButton=new JButton("ServerStop");
+		EndButton=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("ServerStop"));
 		add(EndButton);
 		EndButton.addActionListener(this);
 	}
@@ -101,14 +101,14 @@ public  class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPan
 		//-----------------
 	}
 	public void convey(double x,double y){
-		JOptionPane.showMessageDialog(null,"ConveyPoint");
+		JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("ConveyPoint"));
 	}
 	public void convey(double x1,double y1,double x2,double y2){
-		JOptionPane.showMessageDialog(null,"ConveyRectangle");
+		JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("ConveyRectangle"));
 	}
 	@Override
 	public void confirm() {
-		JOptionPane.showMessageDialog(null, "ConfirmFunction");
+		JOptionPane.showMessageDialog(null, MapKernel.MapWizard.LanguageDic.GetWords("ConfirmFunction"));
 		// TODO Auto-generated method stub
 	}
 	private int SocketTransactionCounter=0;
@@ -129,7 +129,7 @@ public  class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPan
 		SocketTransactionCounter%=100000000;
 		try{
 		String Command=SocketQuery.substring(0,pos);
-		String str=SocketQuery.substring(pos+2);
+		String str=SocketQuery.substring(pos+2).trim();
 		if(Command.equals("InsertPoint")){
 			pos=str.indexOf('#');
 			_pos=str.indexOf('#',pos+1);
@@ -197,7 +197,23 @@ public  class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPan
 			int n=JOptionPane.showConfirmDialog(null,str,"GIS Info Upheval",JOptionPane.OK_CANCEL_OPTION);
 			if(n==JOptionPane.OK_OPTION) return "Success::";
 			else return "Abort::";
-		}else return "Fail::";
+		}else if(Command.equals("OutputPoints")){
+			MainHandle.getPointDatabase().DatabaseFileOutput(new File(str));
+			return "Success::";
+		}else if(Command.equals("OutputLines")){
+			MainHandle.getLineDatabase().DatabaseFileOutput(new File(str));
+			return "Success::";
+		}else if(Command.equals("OutputPolygons")){
+			MainHandle.getPolygonDatabase().DatabaseFileOutput(new File(str));
+			return "Success::";
+		}else if(Command.equals("OutputScreen")){
+			MainHandle.getKernel().ScreenPNGOutput(str);
+			return "Success::";
+		}else if(Command.equals("AlphaDrawer")){
+			MainHandle.getKernel().Screen.AlphaDrawer(str);
+			return "Success::";
+		}
+		else return "Fail::";
 		}catch(Exception ex){
 			PointDB.AttributeDelete("SocketInsert","Transaction"+SocketTransactionCounter,null,null,null);
 			LineDB.AttributeDelete("SocketInsert","Transaction"+SocketTransactionCounter,null,null,null);

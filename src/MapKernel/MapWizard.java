@@ -111,17 +111,17 @@ public void CleanUp(){//打开文件时清空所有数据结构
 			addMouseListener(this);
 			addMouseMotionListener(this);
 			//--------------------------------------------
-			l0=new JLabel("出租车自由追踪");
+			l0=new JLabel(LanguageDic.GetWords("出租车自由追踪"));
 			l0.setFont(new Font("华文新魏",Font.BOLD,25));
 			l0.setForeground(Color.black);
 			add(l0);
-			ShowTaxiCode=new JButton("显示出租车标识");
+			ShowTaxiCode=new JButton(LanguageDic.GetWords("显示出租车标识"));
 			ShowTaxiCode.addActionListener(this);
-			VeilTaxiCode=new JButton("隐藏出租车标识");
+			VeilTaxiCode=new JButton(LanguageDic.GetWords("隐藏出租车标识"));
 			VeilTaxiCode.addActionListener(this);
 			add(ShowTaxiCode);
 			add(VeilTaxiCode);
-			JLabel l1=new JLabel("出租车标识");
+			JLabel l1=new JLabel(LanguageDic.GetWords("出租车标识"));
 			l1.setForeground(Color.red);
 			add(l1);
 			Code=new JTextField(20);
@@ -129,16 +129,16 @@ public void CleanUp(){//打开文件时清空所有数据结构
 			add(Code);
 			ShowTaxiCode.setEnabled(true);
 			VeilTaxiCode.setEnabled(false);
-			StartTrace=new JButton("开始追踪");
+			StartTrace=new JButton(LanguageDic.GetWords("开始追踪"));
 			StartTrace.addActionListener(this);
-			GiveUpTrace=new JButton("放弃追踪");
+			GiveUpTrace=new JButton(LanguageDic.GetWords("放弃追踪"));
 			GiveUpTrace.addActionListener(this);
-			Back=new JButton("返回");
+			Back=new JButton(LanguageDic.GetWords("返回"));
 			Back.addActionListener(this);
 			add(StartTrace);
 			add(GiveUpTrace);
 			add(Back);
-			ShowLandMark=new JButton("动态显示/隐藏周遭信息");
+			ShowLandMark=new JButton(LanguageDic.GetWords("动态显示/隐藏周遭信息"));
 			ShowLandMark.addActionListener(this);
 			add(ShowLandMark);
 			//--------------------------------------------
@@ -164,7 +164,8 @@ public void CleanUp(){//打开文件时清空所有数据结构
 					}
 				}
 				if(kkk<0){
-					JOptionPane.showMessageDialog(null,"输入的数据未命中","请检查后重新输入",JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null,LanguageDic.GetWords("输入的数据未命中"),
+							LanguageDic.GetWords("请检查后重新输入"),JOptionPane.WARNING_MESSAGE);
 				}else{
 					TaxiSearchPane.Trace=kkk+1;
 					TaxiSearchPane.TraceTheNearest.setEnabled(true);
@@ -278,18 +279,18 @@ public void CleanUp(){//打开文件时清空所有数据结构
 		JScrollPane Handle;
 		public FacePic(){
 			setBounds(0,0,315,525);
-			l0=new JLabel("快速定位工具窗");
+			l0=new JLabel(LanguageDic.GetWords("快速定位工具窗"));
 			l0.setFont(new Font("华文新魏",Font.BOLD,20));
 			add(l0);
 			PhotoPic=new Photo();
 			add(PhotoPic);
-			Hide=new JButton("返回");
+			Hide=new JButton(LanguageDic.GetWords("返回"));
 			Hide.addActionListener(this);
 			addMouseListener(this);
 			addMouseMotionListener(this);
-			Confirm=new JButton("定位");
+			Confirm=new JButton(LanguageDic.GetWords("定位"));
 			Confirm.addActionListener(this);
-			WriteBack=new JButton("写回缓存");
+			WriteBack=new JButton(LanguageDic.GetWords("写回缓存"));
 			WriteBack.addActionListener(this);
 			Name=new JTextField(27);
 			Script=new JTextArea(8,26);
@@ -314,22 +315,22 @@ public void CleanUp(){//打开文件时清空所有数据结构
 				Screen.MoveMiddle(GPSPoints.LandMarkLongitude[Emerge_ID],GPSPoints.LandMarkLatitude[Emerge_ID]);
 				Screen.repaint();
 				if(NowPanel==RouteSearchPane){
-					int n=JOptionPane.showConfirmDialog(null,"您现在正处于路径规划阶段，选为起点按是,选为终点按否，放弃按取消","起点终点选取",JOptionPane.YES_NO_CANCEL_OPTION);
+					int n=JOptionPane.showConfirmDialog(null,LanguageDic.GetWords("您现在正处于路径规划阶段，选为起点按是,选为终点按否，放弃按取消"),LanguageDic.GetWords("起点终点选取"),JOptionPane.YES_NO_CANCEL_OPTION);
 					if(n==JOptionPane.YES_OPTION){
 						RouteSearchPane.SourceLongitude.setText(java.lang.Double.toString(GPSPoints.LandMarkLongitude[Emerge_ID]));
 						RouteSearchPane.SourceLatitude.setText(java.lang.Double.toString(GPSPoints.LandMarkLatitude[Emerge_ID]));
-						JOptionPane.showMessageDialog(null,"【"+GPSPoints.LandMarkName[Emerge_ID]+"】成功设置为起点","起点设置成功",JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(null,"【"+GPSPoints.LandMarkName[Emerge_ID]+"】"+LanguageDic.GetWords("成功设置为起点"),LanguageDic.GetWords("起点设置成功"),JOptionPane.INFORMATION_MESSAGE);
 					}else if(n==JOptionPane.NO_OPTION){
 						RouteSearchPane.TerminalLongitude.setText(java.lang.Double.toString(GPSPoints.LandMarkLongitude[Emerge_ID]));
 						RouteSearchPane.TerminalLatitude.setText(java.lang.Double.toString(GPSPoints.LandMarkLatitude[Emerge_ID]));
-						JOptionPane.showMessageDialog(null,"【"+GPSPoints.LandMarkName[Emerge_ID]+"】成功设置为终点","终点设置成功",JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(null,"【"+GPSPoints.LandMarkName[Emerge_ID]+"】"+LanguageDic.GetWords("成功设置为终点"),LanguageDic.GetWords("终点设置成功"),JOptionPane.INFORMATION_MESSAGE);
 					}
 				}else if(NowPanel==TaxiSearchPane){
-					int n=JOptionPane.showConfirmDialog(null,"您正在应用出租车搜寻功能，选为搜寻源点则按是,否则放弃","出租车搜寻源点设置",JOptionPane.YES_NO_OPTION);
+					int n=JOptionPane.showConfirmDialog(null,LanguageDic.GetWords("您正在应用出租车搜寻功能，选为搜寻源点则按是,否则放弃"),LanguageDic.GetWords("出租车搜寻源点设置"),JOptionPane.YES_NO_OPTION);
 					if(n==JOptionPane.YES_OPTION){
 						TaxiSearchPane.CenterLongitude.setText(java.lang.Double.toString(GPSPoints.LandMarkLongitude[Emerge_ID]));
 						TaxiSearchPane.CenterLatitude.setText(java.lang.Double.toString(GPSPoints.LandMarkLatitude[Emerge_ID]));
-						JOptionPane.showMessageDialog(null,"【"+GPSPoints.LandMarkName[Emerge_ID]+"】成功设置为源点","源点设置成功",JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(null,"【"+GPSPoints.LandMarkName[Emerge_ID]+"】"+LanguageDic.GetWords("成功设置为源点"),LanguageDic.GetWords("源点设置成功"),JOptionPane.INFORMATION_MESSAGE);
 					}
 				}
 				Hide();
@@ -397,7 +398,7 @@ public class LandMarkQueryFrameClass extends JFrame{//用于显示数据库的�
 	JLabel l0,l1,l2;
 	JTextField Name,Type;
 	String[][] Result=new String[10000][5];
-	String[] Title={"序号","经度","纬度","名称","类型"};
+	String[] Title={LanguageDic.GetWords("序号"),LanguageDic.GetWords("经度"),LanguageDic.GetWords("纬度"),LanguageDic.GetWords("名称"),LanguageDic.GetWords("类型")};
 	JTable ResultTable;
 	TableModel Content;
 	JScrollPane Handle;
@@ -405,17 +406,17 @@ public class LandMarkQueryFrameClass extends JFrame{//用于显示数据库的�
 	public FacePic(){
 		ResultTable=new JTable();
 		setBounds(0,0,600,435);
-		Hide=new JButton("返回");
+		Hide=new JButton(LanguageDic.GetWords("返回"));
 		Hide.addActionListener(this);
-		l1=new JLabel("名称关键字");
+		l1=new JLabel(LanguageDic.GetWords("名称关键字"));
 		Name=new JTextField(10);
-		l2=new JLabel("类型关键字");
+		l2=new JLabel(LanguageDic.GetWords("类型关键字"));
 		Type=new JTextField(10);
-		Query=new JButton("查询");
+		Query=new JButton(LanguageDic.GetWords("查询"));
 		l1.setForeground(Color.orange);
 		l2.setForeground(Color.orange);
 		
-		l0=new JLabel("【在下面的输入框内输入地标关键字】");
+		l0=new JLabel(LanguageDic.GetWords("【在下面的输入框内输入地标关键字】"));
 		l0.setForeground(Color.orange);
 		l0.setFont(new Font("华文新魏",Font.BOLD,30));
 		
@@ -444,13 +445,13 @@ public class LandMarkQueryFrameClass extends JFrame{//用于显示数据库的�
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		Query.addActionListener(this);
-		DeleteRow=new JButton("删除选中");
-		Delete=new JButton("删除全部");
-		UpdateRow=new JButton("写回选中");
-		Update=new JButton("写回全部");
-		MoreInfo=new JButton("详细");
-		Transit=new JButton("导出");
-		TransitAll=new JButton("全部导出");
+		DeleteRow=new JButton(LanguageDic.GetWords("删除选中"));
+		Delete=new JButton(LanguageDic.GetWords("删除全部"));
+		UpdateRow=new JButton(LanguageDic.GetWords("写回选中"));
+		Update=new JButton(LanguageDic.GetWords("写回全部"));
+		MoreInfo=new JButton(LanguageDic.GetWords("详细"));
+		Transit=new JButton(LanguageDic.GetWords("导出"));
+		TransitAll=new JButton(LanguageDic.GetWords("全部导出"));
 		DeleteRow.setVisible(false);
 		Delete.setVisible(false);
 		UpdateRow.setVisible(false);
@@ -497,7 +498,7 @@ public class LandMarkQueryFrameClass extends JFrame{//用于显示数据库的�
 		TableColumn Column = ResultTable.getColumnModel().getColumn(0);
 		Column.setPreferredWidth(3);
 		if(HitNum==0){
-			JOptionPane.showMessageDialog(null,"已经没有匹配的结果了","未命中",JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null,LanguageDic.GetWords("已经没有匹配的结果了"),LanguageDic.GetWords("未命中"),JOptionPane.WARNING_MESSAGE);
 			return;
 		}
 		for(int i=0;i<GPSPoints.LandMarkNum;i++){
@@ -541,7 +542,7 @@ public class LandMarkQueryFrameClass extends JFrame{//用于显示数据库的�
 			TableColumn Column = ResultTable.getColumnModel().getColumn(0);
 			Column.setPreferredWidth(3);
 			if(HitNum==0){
-				JOptionPane.showMessageDialog(null,"对不起没要您要的结果","未命中",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("对不起没要您要的结果"),LanguageDic.GetWords("未命中"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			for(int i=0;i<GPSPoints.LandMarkNum;i++){
@@ -566,7 +567,7 @@ public class LandMarkQueryFrameClass extends JFrame{//用于显示数据库的�
 			validate();
 		}else if(e.getSource()==DeleteRow){
 			if(ResultTable.getCellEditor()!=null){
-				JOptionPane.showMessageDialog(null,"您正在编辑单元格,为了数据安全请提前确认","更改内容时不可编辑单元格",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("您正在编辑单元格,为了数据安全请提前确认"),LanguageDic.GetWords("更改内容时不可编辑单元格"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			int selectRows=ResultTable.getSelectedRowCount();
@@ -577,12 +578,12 @@ public class LandMarkQueryFrameClass extends JFrame{//用于显示数据库的�
 			  GPSPoints.LandMarkDeleteRow(Integer.parseInt(str));
 			  reQuery();
 			}else{
-				JOptionPane.showMessageDialog(null,"请您选中一行","选中行异常",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("请您选中一行"),LanguageDic.GetWords("选中行异常"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 		}else if(e.getSource()==Delete){
 			if(ResultTable.getCellEditor()!=null){
-				JOptionPane.showMessageDialog(null,"您正在编辑单元格,为了数据安全请提前确认","更改内容时不可编辑单元格",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("您正在编辑单元格,为了数据安全请提前确认"),LanguageDic.GetWords("更改内容时不可编辑单元格"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			int RowCount=ResultTable.getRowCount();
@@ -594,7 +595,7 @@ public class LandMarkQueryFrameClass extends JFrame{//用于显示数据库的�
 			reQuery();
 		}else if(e.getSource()==UpdateRow){
 			if(ResultTable.getCellEditor()!=null){
-				JOptionPane.showMessageDialog(null,"您正在编辑单元格,为了数据安全请提前确认","更改内容时不可编辑单元格",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("您正在编辑单元格,为了数据安全请提前确认"),LanguageDic.GetWords("更改内容时不可编辑单元格"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			int selectRows=ResultTable.getSelectedRowCount();
@@ -609,16 +610,16 @@ public class LandMarkQueryFrameClass extends JFrame{//用于显示数据库的�
 					  					(String)tableModel.getValueAt(selectedRowIndex,3),
 					  					(String)tableModel.getValueAt(selectedRowIndex,4));
 			  }catch(Exception ex){
-				  JOptionPane.showMessageDialog(null,"数据库检查到异常格式","数据格式异常",JOptionPane.WARNING_MESSAGE);
+				  JOptionPane.showMessageDialog(null,LanguageDic.GetWords("数据库检查到异常格式"),LanguageDic.GetWords("数据格式异常"),JOptionPane.WARNING_MESSAGE);
 			  }
 			  reQuery();
 			}else{
-				JOptionPane.showMessageDialog(null,"请您选中一行","选中行异常",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("请您选中一行"),LanguageDic.GetWords("选中行异常"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 		}else if(e.getSource()==Update){
 			if(ResultTable.getCellEditor()!=null){
-				JOptionPane.showMessageDialog(null,"您正在编辑单元格,为了数据安全请提前确认","更改内容时不可编辑单元格",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("您正在编辑单元格,为了数据安全请提前确认"),LanguageDic.GetWords("更改内容时不可编辑单元格"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			int RowCount=ResultTable.getRowCount();
@@ -632,7 +633,7 @@ public class LandMarkQueryFrameClass extends JFrame{//用于显示数据库的�
 					  					(String)tableModel.getValueAt(i,3),
 					  					(String)tableModel.getValueAt(i,4));
 			  }catch(Exception ex){
-				  JOptionPane.showMessageDialog(null,"数据库检查到异常格式","数据格式异常",JOptionPane.WARNING_MESSAGE);
+				  JOptionPane.showMessageDialog(null,LanguageDic.GetWords("数据库检查到异常格式"),LanguageDic.GetWords("数据格式异常"),JOptionPane.WARNING_MESSAGE);
 			  }
 			}
 			reQuery();
@@ -643,7 +644,7 @@ public class LandMarkQueryFrameClass extends JFrame{//用于显示数据库的�
 				int selectedRowIndex = ResultTable.getSelectedRow();
 				LandMarkSpotFrame.emerge(Integer.parseInt((String)tableModel.getValueAt(selectedRowIndex,0)));
 			}else{
-				JOptionPane.showMessageDialog(null,"请您选中一行","选中行异常",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("请您选中一行"),LanguageDic.GetWords("选中行异常"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 		}else if((e.getSource()==Name)||(e.getSource()==Type)){
@@ -660,12 +661,12 @@ public class LandMarkQueryFrameClass extends JFrame{//用于显示数据库的�
 				String str="[Title:"+GPSPoints.LandMarkName[index]+"][Info:"+GPSPoints.LandMarkType[index]+"]";
 				PointDatabase.add(GPSPoints.LandMarkLongitude[index],GPSPoints.LandMarkLatitude[index],str);
 			}else{
-				JOptionPane.showMessageDialog(null,"请您选中一行","选中行异常",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("请您选中一行"),LanguageDic.GetWords("选中行异常"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 		}else if(e.getSource()==TransitAll){
 			if(ResultTable.getCellEditor()!=null){
-				JOptionPane.showMessageDialog(null,"您正在编辑单元格,为了数据安全请提前确认","更改内容时不可编辑单元格",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("您正在编辑单元格,为了数据安全请提前确认"),LanguageDic.GetWords("更改内容时不可编辑单元格"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			int RowCount=ResultTable.getRowCount();
@@ -677,7 +678,7 @@ public class LandMarkQueryFrameClass extends JFrame{//用于显示数据库的�
 				PointDatabase.add(GPSPoints.LandMarkLongitude[Integer.parseInt(str)],GPSPoints.LandMarkLatitude[Integer.parseInt(str)],sss);
 
 			  }catch(Exception ex){
-				  JOptionPane.showMessageDialog(null,"数据库检查到异常格式","数据格式异常",JOptionPane.WARNING_MESSAGE);
+				  JOptionPane.showMessageDialog(null,LanguageDic.GetWords("数据库检查到异常格式"),LanguageDic.GetWords("数据格式异常"),JOptionPane.WARNING_MESSAGE);
 			  }
 			}
 			reQuery();
@@ -746,7 +747,7 @@ public class About extends JFrame{//显示版权信息
 		setLayout(null);
 		setBounds(0,0,542,390);
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		setTitle("关于软件");
+		setTitle(LanguageDic.GetWords("关于软件"));
 	}
 	public void paintComponent(Graphics g){
 		Toolkit kit=getToolkit();
@@ -827,54 +828,54 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			g.drawImage(img,0,0,280,680,this);
 		}
 		public CalibratePaneClass(){
-			JLabel Title=new JLabel("GPS偏差校准工具栏");
+			JLabel Title=new JLabel(LanguageDic.GetWords("GPS偏差校准工具栏"));
 			Title.setFont(new Font("华文新魏",Font.BOLD,25));
 			add(Title);
 			LongitudeText=new JTextField(15);
 			LatitudeText=new JTextField(15);
-			ScreenLockButton=new JButton("锁住屏幕");
+			ScreenLockButton=new JButton(LanguageDic.GetWords("锁住屏幕"));
 			ScreenLockButton.addActionListener(this);
-			ScreenUnLockButton=new JButton("解锁屏幕");
+			ScreenUnLockButton=new JButton(LanguageDic.GetWords("解锁屏幕"));
 			ScreenUnLockButton.addActionListener(this);
 			X1Text=new JTextField(15);
 			Y1Text=new JTextField(15);
 			X2Text=new JTextField(15);
 			Y2Text=new JTextField(15);
 			
-			add(new JLabel("鼠标指向经度"));
+			add(new JLabel(LanguageDic.GetWords("鼠标指向经度")));
 			add(LongitudeText);
-			add(new JLabel("鼠标指向纬度"));
+			add(new JLabel(LanguageDic.GetWords("鼠标指向纬度")));
 			add(LatitudeText);
 			add(ScreenLockButton);
 			add(new JLabel("    "));
 			add(ScreenUnLockButton);
 			
-			ForbidAddPoint=new JButton("禁止插入新点");
+			ForbidAddPoint=new JButton(LanguageDic.GetWords("禁止插入新点"));
 			ForbidAddPoint.addActionListener(this);
 			add(ForbidAddPoint);
 			
-			PermitAddPoint=new JButton("允许插入新点");
+			PermitAddPoint=new JButton(LanguageDic.GetWords("允许插入新点"));
 			PermitAddPoint.addActionListener(this);
 			add(PermitAddPoint);
 			
-			RemoveSelectedPoints=new JButton("删除被选中的点");
+			RemoveSelectedPoints=new JButton(LanguageDic.GetWords("删除被选中的点"));
 			RemoveSelectedPoints.addActionListener(this);
 			add(RemoveSelectedPoints);
 			
-			RemoveInvolvedPoints=new JButton("删除被影响的点");
+			RemoveInvolvedPoints=new JButton(LanguageDic.GetWords("删除被影响的点"));
 			RemoveInvolvedPoints.addActionListener(this);
 			add(RemoveInvolvedPoints);
 			
-			ShowDirection=new JButton("显示偏差向量");
+			ShowDirection=new JButton(LanguageDic.GetWords("显示偏差向量"));
 			ShowDirection.addActionListener(this);
 			add(ShowDirection);
 			
-			ShowResult=new JButton("显示统计结果");
+			ShowResult=new JButton(LanguageDic.GetWords("显示统计结果"));
 			ShowResult.addActionListener(this);
 			add(ShowResult);
 			
-			JLabel Tip1=new JLabel("[温馨提示]拖拽选中");
-			JLabel Tip2=new JLabel("需要锁屏和禁止加点");
+			JLabel Tip1=new JLabel(LanguageDic.GetWords("[温馨提示]拖拽选中"));
+			JLabel Tip2=new JLabel(LanguageDic.GetWords("需要锁屏和禁止加点"));
 			Tip1.setForeground(Color.red);
 			Tip2.setForeground(Color.red);			
 			Tip1.setFont(new Font("华文新魏",Font.BOLD,25));
@@ -882,19 +883,19 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			add(Tip1);
 			add(Tip2);
 			
-			add(new JLabel("平均GPS经度差  "));
+			add(new JLabel(LanguageDic.GetWords("平均GPS经度差  ")));
 			AveDeltaLongitude=new JTextField(15);
 			add(AveDeltaLongitude);
 			
-			add(new JLabel("平均GPS纬度差  "));
+			add(new JLabel(LanguageDic.GetWords("平均GPS纬度差  ")));
 			AveDeltaLatitude=new JTextField(15);
 			add(AveDeltaLatitude);
 			
-			add(new JLabel("球面投影北偏/米"));
+			add(new JLabel(LanguageDic.GetWords("球面投影北偏/米")));
 			AveDeltaNorth=new JTextField(15);
 			add(AveDeltaNorth);
 			
-			add(new JLabel("球面投影东偏/米"));
+			add(new JLabel(LanguageDic.GetWords("球面投影东偏/米")));
 			AveDeltaEast=new JTextField(15);
 			add(AveDeltaEast);
 			
@@ -1076,19 +1077,19 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		JButton pred,succ;
 		int SlideID=-1;
 		public BasicInfoPaneClass(){
-			JLabel Title=new JLabel("地理信息工具栏");
+			JLabel Title=new JLabel(LanguageDic.GetWords("地理信息工具栏"));
 			Title.setFont(new Font("华文新魏",Font.BOLD,30));
 			add(Title);
 			LongitudeText=new JTextField(15);
 			LatitudeText=new JTextField(15);
-			ScreenLockButton=new JButton("锁住屏幕");
+			ScreenLockButton=new JButton(LanguageDic.GetWords("锁住屏幕"));
 			ScreenLockButton.addActionListener(this);
-			ScreenUnLockButton=new JButton("解锁屏幕");
+			ScreenUnLockButton=new JButton(LanguageDic.GetWords("解锁屏幕"));
 			ScreenUnLockButton.addActionListener(this);
 			
-			add(new JLabel("鼠标指向经度"));
+			add(new JLabel(LanguageDic.GetWords("鼠标指向经度")));
 			add(LongitudeText);
-			add(new JLabel("鼠标指向纬度"));
+			add(new JLabel(LanguageDic.GetWords("鼠标指向纬度")));
 			add(LatitudeText);
 			add(ScreenLockButton);
 			add(ScreenUnLockButton);
@@ -1097,8 +1098,8 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			LandMarkName=new JTextField(22);
 			LandMarkType=new JTextField(22);
 			LandMarkScript=new JTextArea(8,22);
-			pred=new JButton("上一个");
-			succ=new JButton("下一个");
+			pred=new JButton(LanguageDic.GetWords("上一个"));
+			succ=new JButton(LanguageDic.GetWords("下一个"));
 			pred.addActionListener(this);
 			succ.addActionListener(this);
 			
@@ -1156,7 +1157,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 						}
 					}
 					if(temp==-1){
-						JOptionPane.showMessageDialog(null,"已经到尾元素","遭遇尾元素",JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(null,LanguageDic.GetWords("已经到尾元素"),LanguageDic.GetWords("遭遇尾元素"),JOptionPane.INFORMATION_MESSAGE);
 					}else{
 						SlideID=temp;
 						FullFillSlide();
@@ -1172,7 +1173,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					}
 				}
 				if(temp==-1){
-					JOptionPane.showMessageDialog(null,"已经到首元素","遭遇首元素",JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(null,LanguageDic.GetWords("已经到首元素"),LanguageDic.GetWords("遭遇首元素"),JOptionPane.INFORMATION_MESSAGE);
 				}else{
 					SlideID=temp;
 					FullFillSlide();
@@ -1211,19 +1212,19 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		}
 		public TaxiSearchPaneClass(){
 			ConcentrateTaxiWizard=new ConcentrateTaxiWizardClass();
-			JLabel Title=new JLabel("出租车定位工具栏");
+			JLabel Title=new JLabel(LanguageDic.GetWords("出租车定位工具栏"));
 			Title.setFont(new Font("华文新魏",Font.BOLD,30));
 			add(Title);
 			LongitudeText=new JTextField(15);
 			LatitudeText=new JTextField(15);
-			ScreenLockButton=new JButton("锁住屏幕");
+			ScreenLockButton=new JButton(LanguageDic.GetWords("锁住屏幕"));
 			ScreenLockButton.addActionListener(this);
-			ScreenUnLockButton=new JButton("解锁屏幕");
+			ScreenUnLockButton=new JButton(LanguageDic.GetWords("解锁屏幕"));
 			ScreenUnLockButton.addActionListener(this);
 			
-			add(new JLabel("鼠标指向经度"));
+			add(new JLabel(LanguageDic.GetWords("鼠标指向经度")));
 			add(LongitudeText);
-			add(new JLabel("鼠标指向纬度"));
+			add(new JLabel(LanguageDic.GetWords("鼠标指向纬度")));
 			add(LatitudeText);
 			add(ScreenLockButton);
 			add(new JLabel("      "));
@@ -1241,35 +1242,35 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			CenterLatitude=new JTextField(15);
 			RadiusDis=new JTextField(15);
 			
-			ShowSelectedTaxi=new JButton("在地图上显示出租车");
-			NotShowSelectedTaxi=new JButton("在地图上清除出租车");
+			ShowSelectedTaxi=new JButton(LanguageDic.GetWords("在地图上显示出租车"));
+			NotShowSelectedTaxi=new JButton(LanguageDic.GetWords("在地图上清除出租车"));
 			ShowSelectedTaxi.addActionListener(this);
 			NotShowSelectedTaxi.addActionListener(this);
-			DataBaseReference=new JButton("利用数据库进行经纬度坐标选择");
+			DataBaseReference=new JButton(LanguageDic.GetWords("利用数据库进行经纬度坐标选择"));
 			DataBaseReference.addActionListener(this);
 			
-			add(new JLabel("所在点经度     "));
+			add(new JLabel(LanguageDic.GetWords("所在点经度     ")));
 			add(CenterLongitude);
-			add(new JLabel("所在点纬度     "));
+			add(new JLabel(LanguageDic.GetWords("所在点纬度     ")));
 			add(CenterLatitude);
-			add(new JLabel("查询的半径/米"));
+			add(new JLabel(LanguageDic.GetWords("查询的半径/米")));
 			add(RadiusDis);
 			add(ShowSelectedTaxi);
 			add(NotShowSelectedTaxi);
 			add(DataBaseReference);
 			
 			TaxiCount=new JTextField(5);
-			add(new JLabel("当前区域内的出租车数量    "));
+			add(new JLabel(LanguageDic.GetWords("当前区域内的出租车数量    ")));
 			add(TaxiCount);
 
 			TheNearestDis=new JTextField(12);		
-			add(new JLabel("最近出租车/米"));
+			add(new JLabel(LanguageDic.GetWords("最近出租车/米")));
 			add(TheNearestDis);
 	
 
-			TraceTheNearest=new JButton("跟踪此刻离你最近的一辆出租车");
-			StopTrace=new JButton("放弃跟踪最近的一辆出租车");
-			TraceFree=new JButton("打开/关闭出租车自由追踪面板");
+			TraceTheNearest=new JButton(LanguageDic.GetWords("跟踪此刻离你最近的一辆出租车"));
+			StopTrace=new JButton(LanguageDic.GetWords("放弃跟踪最近的一辆出租车"));
+			TraceFree=new JButton(LanguageDic.GetWords("打开/关闭出租车自由追踪面板"));
 
 			add(TraceTheNearest);
 			add(StopTrace);
@@ -1343,11 +1344,11 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					}
 				}
 				if(best>=0)
-					Screen.ScreenHint=Integer.toString(ClockWizard.pic.getHour())+"时"
-					+Integer.toString(ClockWizard.pic.getMinute())+"分"
-					+Integer.toString(ClockWizard.pic.getSecond())+"秒状况："
-					+"距离["+GPSPoints.LandMarkName[best]+"]有 "+Integer.toString((int)mindis)+" 米";
-				else Screen.ScreenHint="未收到返回信号";
+					Screen.ScreenHint=Integer.toString(ClockWizard.pic.getHour())+LanguageDic.GetWords("时")
+					+Integer.toString(ClockWizard.pic.getMinute())+LanguageDic.GetWords("分")
+					+Integer.toString(ClockWizard.pic.getSecond())+LanguageDic.GetWords("秒状况：")
+					+LanguageDic.GetWords("距离")+"["+GPSPoints.LandMarkName[best]+"]"+LanguageDic.GetWords("有 ")+Integer.toString((int)mindis)+LanguageDic.GetWords(" 米");
+				else Screen.ScreenHint=LanguageDic.GetWords(LanguageDic.GetWords("未收到返回信号"));
 				Screen.showDirection(xx,yy,GPSPoints.LandMarkLongitude[best],GPSPoints.LandMarkLatitude[best]);
 				LandMarkSpotFrame.Hide();
 				LandMarkSpotFrame.emerge(best);
@@ -1379,7 +1380,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					centerlatitude=java.lang.Double.parseDouble(CenterLatitude.getText());
 					centerradius=java.lang.Double.parseDouble(RadiusDis.getText());
 				}catch(Exception ex){
-					JOptionPane.showMessageDialog(null,"输入的数据有误","数据异常",JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null,LanguageDic.GetWords("输入的数据有误"),LanguageDic.GetWords("数据异常"),JOptionPane.WARNING_MESSAGE);
 					return;
 				}
 				Screen.XYCount=0;
@@ -1459,40 +1460,40 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				g.drawImage(img,0,0,280,680,this);
 			}
 			public TwoPointPaneClass(){
-				JLabel Title=new JLabel("两点定位工具栏");
+				JLabel Title=new JLabel(LanguageDic.GetWords("两点定位工具栏"));
 				Title.setFont(new Font("华文新魏",Font.BOLD,30));
 				add(Title);
 				LongitudeText=new JTextField(15);
 				LatitudeText=new JTextField(15);
-				ScreenLockButton=new JButton("锁住屏幕");
+				ScreenLockButton=new JButton(LanguageDic.GetWords("锁住屏幕"));
 				ScreenLockButton.addActionListener(this);
-				ScreenUnLockButton=new JButton("解锁屏幕");
+				ScreenUnLockButton=new JButton(LanguageDic.GetWords("解锁屏幕"));
 				ScreenUnLockButton.addActionListener(this);
 				X1Text=new JTextField(15);
 				Y1Text=new JTextField(15);
 				X2Text=new JTextField(15);
 				Y2Text=new JTextField(15);
 				
-				add(new JLabel("鼠标指向经度"));
+				add(new JLabel(LanguageDic.GetWords("鼠标指向经度")));
 				add(LongitudeText);
-				add(new JLabel("鼠标指向纬度"));
+				add(new JLabel(LanguageDic.GetWords("鼠标指向纬度")));
 				add(LatitudeText);
 				add(ScreenLockButton);
 				add(new JLabel("    "));
 				add(ScreenUnLockButton);
-				add(new JLabel("第一个点的经度"));
+				add(new JLabel(LanguageDic.GetWords("第一个点的经度")));
 				add(X1Text);
-				add(new JLabel("第一个点的纬度"));
+				add(new JLabel(LanguageDic.GetWords("第一个点的纬度")));
 				add(Y1Text);
-				add(new JLabel("第二个点的经度"));
+				add(new JLabel(LanguageDic.GetWords("第二个点的经度")));
 				add(X2Text);
-				add(new JLabel("第二个点的纬度"));
+				add(new JLabel(LanguageDic.GetWords("第二个点的纬度")));
 				add(Y2Text);
 				
 				group=new ButtonGroup();
-				SetPoint1=new JRadioButton("当前修改第一个点");
+				SetPoint1=new JRadioButton(LanguageDic.GetWords("当前修改第一个点"));
 				SetPoint1.setOpaque(false);
-				SetPoint2=new JRadioButton("当前修改第二个点");
+				SetPoint2=new JRadioButton(LanguageDic.GetWords("当前修改第二个点"));
 				SetPoint2.setOpaque(false);
 				group.add(SetPoint1);
 				group.add(SetPoint2);
@@ -1501,9 +1502,9 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				SetPoint1.setSelected(true);
 				
 				group=new ButtonGroup();
-				GoalPoint1=new JRadioButton("以第一点为终点");
+				GoalPoint1=new JRadioButton(LanguageDic.GetWords("以第一点为终点"));
 				GoalPoint1.setOpaque(false);
-				GoalPoint2=new JRadioButton("以第二点为终点");
+				GoalPoint2=new JRadioButton(LanguageDic.GetWords("以第二点为终点"));
 				GoalPoint2.setOpaque(false);
 				group.add(GoalPoint1);
 				group.add(GoalPoint2);
@@ -1511,35 +1512,35 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				add(GoalPoint2);
 				GoalPoint2.setSelected(true);
 				
-				add(new JLabel("终点-起点经度差"));
+				add(new JLabel(LanguageDic.GetWords("终点-起点经度差")));
 				DeltaLongitude=new JTextField(15);
 				add(DeltaLongitude);
 				
-				add(new JLabel("终点-起点纬度差"));
+				add(new JLabel(LanguageDic.GetWords("终点-起点纬度差")));
 				DeltaLatitude=new JTextField(15);
 				add(DeltaLatitude);
 				
-				add(new JLabel("终点在起点北/米"));
+				add(new JLabel(LanguageDic.GetWords("终点在起点北/米")));
 				DeltaNorth=new JTextField(15);
 				add(DeltaNorth);
 				
-				add(new JLabel("终点在起点东/米"));
+				add(new JLabel(LanguageDic.GetWords("终点在起点东/米")));
 				DeltaEast=new JTextField(15);
 				add(DeltaEast);
 				
-				add(new JLabel("两点间的距离/米"));
+				add(new JLabel(LanguageDic.GetWords("两点间的距离/米")));
 				DeltaDis=new JTextField(15);
 				add(DeltaDis);
 				
-				DecideButton=new JButton("锁定/解锁起点终点");
+				DecideButton=new JButton(LanguageDic.GetWords("锁定/解锁起点终点"));
 				DecideButton.addActionListener(this);
 				add(DecideButton);
 				
-				ComputeButton=new JButton("计算位置参数");
+				ComputeButton=new JButton(LanguageDic.GetWords("计算位置参数"));
 				ComputeButton.addActionListener(this);
 				add(ComputeButton);
 				
-				MoveScreenButton=new JButton("移动视角到选择的两点区域内");
+				MoveScreenButton=new JButton(LanguageDic.GetWords("移动视角到选择的两点区域内"));
 				MoveScreenButton.addActionListener(this);
 				add(MoveScreenButton);
 				
@@ -1620,7 +1621,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					DeltaEast.setText(java.lang.Double.toString(delta_east));
 					DeltaDis.setText(java.lang.Double.toString(delta_dis));
 					}catch(Exception ex){
-						JOptionPane.showMessageDialog(null,"您的经纬度输入不正确","数据安全提示",JOptionPane.WARNING_MESSAGE);
+						JOptionPane.showMessageDialog(null,LanguageDic.GetWords("您的经纬度输入不正确"),LanguageDic.GetWords("数据安全提示"),JOptionPane.WARNING_MESSAGE);
 					}
 				}else if(e.getSource()==DecideButton){
 					CanChange=CanChange?false:true;
@@ -1637,7 +1638,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					}
 				}else if(e.getSource()==MoveScreenButton){
 					if(X1Text.isEnabled()){
-						JOptionPane.showMessageDialog(null,"您没有锁定两点，请按锁定按钮！！！","数据安全提示",JOptionPane.WARNING_MESSAGE);
+						JOptionPane.showMessageDialog(null,LanguageDic.GetWords("您没有锁定两点，请按锁定按钮！！！"),LanguageDic.GetWords("数据安全提示"),JOptionPane.WARNING_MESSAGE);
 						return;
 					}
 					try{
@@ -1658,7 +1659,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					Screen.repaint();
 					CanChange=true;
 					}catch(Exception ex){
-						JOptionPane.showMessageDialog(null,"您的经纬度输入不正确","数据安全提示",JOptionPane.WARNING_MESSAGE);
+						JOptionPane.showMessageDialog(null,LanguageDic.GetWords("您的经纬度输入不正确"),LanguageDic.GetWords("数据安全提示"),JOptionPane.WARNING_MESSAGE);
 					}
 				}
 			}
@@ -1686,22 +1687,22 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			JCheckBox TheShortestPath;
 			boolean PathOnScreen=false,FocusSource=true;
 			public RouteSearchPaneClass(){
-				JLabel Title=new JLabel("路径规划工具栏");
+				JLabel Title=new JLabel(LanguageDic.GetWords("路径规划工具栏"));
 				Title.setFont(new Font("华文新魏",Font.BOLD,30));
 				Title.setForeground(Color.orange);
 				add(Title);
 				LongitudeText=new JTextField(15);
 				LatitudeText=new JTextField(15);
-				ScreenLockButton=new JButton("锁住屏幕");
+				ScreenLockButton=new JButton(LanguageDic.GetWords("锁住屏幕"));
 				ScreenLockButton.addActionListener(this);
-				ScreenUnLockButton=new JButton("解锁屏幕");
+				ScreenUnLockButton=new JButton(LanguageDic.GetWords("解锁屏幕"));
 				ScreenUnLockButton.addActionListener(this);
 				
-				JLabel Label1=new JLabel("鼠标指向经度");
+				JLabel Label1=new JLabel(LanguageDic.GetWords("鼠标指向经度"));
 				Label1.setForeground(Color.orange);
 				add(Label1);
 				add(LongitudeText);
-				JLabel Label2=new JLabel("鼠标指向纬度");
+				JLabel Label2=new JLabel(LanguageDic.GetWords("鼠标指向纬度"));
 				Label2.setForeground(Color.orange);
 				add(Label2);
 				add(LatitudeText);
@@ -1709,10 +1710,10 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				add(new JLabel("      "));
 				add(ScreenUnLockButton);
 				
-				JLabel Label3=new JLabel("路径起点经度");
-				JLabel Label4=new JLabel("路径起点纬度");
-				JLabel Label5=new JLabel("路径终点经度");
-				JLabel Label6=new JLabel("路径终点纬度");
+				JLabel Label3=new JLabel(LanguageDic.GetWords("路径起点经度"));
+				JLabel Label4=new JLabel(LanguageDic.GetWords("路径起点纬度"));
+				JLabel Label5=new JLabel(LanguageDic.GetWords("路径终点经度"));
+				JLabel Label6=new JLabel(LanguageDic.GetWords("路径终点纬度"));
 				Label3.setForeground(Color.white);
 				Label4.setForeground(Color.white);
 				Label5.setForeground(Color.white);
@@ -1732,12 +1733,12 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				add(Label6);
 				add(TerminalLatitude);
 				
-				DataBaseReference=new JButton("利用数据库进行经纬度坐标选择");
+				DataBaseReference=new JButton(LanguageDic.GetWords("利用数据库进行经纬度坐标选择"));
 				DataBaseReference.addActionListener(this);
 				add(DataBaseReference);
 				
-				setSource=new JRadioButton("当前设置路径起点");
-				setTerminal=new JRadioButton("当前设置路径终点");
+				setSource=new JRadioButton(LanguageDic.GetWords("当前设置路径起点"));
+				setTerminal=new JRadioButton(LanguageDic.GetWords("当前设置路径终点"));
 				ButtonGroup group=new ButtonGroup();
 				group.add(setSource);
 				group.add(setTerminal);
@@ -1751,10 +1752,10 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				setSource.setOpaque(false);
 				setTerminal.setOpaque(false);
 				
-				TheShortestPath=new JCheckBox("最短路");
+				TheShortestPath=new JCheckBox(LanguageDic.GetWords("最短路"));
 				TheShortestPath.setOpaque(false);
-				ShowPath=new JButton("显示路径");
-				VeilPath=new JButton("隐藏路径");
+				ShowPath=new JButton(LanguageDic.GetWords("显示路径"));
+				VeilPath=new JButton(LanguageDic.GetWords("隐藏路径"));
 				
 				add(ShowPath);
 				add(TheShortestPath);
@@ -1765,14 +1766,14 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				VeilPath.addActionListener(this);
 				
 				PathLength=new JTextField(15);
-				JLabel l0=new JLabel("当前总里程/米");
+				JLabel l0=new JLabel(LanguageDic.GetWords("当前总里程/米"));
 				l0.setForeground(Color.white);
 				add(l0);
 				add(PathLength);
 				
 				PathNum=new JTextField(3);
-				LastPath=new JButton("上一条");
-				NextPath=new JButton("下一条");
+				LastPath=new JButton(LanguageDic.GetWords("上一条"));
+				NextPath=new JButton(LanguageDic.GetWords("下一条"));
 				
 				add(LastPath);
 				add(PathNum);
@@ -1819,7 +1820,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					x2=java.lang.Double.parseDouble(TerminalLongitude.getText());
 					y2=java.lang.Double.parseDouble(TerminalLatitude.getText());
 				}catch(Exception ex){
-					JOptionPane.showMessageDialog(null,"起点终点格式设置有误","GPS数据异常",JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null,LanguageDic.GetWords("起点终点格式设置有误"),LanguageDic.GetWords("GPS数据异常"),JOptionPane.WARNING_MESSAGE);
 					return;
 				}
 				Screen.LineXlist[0]=x2;
@@ -1873,7 +1874,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 						x2=java.lang.Double.parseDouble(TerminalLongitude.getText());
 						y2=java.lang.Double.parseDouble(TerminalLatitude.getText());
 					}catch(Exception ex){
-						JOptionPane.showMessageDialog(null,"起点终点格式设置有误","GPS数据异常",JOptionPane.WARNING_MESSAGE);
+						JOptionPane.showMessageDialog(null,LanguageDic.GetWords("起点终点格式设置有误"),LanguageDic.GetWords("GPS数据异常"),JOptionPane.WARNING_MESSAGE);
 						return;
 					}
 					Screen.XYCount=2;
@@ -1884,17 +1885,17 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					Screen.IsShowDirection=true;
 					Screen.MoveMiddle((x1+x2)/2,(y1+y2)/2);
 					Screen.repaint();
-					int n=JOptionPane.showConfirmDialog(null,"起点终点已经在地图上标识，请确认","即将开始规划路径",JOptionPane.YES_NO_OPTION);
+					int n=JOptionPane.showConfirmDialog(null,LanguageDic.GetWords("起点终点已经在地图上标识，请确认"),LanguageDic.GetWords("即将开始规划路径"),JOptionPane.YES_NO_OPTION);
 					if(n==JOptionPane.YES_OPTION){
 						if(GPSPoints.Distance(x1, y1, x2, y2)<500){
-							JOptionPane.showMessageDialog(null,"两点之间距离小于500米，建议直接步行","建议步行",JOptionPane.WARNING_MESSAGE);					
+							JOptionPane.showMessageDialog(null,LanguageDic.GetWords("两点之间距离小于500米，建议直接步行"),LanguageDic.GetWords("建议步行"),JOptionPane.WARNING_MESSAGE);					
 							return;
 						}
 						//-------------
 						if(TheShortestPath.isSelected()) GPSPoints.SPFA(x1,y1,x2,y2);
 						else GPSPoints.SearchRoute(x1,y1,x2,y2);
 						if(GPSPoints.AnsCount[0]==0){
-							JOptionPane.showMessageDialog(null,"由于路网信息骨架不完整，查询未能命中","查询未能命中",JOptionPane.WARNING_MESSAGE);					
+							JOptionPane.showMessageDialog(null,LanguageDic.GetWords("由于路网信息骨架不完整，查询未能命中"),LanguageDic.GetWords("查询未能命中"),JOptionPane.WARNING_MESSAGE);					
 							return;
 						}
 						//-------------
@@ -1929,7 +1930,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					try{
 						k=Integer.parseInt(PathNum.getText());
 					}catch(Exception ex){
-						JOptionPane.showMessageDialog(null,"请不要擅自改动","请不要擅自改动",JOptionPane.WARNING_MESSAGE);					
+						JOptionPane.showMessageDialog(null,LanguageDic.GetWords("请不要擅自改动"),LanguageDic.GetWords("请不要擅自改动"),JOptionPane.WARNING_MESSAGE);					
 						return;}
 					k=(k==1?1:k-1);
 					PathNum.setText(Integer.toString(k));
@@ -1942,7 +1943,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					try{
 						k=Integer.parseInt(PathNum.getText());
 					}catch(Exception ex){
-						JOptionPane.showMessageDialog(null,"请不要擅自改动","请不要擅自改动",JOptionPane.WARNING_MESSAGE);					
+						JOptionPane.showMessageDialog(null,LanguageDic.GetWords("请不要擅自改动"),LanguageDic.GetWords("请不要擅自改动"),JOptionPane.WARNING_MESSAGE);					
 						return;}
 					k=(k==GPSPoints.AnsCount[0]?GPSPoints.AnsCount[0]:k+1);
 					PathNum.setText(Integer.toString(k));
@@ -1997,19 +1998,19 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			JTextArea LandMarkScript;
 			JButton LandMarkAdd,DeleteSelectedLandMark;
 			public LandMarkEditPaneClass(){
-				JLabel Title=new JLabel("地标编辑工具栏");
+				JLabel Title=new JLabel(LanguageDic.GetWords("地标编辑工具栏"));
 				Title.setFont(new Font("华文新魏",Font.BOLD,30));
 				add(Title);
 				LongitudeText=new JTextField(15);
 				LatitudeText=new JTextField(15);
-				ScreenLockButton=new JButton("锁住屏幕");
+				ScreenLockButton=new JButton(LanguageDic.GetWords("锁住屏幕"));
 				ScreenLockButton.addActionListener(this);
-				ScreenUnLockButton=new JButton("解锁屏幕");
+				ScreenUnLockButton=new JButton(LanguageDic.GetWords("解锁屏幕"));
 				ScreenUnLockButton.addActionListener(this);
 				
-				add(new JLabel("鼠标指向经度"));
+				add(new JLabel(LanguageDic.GetWords("鼠标指向经度")));
 				add(LongitudeText);
-				add(new JLabel("鼠标指向纬度"));
+				add(new JLabel(LanguageDic.GetWords("鼠标指向纬度")));
 				add(LatitudeText);
 				add(ScreenLockButton);
 				add(new JLabel("      "));
@@ -2026,29 +2027,29 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				LandMarkLongitude=new JTextField(15);
 				LandMarkLatitude=new JTextField(15);
 				
-				add(new JLabel("地标点经度位置"));
+				add(new JLabel(LanguageDic.GetWords("地标点经度位置")));
 				add(LandMarkLongitude);
-				add(new JLabel("地标点纬度位置"));
+				add(new JLabel(LanguageDic.GetWords("地标点纬度位置")));
 				add(LandMarkLatitude);
 				
 				LandMarkName=new JTextField(15);
 				LandMarkType=new JTextField(15);
 				LandMarkScript=new JTextArea(12,22);
 				
-				add(new JLabel("地标点指代名称"));
+				add(new JLabel(LanguageDic.GetWords("地标点指代名称")));
 				add(LandMarkName);
-				add(new JLabel("地标点建筑类型"));
+				add(new JLabel(LanguageDic.GetWords("地标点建筑类型")));
 				add(LandMarkType);
 				
-				add(new JLabel("请输入地标点的相关简介"));
+				add(new JLabel(LanguageDic.GetWords("请输入地标点的相关简介")));
 				LandMarkScript.setLineWrap(true);
 				add(new JScrollPane(LandMarkScript,ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
 				
-				LandMarkAdd=new JButton("确认加入此地标");
+				LandMarkAdd=new JButton(LanguageDic.GetWords("确认加入此地标"));
 				LandMarkAdd.addActionListener(this);
 				add(LandMarkAdd);
 				
-				DeleteSelectedLandMark=new JButton("删除选中的地标");
+				DeleteSelectedLandMark=new JButton(LanguageDic.GetWords("删除选中的地标"));
 				DeleteSelectedLandMark.addActionListener(this);
 				add(DeleteSelectedLandMark);
 			}
@@ -2073,11 +2074,11 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					}
 				}else if(e.getSource()==LandMarkAdd){
 					if(LandMarkName.getText().equals("")){
-						JOptionPane.showMessageDialog(null,"地标名称为空","输入数据不完整",JOptionPane.WARNING_MESSAGE);					
+						JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地标名称为空"),LanguageDic.GetWords("输入数据不完整"),JOptionPane.WARNING_MESSAGE);					
 						return;
 					}
 					if(LandMarkType.getText().equals("")){
-						JOptionPane.showMessageDialog(null,"地标类型为空","输入数据不完整",JOptionPane.WARNING_MESSAGE);					
+						JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地标类型为空"),LanguageDic.GetWords("输入数据不完整"),JOptionPane.WARNING_MESSAGE);					
 						return;
 					}
 					double x0,y0;
@@ -2085,7 +2086,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 						x0=java.lang.Double.parseDouble(LandMarkLongitude.getText());
 						y0=java.lang.Double.parseDouble(LandMarkLatitude.getText());
 					}catch(Exception ex){
-						JOptionPane.showMessageDialog(null,"地标GPS数据有误","GPS数据异常",JOptionPane.WARNING_MESSAGE);
+						JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地标GPS数据有误"),LanguageDic.GetWords("GPS数据异常"),JOptionPane.WARNING_MESSAGE);
 						return;
 					}
 					Screen.XYCount=1;
@@ -2093,7 +2094,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					Screen.Ylist[0]=y0;
 					Screen.MoveMiddle(x0, y0);
 					Screen.repaint();
-					int n=JOptionPane.showConfirmDialog(null,"是否要将【"+LandMarkName.getText()+"】加入地标序列","确认是否加入",JOptionPane.YES_NO_OPTION);
+					int n=JOptionPane.showConfirmDialog(null,LanguageDic.GetWords("是否要将")+"【"+LandMarkName.getText()+"】"+LanguageDic.GetWords("加入地标序列"),LanguageDic.GetWords("确认是否加入"),JOptionPane.YES_NO_OPTION);
 					if(n!=JOptionPane.YES_OPTION) return;
 					Screen.IsLandMarkSelected[GPSPoints.LandMarkNum]=false;
 					GPSPoints.AddLandMark(x0,y0,LandMarkName.getText(),LandMarkType.getText(),LandMarkScript.getText());
@@ -2221,7 +2222,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			return newst;
 		}
 		public void ExtendedPointSelectDelete(){
-			ReTitle("删除成功");
+			ReTitle(LanguageDic.GetWords("删除成功"));
 			if(ExtendedPointSelectCount==0) return;
 			int temp=0;
 			temp=ExtendedPointMoveBack(0,ExtendedPointSelectList[0]-1,temp);
@@ -2240,12 +2241,12 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					ExtendedPointSelectCount++;
 				}
 			}
-			ReTitle(ExtendedPointSelectCount+"个点被选中");
+			ReTitle(ExtendedPointSelectCount+LanguageDic.GetWords("个点被选中"));
 		}
 
 		public void ExtendedPointSelectCancel(){
 			ExtendedPointSelectCount=0;
-			ReTitle("释放选中点");
+			ReTitle(LanguageDic.GetWords("释放选中点"));
 		}
 		
 		public void ExtendedPointReHint(int k,String Hint){
@@ -2373,6 +2374,73 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		float[][] AlphaGridsValue=new float[1000][1000];
 		double LastScreenLongitude=-1000,LastScreenLatitude=-1000,LastLongitudeScale=-1,LastLatitudeScale=-1;
 		int LastAlphaPercentScale=0;
+		public void AlphaDrawer(String FilePath){
+			try{
+				boolean BeforeVisible=IsAllPointInvisible;
+				boolean BeforeShow=IsShowAlphaDistribution;
+				IsTextArea1Visible=false;
+				IsTextArea2Visible=false;
+				IsAllPointInvisible=true;
+				IsShowAlphaDistribution=false;
+				BufferedImage PNGimage = new BufferedImage(Screen.ScreenWidth,Screen.ScreenHeight,BufferedImage.TYPE_INT_RGB);
+				Graphics2D g_2d	=PNGimage.createGraphics();
+				Screen.paint(g_2d);
+				IsAllPointInvisible=BeforeVisible;
+				IsShowAlphaDistribution=BeforeShow;
+				if(AlphaGridsRow>ScreenHeight) AlphaGridsRow=ScreenHeight;
+				if(AlphaGridsColumn>ScreenWidth) AlphaGridsColumn=ScreenWidth;
+				for(int Row_i=0;Row_i<AlphaGridsRow;Row_i++){
+					for(int Col_i=0;Col_i<AlphaGridsColumn;Col_i++){
+						AlphaGridsCounter[Row_i][Col_i]=0;
+					}
+				}
+				double Xstep=LongitudeScale/AlphaGridsColumn;
+				double Ystep=LatitudeScale/AlphaGridsRow;
+				int pos_row,pos_col;
+				for(int ptr_i=0;ptr_i<PointDatabase.PointNum;ptr_i++){
+					pos_col=(int)((PointDatabase.AllPointX[ptr_i]-ScreenLongitude)/Xstep);
+					if(pos_col<0) continue;
+					if(pos_col>=AlphaGridsColumn) continue;
+					pos_row=(int)((ScreenLatitude-PointDatabase.AllPointY[ptr_i])/Ystep);
+					if(pos_row<0) continue;
+					if(pos_row>=AlphaGridsRow) continue;
+					AlphaGridsCounter[pos_row][pos_col]++;
+				}
+				int AllCounter=0;
+				int MaxCounter=0;
+				for(int Row_i=0;Row_i<AlphaGridsRow;Row_i++){
+					for(int Col_i=0;Col_i<AlphaGridsColumn;Col_i++){
+						AllCounter+=AlphaGridsCounter[Row_i][Col_i];
+						MaxCounter=Math.max(MaxCounter,AlphaGridsCounter[Row_i][Col_i]);
+					}
+				}
+				if(AlphaPercentScale>0) MaxCounter=AlphaPercentScale;
+					
+				Handle.ShowTextArea1(LanguageDic.GetWords("总计 ")+AllCounter+" pts", true);
+				Handle.ShowTextArea2(LanguageDic.GetWords("网格浓度100%对应 ")+MaxCounter+" pts", true);
+				for(int Row_i=0;Row_i<AlphaGridsRow;Row_i++){
+					for(int Col_i=0;Col_i<AlphaGridsColumn;Col_i++){
+						AlphaGridsValue[Row_i][Col_i]=((float)AlphaGridsCounter[Row_i][Col_i])/(MaxCounter==0?1:MaxCounter);					
+				        AlphaGridsValue[Row_i][Col_i]=AlphaGridsValue[Row_i][Col_i]>1?1:AlphaGridsValue[Row_i][Col_i];
+					}
+				}
+				double ScreenXstep=((double)ScreenWidth)/AlphaGridsColumn;
+				double ScreenYstep=((double)ScreenHeight)/AlphaGridsRow;
+				for(int Row_i=0;Row_i<AlphaGridsRow;Row_i++){
+					for(int Col_i=0;Col_i<AlphaGridsColumn;Col_i++){
+						if(AlphaGridsValue[Row_i][Col_i]<0.05) continue;
+						AlphaComposite ac=AlphaComposite.getInstance(AlphaComposite.SRC_OVER,AlphaGridsValue[Row_i][Col_i]);
+						g_2d.setComposite(ac);
+						g_2d.setColor(Color.white);
+						g_2d.fillRect((int)(Col_i*ScreenXstep), (int)(Row_i*ScreenYstep), (int)ScreenXstep, (int)ScreenYstep);
+					}
+				}
+			AlphaComposite ac=AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1);
+			g_2d.setComposite(ac);
+			ImageIO.write(PNGimage, "png", new File(FilePath));
+			System.gc();
+		}catch(Exception ee){System.err.println("OutErr====>"+FilePath);}	
+		}
 		public void paint(Graphics g){			
 			if(DIR==null){//没打开文件，不显示
 				setVisible(false);
@@ -2381,8 +2449,44 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			if(image==null){
 				setBackground(Color.black);
 			}else if(ShowBackGround){
-			double Xst=(ScreenLongitude-LongitudeStart)/(LongitudeEnd-LongitudeStart)*image.getWidth(this);
-			double Yst=(LatitudeEnd-ScreenLatitude)/(LatitudeEnd-LatitudeStart)*image.getHeight(this);
+			//------------------------------------------------------------------------------------------
+			//ScreenBackGroundMove----------------------------------------------------------------------
+			double MoveX=0;double MoveY=0;
+			if(BackGroundMoveVectorNum!=0){
+				int min_1=-1; double min_1_dis=1e100;
+				int min_2=-1; double min_2_dis=1e100;
+				int min_3=-1; double min_3_dis=1e100;
+				double dis=1e100;
+				double center_x=ScreenLongitude+LongitudeScale/2;
+				double center_y=ScreenLatitude-LatitudeScale/2;
+				for(int i=0;i<BackGroundMoveVectorNum;i++){
+					dis=Math.abs(center_x-BackGroundMoveX[i])+Math.abs(center_y-BackGroundMoveY[i]);
+					if(dis<min_1_dis){
+						min_3=min_2;
+						min_3_dis=min_2_dis;
+						min_2=min_1;
+						min_2_dis=min_1_dis;
+						min_1=i;
+						min_1_dis=dis;
+					}else if(dis<min_2_dis){
+						min_3=min_2;
+						min_3_dis=min_2_dis;
+						min_2=i;
+						min_2_dis=dis;
+					}else if(dis<min_3_dis){
+						min_3=i;
+						min_3_dis=dis;
+					}
+				}
+				double dis_sum=1/min_1_dis+1/min_2_dis+1/min_3_dis;
+				MoveX=BackGroundMoveDx[min_1]/min_1_dis+BackGroundMoveDx[min_2]/min_2_dis+BackGroundMoveDx[min_3]/min_3_dis;
+				MoveX/=dis_sum;
+				MoveY=BackGroundMoveDy[min_1]/min_1_dis+BackGroundMoveDy[min_2]/min_2_dis+BackGroundMoveDy[min_3]/min_3_dis;
+				MoveY/=dis_sum;
+			}
+			//------------------------------------------------------------------------------------------
+			double Xst=((ScreenLongitude-MoveX)-LongitudeStart)/(LongitudeEnd-LongitudeStart)*image.getWidth(this);
+			double Yst=(LatitudeEnd-(ScreenLatitude-MoveY))/(LatitudeEnd-LatitudeStart)*image.getHeight(this);
 			double Xlen=(LongitudeScale)/(LongitudeEnd-LongitudeStart)*image.getWidth(this);
 			double Ylen=(LatitudeScale)/(LatitudeEnd-LatitudeStart)*image.getHeight(this);
 			//将需要显示的经纬度范围转化为窗口界面中像素值
@@ -2568,7 +2672,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			//显示屏幕提示;
 			if(ShowScreenHint){
 				g_2d.setFont(new Font("黑体",Font.BOLD,(int)(20)));
-				if(ScreenHint==null) ScreenHint="暂无信息";
+				if(ScreenHint==null) ScreenHint=LanguageDic.GetWords("暂无信息");
 				
 				Rectangle2D _rect=new Rectangle2D.Double(0,0,ScreenWidth,34);
 				g_2d.setPaint(Color.black);
@@ -2952,8 +3056,8 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				}
 				if(AlphaPercentScale>0) MaxCounter=AlphaPercentScale;
 					
-				Handle.ShowTextArea1("总计 "+AllCounter+" pts", true);
-				Handle.ShowTextArea2("网格浓度100%对应 "+MaxCounter+" pts", true);
+				Handle.ShowTextArea1(LanguageDic.GetWords("总计 ")+AllCounter+" pts", true);
+				Handle.ShowTextArea2(LanguageDic.GetWords("网格浓度100%对应 ")+MaxCounter+" pts", true);
 				for(int Row_i=0;Row_i<AlphaGridsRow;Row_i++){
 					for(int Col_i=0;Col_i<AlphaGridsColumn;Col_i++){
 						AlphaGridsValue[Row_i][Col_i]=((float)AlphaGridsCounter[Row_i][Col_i])/(MaxCounter==0?1:MaxCounter);					
@@ -2978,7 +3082,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			//ScreenBottomHint----------------------------------------------------
 			if(IsTextArea1Visible){
 				g_2d.setFont(new Font("黑体",Font.BOLD,(int)(20)));
-				if(TextArea1Content==null) TextArea1Content="暂无信息";
+				if(TextArea1Content==null) TextArea1Content=LanguageDic.GetWords("暂无信息");
 				
 				if(IsTextArea1BackGround){
 				Rectangle2D _rect=new Rectangle2D.Double(0,ScreenHeight-34,ScreenWidth*0.4,34);
@@ -2992,7 +3096,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 			if(IsTextArea2Visible){
 				g_2d.setFont(new Font("黑体",Font.BOLD,(int)(20)));
-				if(TextArea2Content==null) TextArea2Content="暂无信息";
+				if(TextArea2Content==null) TextArea2Content=LanguageDic.GetWords("暂无信息");
 				
 				if(IsTextArea2BackGround){
 				Rectangle2D _rect=new Rectangle2D.Double(ScreenWidth*0.4,ScreenHeight-34,ScreenWidth*0.6,34);
@@ -3106,7 +3210,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				if(LandMarkSelectedNum==0) return;
 				if(!IsLandMarkOnScreen) return;
 				if(NowPanel==BasicInfoPane){
-					int n=JOptionPane.showConfirmDialog(null,"根据选中的地标点顺序播放地标点的详细资料","演示播放",JOptionPane.YES_NO_OPTION);
+					int n=JOptionPane.showConfirmDialog(null,LanguageDic.GetWords("根据选中的地标点顺序播放地标点的详细资料"),LanguageDic.GetWords("演示播放"),JOptionPane.YES_NO_OPTION);
 					if(n==JOptionPane.YES_OPTION){
 						for(int i=0;i<GPSPoints.LandMarkNum;i++){
 							if(IsLandMarkSelected[i]){
@@ -3475,6 +3579,16 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 	public JMenuItem PointDBDeviationItem;
 	public JMenuItem LineDBDeviationItem;
 	public JMenuItem PolygonDBDeviationItem;
+	public JMenuItem BackGroundMoveItem;
+	public JMenuItem BackGroundMoveResetItem;
+	public int BackGroundMoveVectorNum=0;
+	public double[] BackGroundMoveX=new double[1000];
+	public double[] BackGroundMoveY=new double[1000];
+	public double[] BackGroundMoveDx=new double[1000];
+	public double[] BackGroundMoveDy=new double[1000];
+	
+	public static String Language="None";
+	public static LanguageResources LanguageDic=new LanguageResources();
 //Screen End-----------------------------------------------------
 //Preference Elements--------------------------------------------
 	FreeWizard.GlobalPreferenceWizard Preference;
@@ -3505,6 +3619,8 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 					Database.PolygonDataSet.PointMaxNum=Integer.parseInt(pair[1]);
 				else if(pair[0].equals("Database.PolygonDataSet.PolygonMaxNum"))
 					Database.PolygonDataSet.PolygonMaxNum=Integer.parseInt(pair[1]);
+				else if(pair[0].equals("Language"))
+					Language=pair[1];
 			}
 			Configfin.close();
 		}catch(Exception ex){
@@ -3617,52 +3733,52 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		CacheRoadNetworkDatabase.setHandle(Handle);
 		TaxiTrajectoryDatabase=new Database.TaxiTrajectoryDatabaseClass();
 //MenuItemInit---------------------------------------------------------------
-		OpenItem=new JMenuItem("打开地图                       ");
+		OpenItem=new JMenuItem(LanguageDic.GetWords("打开地图                       "));
 		OpenItem.addActionListener(this);
 		
-		ExitItem=new JMenuItem("退出                   ");
+		ExitItem=new JMenuItem(LanguageDic.GetWords("退出                   "));
 		ExitItem.addActionListener(this);
 		
-		SaveItem=new JMenuItem("保存                 ");
+		SaveItem=new JMenuItem(LanguageDic.GetWords("保存                 "));
 		SaveItem.addActionListener(this);
 
-		BasicInfoItem=new JMenuItem("基本信息列表                  ");
+		BasicInfoItem=new JMenuItem(LanguageDic.GetWords("基本信息列表                  "));
 		BasicInfoItem.addActionListener(this);
 		
-		ChangeMapBackground=new JMenuItem("更改地图背景");
+		ChangeMapBackground=new JMenuItem(LanguageDic.GetWords("更改地图背景"));
 		ChangeMapBackground.addActionListener(this);
 		
-		setDefaultMapBackground=new JMenuItem("还原默认地图背景");
+		setDefaultMapBackground=new JMenuItem(LanguageDic.GetWords("还原默认地图背景"));
 		setDefaultMapBackground.addActionListener(this);
 		
-		TwoPointItem=new JMenuItem("两点矩形区域设定                  ");
+		TwoPointItem=new JMenuItem(LanguageDic.GetWords("两点矩形区域设定                  "));
 		TwoPointItem.addActionListener(this);
 		
-		ClearAllStaticPoint=new JMenuItem("清除地图上所有鼠标点");
+		ClearAllStaticPoint=new JMenuItem(LanguageDic.GetWords("清除地图上所有鼠标点"));
 		ClearAllStaticPoint.addActionListener(this);
 		
-		ClearLastPoint=new JMenuItem("清除上一个鼠标点     ");
+		ClearLastPoint=new JMenuItem(LanguageDic.GetWords("清除上一个鼠标点     "));
 		ClearLastPoint.addActionListener(this);
 		
-		ClearDirection=new JMenuItem("清除地图上的箭头      ");
+		ClearDirection=new JMenuItem(LanguageDic.GetWords("清除地图上的箭头      "));
 		ClearDirection.addActionListener(this);
 		
-		CalibrateItem=new JMenuItem("地图GPS偏差校准     ");
+		CalibrateItem=new JMenuItem(LanguageDic.GetWords("地图GPS偏差校准     "));
 		CalibrateItem.addActionListener(this);
 		
-		ShowClockItem=new JMenuItem("显示并调整时钟                ");
+		ShowClockItem=new JMenuItem(LanguageDic.GetWords("显示并调整时钟                "));
 		ShowClockItem.addActionListener(this);
 		
-		ShowTaxiSearchItem=new JMenuItem("显示出租车信息");
+		ShowTaxiSearchItem=new JMenuItem(LanguageDic.GetWords("显示出租车信息"));
 		ShowTaxiSearchItem.addActionListener(this);
 		
-		RouteSearchItem=new JMenuItem("路径规划                    ");
+		RouteSearchItem=new JMenuItem(LanguageDic.GetWords("路径规划                    "));
 		RouteSearchItem.addActionListener(this);
 		
-		WashScreenItem=new JMenuItem("清洗屏幕");
+		WashScreenItem=new JMenuItem(LanguageDic.GetWords("清洗屏幕"));
 		WashScreenItem.addActionListener(this);		
 		
-		JMenuItem WizardForbidenOperationSwitch=new JMenuItem("可视化开关");
+		JMenuItem WizardForbidenOperationSwitch=new JMenuItem(LanguageDic.GetWords("可视化开关"));
 		WizardForbidenOperationSwitch.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -3671,43 +3787,43 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}	
 		});
 		
-		ShowCenterItem=new JMenuItem("显示中心区域");
+		ShowCenterItem=new JMenuItem(LanguageDic.GetWords("显示中心区域"));
 		ShowCenterItem.addActionListener(this);
 		
-		VeilCenterItem=new JMenuItem("隐去中心区域");
+		VeilCenterItem=new JMenuItem(LanguageDic.GetWords("隐去中心区域"));
 		VeilCenterItem.addActionListener(this);
 		
-		LandMarkEditItem=new JMenuItem("地标编辑");
+		LandMarkEditItem=new JMenuItem(LanguageDic.GetWords("地标编辑"));
 		LandMarkEditItem.addActionListener(this);
 		
-		AboutFrameItem=new JMenuItem("关于软件");
+		AboutFrameItem=new JMenuItem(LanguageDic.GetWords("关于软件"));
 		AboutFrameItem.addActionListener(this);
 		
-		LandMarkOnScreenItem=new JMenuItem("在地图上显示地标点");
+		LandMarkOnScreenItem=new JMenuItem(LanguageDic.GetWords("在地图上显示地标点"));
 		LandMarkOnScreenItem.addActionListener(this);
 		
-		LandMarkVeilItem=new JMenuItem("在地图上隐去地标点");
+		LandMarkVeilItem=new JMenuItem(LanguageDic.GetWords("在地图上隐去地标点"));
 		LandMarkVeilItem.addActionListener(this);
 		
-		LandMarkNameOnScreenItem=new JMenuItem("在地图上显示地标名称");
+		LandMarkNameOnScreenItem=new JMenuItem(LanguageDic.GetWords("在地图上显示地标名称"));
 		LandMarkNameOnScreenItem.addActionListener(this);
 		
-		LandMarkNameVeilItem=new JMenuItem("在地图上隐去地标名称");
+		LandMarkNameVeilItem=new JMenuItem(LanguageDic.GetWords("在地图上隐去地标名称"));
 		LandMarkNameVeilItem.addActionListener(this);
 		
-		LandMarkQueryItem=new JMenuItem("地标检索服务");
+		LandMarkQueryItem=new JMenuItem(LanguageDic.GetWords("地标检索服务"));
 		LandMarkQueryItem.addActionListener(this);
 		
-		MyTimerOn=new JMenuItem("开启时钟脉冲动态效果");
+		MyTimerOn=new JMenuItem(LanguageDic.GetWords("开启时钟脉冲动态效果"));
 		MyTimerOn.addActionListener(this);
 		
-		MyTimerOff=new JMenuItem("关闭时钟脉冲动态效果");
+		MyTimerOff=new JMenuItem(LanguageDic.GetWords("关闭时钟脉冲动态效果"));
 		MyTimerOff.addActionListener(this);
 		
-		ClearMemory=new JMenuItem("强制内存清理");
+		ClearMemory=new JMenuItem(LanguageDic.GetWords("强制内存清理"));
 		ClearMemory.addActionListener(this);
 		
-		MapElementsEditorPaneItem=new JMenuItem("MapElementsEditorPane");
+		MapElementsEditorPaneItem=new JMenuItem(LanguageDic.GetWords("MapElementsEditorPane"));
 		MapElementsEditorPaneItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -3719,46 +3835,46 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		ShowPolygonAddPane=new JMenuItem("区域新建面板");
+		ShowPolygonAddPane=new JMenuItem(LanguageDic.GetWords("区域新建面板"));
 		ShowPolygonAddPane.addActionListener(this);
 		
-		ShowLineAddPane=new JMenuItem("线路新建面板");
+		ShowLineAddPane=new JMenuItem(LanguageDic.GetWords("线路新建面板"));
 		ShowLineAddPane.addActionListener(this);
 		
-		ShowPointAddPane=new JMenuItem("兴趣点批量插入面板");
+		ShowPointAddPane=new JMenuItem(LanguageDic.GetWords("兴趣点批量插入面板"));
 		ShowPointAddPane.addActionListener(this);
 		
-		ShowPolygonDatabaseView=new JMenuItem("显示多边形区域数据库视窗");
+		ShowPolygonDatabaseView=new JMenuItem(LanguageDic.GetWords("显示多边形区域数据库视窗"));
 		ShowPolygonDatabaseView.addActionListener(this);
 		
-		ShowLineDatabaseView=new JMenuItem("显示线路数据库视窗");
+		ShowLineDatabaseView=new JMenuItem(LanguageDic.GetWords("显示线路数据库视窗"));
 		ShowLineDatabaseView.addActionListener(this);
 		
-		CreateJPGImage=new JMenuItem("利用数据库创建JPG文件");
+		CreateJPGImage=new JMenuItem(LanguageDic.GetWords("利用数据库创建JPG文件"));
 		CreateJPGImage.addActionListener(this);
 		
-		ShowPointDatabaseView=new JMenuItem("显示兴趣点数据库视窗");
+		ShowPointDatabaseView=new JMenuItem(LanguageDic.GetWords("显示兴趣点数据库视窗"));
 		ShowPointDatabaseView.addActionListener(this);
 		
-		ShowAutoCrossLinkPane=new JMenuItem("ShowAutoCrossLinkPane");
+		ShowAutoCrossLinkPane=new JMenuItem(LanguageDic.GetWords("ShowAutoCrossLinkPane"));
 		ShowAutoCrossLinkPane.addActionListener(this);
 		
-		ShowConnectTestPane=new JMenuItem("ShowConnectTestPane");
+		ShowConnectTestPane=new JMenuItem(LanguageDic.GetWords("ShowConnectTestPane"));
 		ShowConnectTestPane.addActionListener(this);
 		
-		ShowTaxiTrajectoryViewPane=new JMenuItem("ShowTaxiTrajectoryViewPane");
+		ShowTaxiTrajectoryViewPane=new JMenuItem(LanguageDic.GetWords("ShowTaxiTrajectoryViewPane"));
 		ShowTaxiTrajectoryViewPane.addActionListener(this);
 		
-		ShowAutoDrivePane=new JMenuItem("Road Network Application");
+		ShowAutoDrivePane=new JMenuItem(LanguageDic.GetWords("Road Network Application"));
 		ShowAutoDrivePane.addActionListener(this);
 		
-		ShowRoadConditionWizard=new JMenuItem("ShowRoadConditionWizard");
+		ShowRoadConditionWizard=new JMenuItem(LanguageDic.GetWords("ShowRoadConditionWizard"));
 		ShowRoadConditionWizard.addActionListener(this);
 		
-		ShowPreferenceWizard=new JMenuItem("[Preference Wizard]");
+		ShowPreferenceWizard=new JMenuItem(LanguageDic.GetWords("[Preference Wizard]"));
 		ShowPreferenceWizard.addActionListener(this);
 		
-		ScreenLocationMicroDelta=new JMenuItem("ScreenLocationMicroDelta");
+		ScreenLocationMicroDelta=new JMenuItem(LanguageDic.GetWords("ScreenLocationMicroDelta"));
 		ScreenLocationMicroDelta.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -3767,7 +3883,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				Changer.setVisible(true);
 				};
 			});
-		ScreenLocationReset=new JMenuItem("ScreenLocationReset");
+		ScreenLocationReset=new JMenuItem(LanguageDic.GetWords("ScreenLocationReset"));
 		ScreenLocationReset.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -3777,7 +3893,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		GISCompletionPaneItem=new JMenuItem("ShowGISCompletionPane");
+		GISCompletionPaneItem=new JMenuItem(LanguageDic.GetWords("ShowGISCompletionPane"));
 		GISCompletionPaneItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -3789,7 +3905,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		ServerSocketPaneItem=new JMenuItem("ServerSocketPane");
+		ServerSocketPaneItem=new JMenuItem(LanguageDic.GetWords("ServerSocketPane"));
 		ServerSocketPaneItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -3801,7 +3917,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		ClientSocketPaneItem=new JMenuItem("ClientSocketPane");
+		ClientSocketPaneItem=new JMenuItem(LanguageDic.GetWords("ClientSocketPane"));
 		ClientSocketPaneItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
@@ -3812,7 +3928,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		ClearPointDBItem=new JMenuItem("Clear the PointDB");
+		ClearPointDBItem=new JMenuItem(LanguageDic.GetWords("Clear the PointDB"));
 		ClearPointDBItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -3827,7 +3943,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		ClearLineDBItem=new JMenuItem("Clear the LineDB");
+		ClearLineDBItem=new JMenuItem(LanguageDic.GetWords("Clear the LineDB"));
 		ClearLineDBItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -3842,7 +3958,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		ClearPolygonDBItem=new JMenuItem("Clear the PolygonDB");
+		ClearPolygonDBItem=new JMenuItem(LanguageDic.GetWords("Clear the PolygonDB"));
 		ClearPolygonDBItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0){
@@ -3856,7 +3972,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		AllElementInvisible=new JMenuItem("All Element Invisible");
+		AllElementInvisible=new JMenuItem(LanguageDic.GetWords("All Element Invisible"));
 		AllElementInvisible.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -3866,7 +3982,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		AllPointInvisible=new JMenuItem("All Point Invisible");
+		AllPointInvisible=new JMenuItem(LanguageDic.GetWords("All Point Invisible"));
 		AllPointInvisible.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -3876,7 +3992,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		AllLineInvisible=new JMenuItem("All Line Invisible");
+		AllLineInvisible=new JMenuItem(LanguageDic.GetWords("All Line Invisible"));
 		AllLineInvisible.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -3886,7 +4002,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		AllPolygonInvisible=new JMenuItem("All Polygon Invisible");
+		AllPolygonInvisible=new JMenuItem(LanguageDic.GetWords("All Polygon Invisible"));
 		AllPolygonInvisible.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -3896,7 +4012,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		EngravePointShape=new JMenuItem("Engrave Point Shape");
+		EngravePointShape=new JMenuItem(LanguageDic.GetWords("Engrave Point Shape"));
 		EngravePointShape.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -3906,7 +4022,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		AlignPointsTagItem=new JMenuItem("AlignPointsTagItem");
+		AlignPointsTagItem=new JMenuItem(LanguageDic.GetWords("AlignPointsTagItem"));
 		AlignPointsTagItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -3922,7 +4038,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		AlignLinesTagItem=new JMenuItem("AlignLinesTagItem");
+		AlignLinesTagItem=new JMenuItem(LanguageDic.GetWords("AlignLinesTagItem"));
 		AlignLinesTagItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -3932,7 +4048,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		AlignPolygonsTagItem=new JMenuItem("AlignPolygonsTagItem");
+		AlignPolygonsTagItem=new JMenuItem(LanguageDic.GetWords("AlignPolygonsTagItem"));
 		AlignPolygonsTagItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -3942,119 +4058,119 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		CaptureScreenItem=new JMenuItem("捕捉当前窗口到PNG文件");
+		CaptureScreenItem=new JMenuItem(LanguageDic.GetWords("捕捉当前窗口到PNG文件"));
 		CaptureScreenItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0){
 				try{
 					ScreenPNGOutput();
 					}catch(Exception ex){
 						System.gc();
-						JOptionPane.showMessageDialog(null,"输入的信息有误，请重试","JPG生成失败",JOptionPane.WARNING_MESSAGE);
+						JOptionPane.showMessageDialog(null,LanguageDic.GetWords("输入的信息有误，请重试"),LanguageDic.GetWords("JPG生成失败"),JOptionPane.WARNING_MESSAGE);
 					}
 			}
 		});
 		
-		ExtractLineDBItem=new JMenuItem("导出折线数据库");
+		ExtractLineDBItem=new JMenuItem(LanguageDic.GetWords("导出折线数据库"));
 		ExtractLineDBItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				Handle.LineOutput();
 			}
 		});
 		
-		ExtractPointDBItem=new JMenuItem("导出兴趣点数据库");
+		ExtractPointDBItem=new JMenuItem(LanguageDic.GetWords("导出兴趣点数据库"));
 		ExtractPointDBItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				Handle.PointOutput();
 			}
 		});
 		
-		ExtractPolygonDBItem=new JMenuItem("导出多边形数据库");
+		ExtractPolygonDBItem=new JMenuItem(LanguageDic.GetWords("导出多边形数据库"));
 		ExtractPolygonDBItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				Handle.PolygonOutput();
 			}
 		});
 		
-		AppendLineDBItem=new JMenuItem("追加折线数据库");
+		AppendLineDBItem=new JMenuItem(LanguageDic.GetWords("追加折线数据库"));
 		AppendLineDBItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				Handle.LineAppend();
 			}
 		});
 		
-		AppendPointDBItem=new JMenuItem("追加兴趣点数据库");
+		AppendPointDBItem=new JMenuItem(LanguageDic.GetWords("追加兴趣点数据库"));
 		AppendPointDBItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				Handle.PointAppend();
 			}
 		});
 		
-		AppendPolygonDBItem=new JMenuItem("追加多边形数据库");
+		AppendPolygonDBItem=new JMenuItem(LanguageDic.GetWords("追加多边形数据库"));
 		AppendPolygonDBItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				Handle.PolygonAppend();
 			}
 		});
 		
-		AppendAllLineDBItem=new JMenuItem("载入追加折线数据库文件夹");
+		AppendAllLineDBItem=new JMenuItem(LanguageDic.GetWords("载入追加折线数据库文件夹"));
 		AppendAllLineDBItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				Handle.LineFolderAppend();
 			}
 		});
 		
-		AppendAllPointDBItem=new JMenuItem("载入追加兴趣点数据库文件夹");
+		AppendAllPointDBItem=new JMenuItem(LanguageDic.GetWords("载入追加兴趣点数据库文件夹"));
 		AppendAllPointDBItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				Handle.PointFolderAppend();
 			}
 		});
 		
-		AppendAllPolygonDBItem=new JMenuItem("载入追加多边形数据库文件夹");
+		AppendAllPolygonDBItem=new JMenuItem(LanguageDic.GetWords("载入追加多边形数据库文件夹"));
 		AppendAllPolygonDBItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				Handle.PolygonFolderAppend();
 			}
 		});
-		CoverLineDBItem=new JMenuItem("覆盖折线数据库");
+		CoverLineDBItem=new JMenuItem(LanguageDic.GetWords("覆盖折线数据库"));
 		CoverLineDBItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				Handle.LineInput();
 			}
 		});
 		
-		CoverPointDBItem=new JMenuItem("覆盖兴趣点数据库");
+		CoverPointDBItem=new JMenuItem(LanguageDic.GetWords("覆盖兴趣点数据库"));
 		CoverPointDBItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				Handle.PointInput();
 			}
 		});
 		
-		CoverPolygonDBItem=new JMenuItem("覆盖多边形数据库");
+		CoverPolygonDBItem=new JMenuItem(LanguageDic.GetWords("覆盖多边形数据库"));
 		CoverPolygonDBItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				Handle.PolygonInput();
 			}
 		});
 		
-		VisualObjectMaxNumSetItem=new JMenuItem("设置图形显示数量上限");
+		VisualObjectMaxNumSetItem=new JMenuItem(LanguageDic.GetWords("设置图形显示数量上限"));
 		VisualObjectMaxNumSetItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				String str=JOptionPane.showInputDialog(null,"请输出上限，空则放弃","设置图形显示数量上限",JOptionPane.PLAIN_MESSAGE);
+				String str=JOptionPane.showInputDialog(null,LanguageDic.GetWords("请输出上限，空则放弃"),LanguageDic.GetWords("设置图形显示数量上限"),JOptionPane.PLAIN_MESSAGE);
 				if((str==null)||(str.equals(""))){
-					ReTitle("放弃了图形显示数量上限重设");
+					ReTitle(LanguageDic.GetWords("放弃了图形显示数量上限重设"));
 					return;
 				}
 				try{
 					VisualObjectMaxNum=Integer.parseInt(str);
 				}catch(Exception ex){
-					JOptionPane.showMessageDialog(null,"输入有误");
+					JOptionPane.showMessageDialog(null,LanguageDic.GetWords("输入有误"));
 				}
 				Handle.ScreenFlush();
 			}
 		});
 		
-		PolygonsToGridsItem=new JMenuItem("多边形网格化导出");
+		PolygonsToGridsItem=new JMenuItem(LanguageDic.GetWords("多边形网格化导出"));
 		PolygonsToGridsItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				String Row_str=JOptionPane.showInputDialog(null,"Row Number");
@@ -4107,12 +4223,12 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				JOptionPane.showMessageDialog(null,"Finished!");
 				}catch(Exception ex){
 					ex.printStackTrace();
-					JOptionPane.showMessageDialog(null,"设置有误");
+					JOptionPane.showMessageDialog(null,LanguageDic.GetWords("设置有误"));
 				}
 			}
 		});
 		
-		ShowPointsAlphaDistribution=new JMenuItem("显示/关闭点分布的浓度");
+		ShowPointsAlphaDistribution=new JMenuItem(LanguageDic.GetWords("显示/关闭点分布的浓度"));
 		ShowPointsAlphaDistribution.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				if(IsShowAlphaDistribution){
@@ -4140,7 +4256,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		SetAlphaPercentScale=new JMenuItem("手工设定浓度图比例");
+		SetAlphaPercentScale=new JMenuItem(LanguageDic.GetWords("手工设定浓度图比例"));
 		SetAlphaPercentScale.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -4157,7 +4273,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		HtmlMapOutputPaneItem=new JMenuItem("导出数据库于网页地图上");
+		HtmlMapOutputPaneItem=new JMenuItem(LanguageDic.GetWords("导出数据库于网页地图上"));
 		HtmlMapOutputPaneItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -4170,7 +4286,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		PointDBDeviationItem=new JMenuItem("平移PointDB数据");
+		PointDBDeviationItem=new JMenuItem(LanguageDic.GetWords("平移PointDB数据"));
 		PointDBDeviationItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				String str=JOptionPane.showInputDialog("[Longitude,Latitude]平移PointDB数据");
@@ -4190,7 +4306,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		LineDBDeviationItem=new JMenuItem("平移LineDB数据");
+		LineDBDeviationItem=new JMenuItem(LanguageDic.GetWords("平移LineDB数据"));
 		LineDBDeviationItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				String str=JOptionPane.showInputDialog("[Longitude,Latitude]平移LineDB数据");
@@ -4210,7 +4326,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		});
 		
-		PolygonDBDeviationItem=new JMenuItem("平移PolygonDB数据");
+		PolygonDBDeviationItem=new JMenuItem(LanguageDic.GetWords("平移PolygonDB数据"));
 		PolygonDBDeviationItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				String str=JOptionPane.showInputDialog("[Longitude,Latitude]平移PolygonDB数据");
@@ -4229,13 +4345,53 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				}
 			}
 		});
+		
+		BackGroundMoveItem=new JMenuItem(LanguageDic.GetWords("背景图片平移矢量载入"));
+		BackGroundMoveItem.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(LineDatabase==null){
+					JOptionPane.showMessageDialog(null,"NO_LINEDATABASE_EXIST");
+					return;
+				}
+				ReTitle("Open BackGroundMoveVector.csv in Root");
+				LineDatabase.DatabaseFileInput(new File(DIR,"BackGroundMoveVector.csv"));
+				int ptr=-1;
+				BackGroundMoveVectorNum=0;
+				for(int i=0;i<LineDatabase.LineNum;i++){
+					if(LineDatabase.LineHint[i].indexOf("[Info:Cache][Info:MapCheckPoint]")!=-1){
+						ptr=LineDatabase.LineHead[i];
+						BackGroundMoveX[BackGroundMoveVectorNum]=LineDatabase.AllPointX[ptr];
+						BackGroundMoveY[BackGroundMoveVectorNum]=LineDatabase.AllPointY[ptr];
+						BackGroundMoveDx[BackGroundMoveVectorNum]=
+								LineDatabase.AllPointX[LineDatabase.AllPointNext[ptr]]-LineDatabase.AllPointX[ptr];
+						BackGroundMoveDy[BackGroundMoveVectorNum]=
+								LineDatabase.AllPointY[LineDatabase.AllPointNext[ptr]]-LineDatabase.AllPointY[ptr];
+						BackGroundMoveVectorNum++;
+					}
+				}
+				LineDatabase.AttributeDelete("Cache", "MapCheckPoint", null, null, null);
+				Handle.ScreenFlush();
+			}
+		});
+		
+		BackGroundMoveResetItem=new JMenuItem(LanguageDic.GetWords("背景图片矢量位移还原"));
+		BackGroundMoveResetItem.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				LineDatabase.AttributeDelete("MapCheckPoint", null, null, null, null);
+				BackGroundMoveVectorNum=0;
+				Handle.ScreenFlush();
+			}
+		});
 //MenuAdd---------------------------------------------------------
-		FileMenu=new JMenu("文件      ");
-		EditMenu=new JMenu("编辑      ");
-		MapControlMenu=new JMenu("控制      ");
-		MapDataMenu=new JMenu("地图数据      ");
-		ExtendedAbility=new JMenu("功能扩展      ");
-		HelpMenu=new JMenu("帮助");
+		FileMenu=new JMenu(LanguageDic.GetWords("文件      "));
+		EditMenu=new JMenu(LanguageDic.GetWords("编辑      "));
+		MapControlMenu=new JMenu(LanguageDic.GetWords("控制      "));
+		MapDataMenu=new JMenu(LanguageDic.GetWords("地图数据      "));
+		ExtendedAbility=new JMenu(LanguageDic.GetWords("功能扩展      "));
+		HelpMenu=new JMenu(LanguageDic.GetWords("帮助"));
 		//---------------------------------
 		FileMenu.add(OpenItem);
 		FileMenu.add(SaveItem);
@@ -4262,6 +4418,8 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		EditMenu.add(ShowLineAddPane);
 		EditMenu.add(ShowPointAddPane);
 		EditMenu.add(LandMarkEditItem);
+		EditMenu.add(BackGroundMoveItem);
+		EditMenu.add(BackGroundMoveResetItem);
 		EditMenu.add(PointDBDeviationItem);
 		EditMenu.add(LineDBDeviationItem);
 		EditMenu.add(PolygonDBDeviationItem);
@@ -4526,7 +4684,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		}else if(e.getSource()==SaveItem){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			WriteBack();
@@ -4534,21 +4692,21 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			ExecuteExit();
 		}else if(e.getSource()==BasicInfoItem){
 			if(LandMarkQueryFrame.isVisible()){
-				JOptionPane.showMessageDialog(null,"地标演示和地标数据库检索窗口两者不能并存","数据库并发读写隐患",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地标演示和地标数据库检索窗口两者不能并存"),LanguageDic.GetWords("数据库并发读写隐患"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 			}
 			if(LandMarkFile==null){
-				JOptionPane.showMessageDialog(null,"地标点数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地标点数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 			}
 			NowPanel=BasicInfoPane;
 			ClearStateAfterSwitchPane();
 			ToolCard.show(Tool,"BasicInfoPane");
 		}else if(e.getSource()==ChangeMapBackground){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			FileDialog.setCurrentDirectory(ImageDir);
@@ -4559,21 +4717,21 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		}else if(e.getSource()==setDefaultMapBackground){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			Screen.image=null;
 			Screen.repaint();
 		}else if(e.getSource()==TwoPointItem){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 			}
 			NowPanel=TwoPointPane;
 			ClearStateAfterSwitchPane();
 			ToolCard.show(Tool,"TwoPointPane");
 		}else if(e.getSource()==ClearAllStaticPoint){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			Screen.XYCount=0;
@@ -4581,7 +4739,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			Screen.repaint();
 		}else if(e.getSource()==ClearLastPoint){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			if(Screen.SelectedPointList[0]>0){
@@ -4605,14 +4763,14 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		}else if(e.getSource()==ClearDirection){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			Screen.IsShowDirection=false;
 			Screen.repaint();
 		}else if(e.getSource()==CalibrateItem){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 			}
 			NowPanel=CalibratePane;
 			ClearStateAfterSwitchPane();
@@ -4622,10 +4780,10 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			ClockWizard.setLocationRelativeTo(null);
 		}else if(e.getSource()==ShowTaxiSearchItem){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 			}
 			if(TaxiDir==null){
-				JOptionPane.showMessageDialog(null,"出租车数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("出租车数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 			}
 			TaxiSearchPane.CanShowTaxi=false;
 			NowPanel=TaxiSearchPane;
@@ -4642,10 +4800,10 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			ToolCard.show(Tool,"TaxiSearchPane");
 		}else if(e.getSource()==RouteSearchItem){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 			}
 			if(TrafficFile==null){
-				JOptionPane.showMessageDialog(null,"路网数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("路网数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 			}
 			RouteSearchPane.PathOnScreen=false;
 			RouteSearchPane.ShowPath.setEnabled(true);
@@ -4655,7 +4813,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			ToolCard.show(Tool,"RouteSearchPane");
 		}else if(e.getSource()==WashScreenItem){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			ClearStateAfterSwitchPane();
@@ -4667,27 +4825,27 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			if(NowPanel instanceof ExtendedToolPaneInterface) ((ExtendedToolPaneInterface) NowPanel).emerge();
 		}else if(e.getSource()==ShowCenterItem){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			Screen.ShowCenter=true;
 			Screen.repaint();
 		}else if(e.getSource()==VeilCenterItem){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			Screen.ShowCenter=false;
 			Screen.repaint();
 		}else if(e.getSource()==LandMarkEditItem){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 			}
 			if(LandMarkFile==null){
-				JOptionPane.showMessageDialog(null,"地标数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地标数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 			}
 			if(LandMarkQueryFrame.isVisible()){
-				JOptionPane.showMessageDialog(null,"地标工具栏和地标数据库检索窗口两者不能并存","数据库并发读写隐患",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地标工具栏和地标数据库检索窗口两者不能并存"),LanguageDic.GetWords("数据库并发读写隐患"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			NowPanel=LandMarkEditPane;
@@ -4698,11 +4856,11 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			AboutFrame.setLocationRelativeTo(null);
 		}else if(e.getSource()==LandMarkOnScreenItem){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			if(LandMarkFile==null){
-				JOptionPane.showMessageDialog(null,"地标数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地标数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			Screen.IsLandMarkOnScreen=true;
@@ -4710,11 +4868,11 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			Screen.repaint();
 		}else if(e.getSource()==LandMarkVeilItem){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			if(LandMarkFile==null){
-				JOptionPane.showMessageDialog(null,"地标数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地标数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			Screen.IsLandMarkOnScreen=false;
@@ -4722,11 +4880,11 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			Screen.repaint();
 		}else if(e.getSource()==LandMarkNameOnScreenItem){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			if(LandMarkFile==null){
-				JOptionPane.showMessageDialog(null,"地标数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地标数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			Screen.IsLandMarkNameOnScreen=true;
@@ -4734,11 +4892,11 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			Screen.repaint();
 		}else if(e.getSource()==LandMarkNameVeilItem){
 			if(DIR==null){
-				JOptionPane.showMessageDialog(null,"地图数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			if(LandMarkFile==null){
-				JOptionPane.showMessageDialog(null,"地标数据不存在","DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地标数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			Screen.XYCount=0;
@@ -4746,8 +4904,8 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			Screen.repaint();
 		}else if(e.getSource()==LandMarkQueryItem){
 			if(NowPanel==LandMarkEditPane){
-				JOptionPane.showMessageDialog(null,"地标工具栏和地标数据库检索窗口两者不能并存","数据库并发读写隐患",JOptionPane.WARNING_MESSAGE);
-				int n=JOptionPane.showConfirmDialog(null,"为了操作数据库，是否允许进入默认面板","进入默认面板",JOptionPane.YES_NO_OPTION);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地标工具栏和地标数据库检索窗口两者不能并存"),LanguageDic.GetWords("数据库并发读写隐患"),JOptionPane.WARNING_MESSAGE);
+				int n=JOptionPane.showConfirmDialog(null,LanguageDic.GetWords("为了操作数据库，是否允许进入默认面板"),LanguageDic.GetWords("进入默认面板"),JOptionPane.YES_NO_OPTION);
 				if(n==JOptionPane.YES_OPTION){
 					NowPanel=NULL;
 					ClearStateAfterSwitchPane();
@@ -4755,8 +4913,8 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				}else return;
 			}
 			if(NowPanel==BasicInfoPane){
-				JOptionPane.showMessageDialog(null,"地标演示和地标数据库检索窗口两者不能并存","数据库并发读写隐患",JOptionPane.WARNING_MESSAGE);
-				int n=JOptionPane.showConfirmDialog(null,"为了操作数据库，是否允许进入默认面板","进入默认面板",JOptionPane.YES_NO_OPTION);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地标演示和地标数据库检索窗口两者不能并存"),LanguageDic.GetWords("数据库并发读写隐患"),JOptionPane.WARNING_MESSAGE);
+				int n=JOptionPane.showConfirmDialog(null,LanguageDic.GetWords("为了操作数据库，是否允许进入默认面板"),LanguageDic.GetWords("进入默认面板"),JOptionPane.YES_NO_OPTION);
 				if(n==JOptionPane.YES_OPTION){
 					NowPanel=NULL;
 					ClearStateAfterSwitchPane();
@@ -4806,7 +4964,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			JPGOutput();
 			}catch(Exception ex){
 				System.gc();
-				JOptionPane.showMessageDialog(null,"输入的信息有误，请重试","JPG生成失败",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("输入的信息有误，请重试"),LanguageDic.GetWords("JPG生成失败"),JOptionPane.WARNING_MESSAGE);
 			}
 		}else if(e.getSource()==ShowPointDatabaseView){
 			PointDatabaseView.emerge();
@@ -4851,13 +5009,13 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			setLayout(null);
 			add(pic);
 			setVisible(false);
-			setTitle("时钟设定");
+			setTitle(LanguageDic.GetWords("时钟设定"));
 			ShowHour=new JTextField(5);
 			ShowMinute=new JTextField(5);
 			ShowSecond=new JTextField(5);
-			t1=new JLabel("时");
-			t2=new JLabel("分");
-			t3=new JLabel("秒");
+			t1=new JLabel(LanguageDic.GetWords("时"));
+			t2=new JLabel(LanguageDic.GetWords("分"));
+			t3=new JLabel(LanguageDic.GetWords("秒"));
 			add(ShowHour);
 			add(t1);
 			add(ShowMinute);
@@ -4872,7 +5030,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			t3.setBounds(125,335,15,20);
 			am=new JRadioButton("AM");
 			pm=new JRadioButton("PM");
-			Play=new JButton("开关");
+			Play=new JButton(LanguageDic.GetWords("开关"));
 			ButtonGroup group=new ButtonGroup();
 			group.add(am);
 			group.add(pm);
@@ -4901,14 +5059,14 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				}else{
 					if(NowPanel==TaxiSearchPane){
 						if(TaxiSearchPane.CanShowTaxi){
-							JOptionPane.showMessageDialog(null,"出租车定位程序正在读取时间","时间读写冲突",JOptionPane.WARNING_MESSAGE);
+							JOptionPane.showMessageDialog(null,LanguageDic.GetWords("出租车定位程序正在读取时间"),LanguageDic.GetWords("时间读写冲突"),JOptionPane.WARNING_MESSAGE);
 							return;
 						}
 					}
 					pic.lock=true;
 				}
 			}catch(Exception ex){
-				JOptionPane.showMessageDialog(null,"您设置的时间格式有误，请重新设置","时间异常",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("您设置的时间格式有误，请重新设置"),LanguageDic.GetWords("时间异常"),JOptionPane.WARNING_MESSAGE);
 			}
 		}
 		public void itemStateChanged(ItemEvent e){
@@ -4923,7 +5081,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				ShowHour.setText(Integer.toString(k));
 			}
 			}catch(Exception ex){
-				JOptionPane.showMessageDialog(null,"您设置的时间格式有误，请重新设置","时间异常",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("您设置的时间格式有误，请重新设置"),LanguageDic.GetWords("时间异常"),JOptionPane.WARNING_MESSAGE);
 			}
 		}
 	}
@@ -5134,7 +5292,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			ClockWizard.ShowHour.setText(Integer.toString(ClockWizard.am.isSelected()?temp:temp+12));
 			repaint();
 		}catch(Exception ex){
-			JOptionPane.showMessageDialog(null,"XXX您设置的时间格式有误，请重新设置","时间异常",JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null,LanguageDic.GetWords("XXX您设置的时间格式有误，请重新设置"),LanguageDic.GetWords("时间异常"),JOptionPane.WARNING_MESSAGE);
 		}
 		}
 	}
@@ -5206,9 +5364,9 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}
 		}
 		public void LineOutput(){
-			String str=JOptionPane.showInputDialog(null,"请输出文件名前缀，不能为空","导出折线数据库到文件",JOptionPane.PLAIN_MESSAGE);
+			String str=JOptionPane.showInputDialog(null,LanguageDic.GetWords("请输出文件名前缀，不能为空"),LanguageDic.GetWords("导出折线数据库到文件"),JOptionPane.PLAIN_MESSAGE);
 			if((str==null)||(str.equals(""))){
-				ReTitle("放弃了导出");
+				ReTitle(LanguageDic.GetWords("放弃了导出"));
 				return;
 			}
 			java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
@@ -5222,7 +5380,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			}else JOptionPane.showMessageDialog(null,"Please Open Polygon File First!");
 		}
 		public void PolygonOutput(){
-			String str=JOptionPane.showInputDialog(null,"请输出文件名前缀，不能为空","导出多边形数据库到文件",JOptionPane.PLAIN_MESSAGE);
+			String str=JOptionPane.showInputDialog(null,LanguageDic.GetWords("请输出文件名前缀，不能为空"),LanguageDic.GetWords("导出多边形数据库到文件"),JOptionPane.PLAIN_MESSAGE);
 			if((str==null)||(str.equals(""))){
 				ReTitle("放弃了导出");
 				return;
@@ -5269,9 +5427,9 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				}
 		}
 		public void PointOutput(){
-			String str=JOptionPane.showInputDialog(null,"请输出文件名前缀，不能为空","导出兴趣点数据库到文件",JOptionPane.PLAIN_MESSAGE);
+			String str=JOptionPane.showInputDialog(null,LanguageDic.GetWords("请输出文件名前缀，不能为空"),LanguageDic.GetWords("导出兴趣点数据库到文件"),JOptionPane.PLAIN_MESSAGE);
 			if((str==null)||(str.equals(""))){
-				ReTitle("放弃了导出");
+				ReTitle(LanguageDic.GetWords("放弃了导出"));
 				return;
 			}
 			java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
@@ -6218,7 +6376,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 			dispose();
 			System.exit(0);
 		}
-		int n=JOptionPane.showConfirmDialog(null,"离开之前是否使所有更改生效，是则缓存写回数据库，否则放弃所有更改","数据完整性提示",JOptionPane.YES_NO_CANCEL_OPTION);
+		int n=JOptionPane.showConfirmDialog(null,LanguageDic.GetWords("离开之前是否使所有更改生效，是则缓存写回数据库，否则放弃所有更改"),LanguageDic.GetWords("数据完整性提示"),JOptionPane.YES_NO_CANCEL_OPTION);
 		if(n==JOptionPane.YES_OPTION){
 			WriteBack();
 		}else if(n==JOptionPane.CANCEL_OPTION){
@@ -6228,7 +6386,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		System.exit(0);
 	}
 	public void ChangeDirPrompt(){
-		int n=JOptionPane.showConfirmDialog(null,"改换目录前是否使所有更改生效，是则缓存写回数据库，否则放弃所有更改","数据完整性提示",JOptionPane.YES_NO_OPTION);
+		int n=JOptionPane.showConfirmDialog(null,LanguageDic.GetWords("改换目录前是否使所有更改生效，是则缓存写回数据库，否则放弃所有更改"),LanguageDic.GetWords("数据完整性提示"),JOptionPane.YES_NO_OPTION);
 		if(n==JOptionPane.YES_OPTION){
 			WriteBack();
 		}
@@ -6262,9 +6420,9 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		return true;
 	}
 	public void ScreenPNGOutput(){
-		String str=JOptionPane.showInputDialog(null,"请输出文件名前缀，不能为空","捕捉当前屏幕为JPG",JOptionPane.PLAIN_MESSAGE);
+		String str=JOptionPane.showInputDialog(null,LanguageDic.GetWords("请输出文件名前缀，不能为空"),LanguageDic.GetWords("捕捉当前屏幕为PNG"),JOptionPane.PLAIN_MESSAGE);
 		if((str==null)||(str.equals(""))){
-			ReTitle("放弃了PNG生成");
+			ReTitle(LanguageDic.GetWords("放弃了PNG生成"));
 			return;
 		}
 		//----------------------------------------------------------------------------------------
@@ -6277,8 +6435,20 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		ImageIO.write(PNGimage, "png", new File(str+"["+df.format(new Date())+"]"+".png"));
 		//-----------------------------------------------
 		System.gc();
-		ReTitle("PNG生成成功");
+		ReTitle(LanguageDic.GetWords("PNG生成成功"));
 		}catch(Exception ee){ReTitle("OutErr!!!");}
+	}
+	public void ScreenPNGOutput(String FilePath){
+		//----------------------------------------------------------------------------------------
+		try{
+		BufferedImage PNGimage = new BufferedImage(Screen.ScreenWidth,Screen.ScreenHeight,BufferedImage.TYPE_INT_RGB);
+		Graphics2D g_2d	=PNGimage.createGraphics();
+		//-----------------------------------------------
+		Screen.paint(g_2d);
+		ImageIO.write(PNGimage, "png", new File(FilePath));
+		//-----------------------------------------------
+		System.gc();
+		}catch(Exception ee){System.err.println("OutErr====>"+FilePath);}
 	}
 	public void JPGOutput(double ScreenLongitudeStart,double ScreenLongitudeEnd,double ScreenLatitudeStart,double ScreenLatitudeEnd,int JPGWidth,int JPGHeight,int bold,String FileName){
 		//----------------------------------------------------------------------------------------
@@ -6525,12 +6695,12 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 	}
 	public void JPGOutput(){
 		if(DIR==null) return;
-		String str=JOptionPane.showInputDialog(null,"请以下列各式输入信息：宽度;高度;粗度","JPG生成在Image目录下",JOptionPane.PLAIN_MESSAGE);
+		String str=JOptionPane.showInputDialog(null,LanguageDic.GetWords("请以下列各式输入信息：宽度;高度;粗度"),LanguageDic.GetWords("JPG生成在Image目录下"),JOptionPane.PLAIN_MESSAGE);
 		if((str==null)||(str.equals(""))){
-			ReTitle("放弃了JPG生成");
+			ReTitle(LanguageDic.GetWords("放弃了JPG生成"));
 			return;
 		}
-		ReTitle("开始生成JPG");
+		ReTitle(LanguageDic.GetWords("开始生成JPG"));
 		String s1=str.substring(0,str.indexOf(';'));
 		String s2=str.substring(str.indexOf(';')+1);
 		String s3=s2.substring(s2.indexOf(';')+1);
@@ -6542,12 +6712,12 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 	public void JPGOutput(double LongitudeStart,double LongitudeEnd,double LatitudeStart,double LatitudeEnd){
 		if(DIR==null) return;
 		try{
-		String str=JOptionPane.showInputDialog(null,"请以下列各式输入信息：宽度;高度;粗度","JPG生成在Image目录下",JOptionPane.PLAIN_MESSAGE);
+		String str=JOptionPane.showInputDialog(null,LanguageDic.GetWords("请以下列各式输入信息：宽度;高度;粗度"),LanguageDic.GetWords("JPG生成在Image目录下"),JOptionPane.PLAIN_MESSAGE);
 		if((str==null)||(str.equals(""))){
-			ReTitle("放弃了JPG生成");
+			ReTitle(LanguageDic.GetWords("放弃了JPG生成"));
 			return;
 		}
-		ReTitle("开始生成JPG");
+		ReTitle(LanguageDic.GetWords("开始生成JPG"));
 		String s1=str.substring(0,str.indexOf(';'));
 		String s2=str.substring(str.indexOf(';')+1);
 		String s3=s2.substring(s2.indexOf(';')+1);
@@ -6609,7 +6779,7 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 		}
 		class FacePic extends JPanel implements MouseListener,MouseMotionListener{
 		public FacePic(){
-			l0=new JLabel("屏幕元素位置教调");
+			l0=new JLabel(LanguageDic.GetWords("屏幕元素位置教调"));
 			l0.setFont(new Font("华文新魏",Font.BOLD,36));
 			add(l0);
 			setBounds(0,0,330,360);

@@ -56,7 +56,8 @@ public class AutoDrivePaneClass extends MapKernel.ToolPanel implements ExtendedT
 	JTextArea Script;
 	JScrollPane ScrollPane;
 	String[][] Result=new String[10000][3];
-	String[] Title={"Sequence","Identifier","Record"};
+	String[] Title={MapKernel.MapWizard.LanguageDic.GetWords("Sequence"),MapKernel.MapWizard.LanguageDic.GetWords("Identifier"),
+			MapKernel.MapWizard.LanguageDic.GetWords("Record")};
 	JTable ResultTable;
 	TableModel Content;
 	JScrollPane Handle;
@@ -78,23 +79,23 @@ public class AutoDrivePaneClass extends MapKernel.ToolPanel implements ExtendedT
 	}
 	JPanel ServerPane,ClientPane;
 	public AutoDrivePaneClass(){
-		PaneTitle=new JLabel("LBS AutoDriver Panel");
+		PaneTitle=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("LBS AutoDriver Panel"));
 		PaneTitle.setFont(new Font("华文新魏",Font.BOLD,25));
 		add(PaneTitle);
-		add(new JLabel("IPADDRESS:"));
+		add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("IPADDRESS:")));
 		add(IPField);
-		add(new JLabel("PORT:"));
+		add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("PORT:")));
 		add(PortField);
-		StartServer=new JButton("Start Server");
+		StartServer=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Start Server"));
 		StartServer.addActionListener(this);
 		add(StartServer);
-		StopServer=new JButton("Stop Server");
+		StopServer=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Stop Server"));
 		StopServer.addActionListener(this);
 		add(StopServer);
-		StartClient=new JButton("Start Client");
+		StartClient=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Start Client"));
 		StartClient.addActionListener(this);
 		add(StartClient);
-		StopClient=new JButton("Stop Client");
+		StopClient=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Stop Client"));
 		StopClient.addActionListener(this);
 		add(StopClient);
 		ClientPane=new JPanel();
@@ -108,32 +109,32 @@ public class AutoDrivePaneClass extends MapKernel.ToolPanel implements ExtendedT
 		ServerPane.setVisible(false);
 		add(ServerPane);
 		//--------------------------------------------------
-		ClickToChoose=new JCheckBox("Click to Select");
+		ClickToChoose=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("Click to Select"));
 		ClientPane.add(ClickToChoose);
-		SelectOrigin=new JCheckBox("Origion");
-		SelectTerminal=new JCheckBox("Terminal");
+		SelectOrigin=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("Origin"));
+		SelectTerminal=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("Terminal"));
 		Group=new ButtonGroup();
 		Group.add(SelectOrigin);
 		Group.add(SelectTerminal);
 		ClientPane.add(SelectOrigin);
 		ClientPane.add(SelectTerminal);
-		ClientPane.add(new JLabel("Auto Km/h"));
+		ClientPane.add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("Auto Km/h")));
 		AutoVelocity=new JTextField(4);
 		AutoVelocity.addActionListener(this);
 		ClientPane.add(AutoVelocity);
-		ShowMoreInfo=new JCheckBox("Hotspot Recommend");
+		ShowMoreInfo=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("Hotspot Recommend"));
 		ClientPane.add(ShowMoreInfo);
-		ClientShadowing=new JCheckBox("Client Shadowing");
+		ClientShadowing=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("Client Shadowing"));
 		ClientShadowing.setSelected(true);
 		ClientShadowing.setOpaque(false);
 		ClientPane.add(ClientShadowing);
-		CrossHintSwitch=new JCheckBox("Cross Hint Switch");
+		CrossHintSwitch=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("Cross Hint Switch"));
 		CrossHintSwitch.setSelected(false);
 		CrossHintSwitch.setOpaque(false);
 		ClientPane.add(CrossHintSwitch);
 		//---------------------------------------------------
-		StartAutoDrive=new JButton("Start Auto Drive");
-		StopAutoDrive=new JButton("Stop Auto Drive");
+		StartAutoDrive=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Start Auto Drive"));
+		StopAutoDrive=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Stop Auto Drive"));
 		StartAutoDrive.addActionListener(this);
 		StopAutoDrive.addActionListener(this);
 		ClientPane.add(StartAutoDrive);
@@ -152,22 +153,22 @@ public class AutoDrivePaneClass extends MapKernel.ToolPanel implements ExtendedT
 		ScrollPane.setVisible(false);
 		//------------------------------------------------------------
 		IdentifierFilter1=new JTextField(12);
-		ServerPane.add(new JLabel("IDENTIFIERFILTER1"));
+		ServerPane.add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("IDENTIFIERFILTER1")));
 		ServerPane.add(IdentifierFilter1);
 		IdentifierFilter1.addActionListener(this);
 		IdentifierFilter2=new JTextField(12);
-		ServerPane.add(new JLabel("IDENTIFIERFILTER2"));
+		ServerPane.add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("IDENTIFIERFILTER2")));
 		ServerPane.add(IdentifierFilter2);
 		IdentifierFilter2.addActionListener(this);
 		LandmarkFilter=new JTextField(7);
-		ServerPane.add(new JLabel("ToLandmark"));
+		ServerPane.add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("ToLandmark")));
 		ServerPane.add(LandmarkFilter);
 		LandmarkFilter.addActionListener(this);
-		ServerPane.add(new JLabel("in"));
+		ServerPane.add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("in")));
 		DistanceFilter=new JTextField(3);
 		ServerPane.add(DistanceFilter);
 		DistanceFilter.addActionListener(this);
-		ServerPane.add(new JLabel("Meters"));
+		ServerPane.add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("Meters")));
 		DefaultTableModel model = new DefaultTableModel(Result,Title) {
 			  public boolean isCellEditable(int row, int column) {
 				  return false;
@@ -178,16 +179,16 @@ public class AutoDrivePaneClass extends MapKernel.ToolPanel implements ExtendedT
 		Handle=new JScrollPane(ResultTable);
 		Handle.setPreferredSize(new Dimension(270,320));
 		ServerPane.add(Handle);
-		ShadowingSwitch=new JButton("Shadowing Switch");
+		ShadowingSwitch=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Shadowing Switch"));
 		ShadowingSwitch.addActionListener(this);
 		ServerPane.add(ShadowingSwitch);
-		RecordSwitch=new JButton("Record Switch");
+		RecordSwitch=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Record Switch"));
 		RecordSwitch.addActionListener(this);
 		ServerPane.add(RecordSwitch);
-		ClearRecord=new JButton("Clear Record");
+		ClearRecord=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Clear Record"));
 		ClearRecord.addActionListener(this);
 		ServerPane.add(ClearRecord);
-		RecordAllSwitch=new JButton("Global Record Switch");
+		RecordAllSwitch=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Global Record Switch"));
 		RecordAllSwitch.addActionListener(this);
 		ServerPane.add(RecordAllSwitch);
 	}
@@ -217,7 +218,7 @@ public class AutoDrivePaneClass extends MapKernel.ToolPanel implements ExtendedT
 	@Override
 	public void convey(double x, double y) {
 		if(!ClickToChoose.isSelected()){
-			MainHandle.ChangeTitle("Please Click the Permission");
+			MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("Please Click the Permission"));
 			return;
 		}
 		if(SelectOrigin.isSelected()){
@@ -275,15 +276,15 @@ public class AutoDrivePaneClass extends MapKernel.ToolPanel implements ExtendedT
 		try{
 			TextValue=Double.parseDouble(AutoVelocity.getText());
 		}catch(Exception e){
-			JOptionPane.showMessageDialog(null,"The Velocity Value is not a Positive Real Number","Format Error",JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("The Velocity Value is not a Positive Real Number"),MapKernel.MapWizard.LanguageDic.GetWords("Format Error"),JOptionPane.WARNING_MESSAGE);
 			return false;
 		}
 		if(TextValue<=0){
-			JOptionPane.showMessageDialog(null,"The Velocity Value is not a Positive Real Number","Format Error",JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("The Velocity Value is not a Positive Real Number"),MapKernel.MapWizard.LanguageDic.GetWords("Format Error"),JOptionPane.WARNING_MESSAGE);
 			return false;
 		}
 		if(TextValue>1000){
-			JOptionPane.showMessageDialog(null,"The Velocity Value is not a Proper Positive Real Number","Impossible",JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("The Velocity Value is not a Proper Positive Real Number"),MapKernel.MapWizard.LanguageDic.GetWords("Impossible"),JOptionPane.WARNING_MESSAGE);
 			return false;
 		}
 		AutoSpeed=TextValue;
@@ -296,11 +297,11 @@ public class AutoDrivePaneClass extends MapKernel.ToolPanel implements ExtendedT
 		if(arg0.getSource()==StartAutoDrive){
 			if(!CheckAutoVelocityValid()) return;
 			if(!OriginValid){
-				JOptionPane.showMessageDialog(null,"Origin is not set","Origin Invalid",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("Origin is not set"),MapKernel.MapWizard.LanguageDic.GetWords("Origin Invalid"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			if(!TerminalValid){
-				JOptionPane.showMessageDialog(null,"Terminal is not set","Terminal Invalid",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("Terminal is not set"),MapKernel.MapWizard.LanguageDic.GetWords("Terminal Invalid"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			IsDrive=true;
@@ -350,9 +351,9 @@ public class AutoDrivePaneClass extends MapKernel.ToolPanel implements ExtendedT
 			ServerPane.setVisible(false);
 			ClientPane.setVisible(false);
 			try{
-				ClientIdentifier=JOptionPane.showInputDialog(null,"Input Your Identifier");
+				ClientIdentifier=JOptionPane.showInputDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("Input Your Identifier"));
 				if((ClientIdentifier==null)||(ClientIdentifier.equals(""))){
-					JOptionPane.showMessageDialog(null,"Invalid Identifier");
+					JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("Invalid Identifier"));
 					return;
 				}
 				MapKernel.CacheRoadNetworkDatabaseClass NetDB=MainHandle.getKernel().CacheRoadNetworkDatabase;
@@ -401,7 +402,7 @@ public class AutoDrivePaneClass extends MapKernel.ToolPanel implements ExtendedT
 			  ShadowingIdentifier=(String)tableModel.getValueAt(selectedRowIndex,1);
 			}else{
 				ShadowingIdentifier=null;
-				JOptionPane.showMessageDialog(null,"Give Up Shadowing","Give Up Shadowing",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("Give Up Shadowing"),MapKernel.MapWizard.LanguageDic.GetWords("Give Up Shadowing"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 		}else if(arg0.getSource()==ClearRecord){
@@ -419,7 +420,8 @@ public class AutoDrivePaneClass extends MapKernel.ToolPanel implements ExtendedT
 			  RecordList.put(key,BoolV);
 			  ServerQuery();
 			}else{
-				JOptionPane.showMessageDialog(null,"Please Choose One Row","Please Choose One Row",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("Please Choose One Row"),
+						MapKernel.MapWizard.LanguageDic.GetWords("Please Choose One Row"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 		}else if(arg0.getSource()==RecordAllSwitch){
@@ -599,7 +601,8 @@ public class AutoDrivePaneClass extends MapKernel.ToolPanel implements ExtendedT
 			//Check Terminal----------------------------------------------------------------------
 			if(MainHandle.AccurateMeterDistance(OriginX,OriginY,TerminalX,TerminalY)<50){
 				IsDrive=false;
-				JOptionPane.showMessageDialog(null,"The Terminal Target Arrived","Congratulations!!!",JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("The Terminal Target Arrived"),
+						MapKernel.MapWizard.LanguageDic.GetWords("Congratulations!!!"),JOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			NetDB.DynamicSPFA(OriginX, OriginY, TerminalX, TerminalY);
@@ -628,7 +631,8 @@ public class AutoDrivePaneClass extends MapKernel.ToolPanel implements ExtendedT
 		Database.PointDataSet PointDB=MainHandle.getPointDatabase();
 		LineDB.DatabaseDelete("[info:Cache]");
 		if(NetDB.AnsTail[0]==0){
-			JOptionPane.showMessageDialog(null,"The Condition of Road NetWork is bad,Wait Here","Wait Here",JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("The Condition of Road NetWork is bad,Wait Here"),
+					MapKernel.MapWizard.LanguageDic.GetWords("Wait Here"),JOptionPane.WARNING_MESSAGE);
 			return;
 		}
 		int ptr=NetDB.AnsTail[1];
@@ -657,7 +661,7 @@ public class AutoDrivePaneClass extends MapKernel.ToolPanel implements ExtendedT
 			if(CrossHintSwitch.isSelected())
 			if(tref[i]!=tref[i-1]){
 				if(tref[i-1]!=-1){
-					PointDB.add(tx[i-1],ty[i-1],"[Title:进入"+LineDB.getTitle(tref[i-1])+"][Info:Cache][Info:Path]");
+					PointDB.add(tx[i-1],ty[i-1],"[Title:"+MapKernel.MapWizard.LanguageDic.GetWords("进入")+LineDB.getTitle(tref[i-1])+"][Info:Cache][Info:Path]");
 					PointDB.PointVisible[PointDB.PointNum-1]=727;//Red Word and Red Point
 				}
 			}

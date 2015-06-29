@@ -206,8 +206,8 @@ public class PointDataSet implements PointDatabaseInterface{
 	public String getTitle(int k){
 		int st=PointHint[k].indexOf("[Title:");
 		int en=PointHint[k].indexOf("]",st);
-		if(st==-1) return "无名称点";
-		if(en==-1) return "无名称点";
+		if(st==-1) return MapKernel.MapWizard.LanguageDic.GetWords("无名称点");
+		if(en==-1) return MapKernel.MapWizard.LanguageDic.GetWords("无名称点");
 		return PointHint[k].substring(st+7,en);
 	}
 	public void DatabaseDelete(String KeyWord) {

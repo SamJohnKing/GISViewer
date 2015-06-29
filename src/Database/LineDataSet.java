@@ -146,7 +146,7 @@ public class LineDataSet implements LineDatabaseInterface{
 					out.write(AllPointY[LineHead[i]] + "," + AllPointX[LineHead[i]] + ","
 							+ LineHint[i].trim() + "," + LineVisible[i]+","+(isVertical[i]?"1":"0")+","+dx[i]+","+dy[i]);
 					out.newLine();
-					int temp=LineHead[i];
+					int temp=AllPointNext[LineHead[i]];
 					while(temp!=-1){
 						out.write(AllPointY[temp]+","+AllPointX[temp]+",,,,,");
 						out.newLine();
@@ -386,8 +386,8 @@ public class LineDataSet implements LineDatabaseInterface{
 	public String getTitle(int k){
 		int st=LineHint[k].indexOf("[Title:");
 		int en=LineHint[k].indexOf("]",st);
-		if(st==-1) return "无名称线路";
-		if(en==-1) return "无名称线路";
+		if(st==-1) return MapKernel.MapWizard.LanguageDic.GetWords("无名称线路");
+		if(en==-1) return MapKernel.MapWizard.LanguageDic.GetWords("无名称线路");
 		return LineHint[k].substring(st+7,en);
 	}
 	@Override

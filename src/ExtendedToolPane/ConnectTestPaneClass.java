@@ -20,27 +20,27 @@ public class ConnectTestPaneClass extends MapKernel.ToolPanel implements Extende
 	int Scan;
 	double OriginLongitude=0,OriginLatitude=0,TerminalLongitude=0,TerminalLatitude=0;
 	public ConnectTestPaneClass(){
-		PaneTitle=new JLabel("ConnectTestPane");
+		PaneTitle=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("ConnectTestPane"));
 		PaneTitle.setFont(new Font("华文新魏",Font.BOLD,30));
 		add(PaneTitle);
-		Origin=new JRadioButton("Choose Origin");
+		Origin=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("Choose Origin"));
 		Origin.setOpaque(false);
-		Terminal=new JRadioButton("Choose Terminal");
+		Terminal=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("Choose Terminal"));
 		Terminal.setOpaque(false);
 		Group=new ButtonGroup();
 		Group.add(Origin);
 		Group.add(Terminal);
 		add(Origin);
 		add(Terminal);
-		TheShortestPath=new JCheckBox("Use SPFA to Search");
+		TheShortestPath=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("Use SPFA to Search"));
 		TheShortestPath.setOpaque(false);
 		add(TheShortestPath);
-		Search=new JButton("Search For the path");
+		Search=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Search For the path"));
 		Search.addActionListener(this);
 		add(Search);
-		Back=new JButton("Click to Back Path");
+		Back=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Click to Back Path"));
 		Back.addActionListener(this);
-		Forward=new JButton("Click to Forward Path");
+		Forward=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Click to Forward Path"));
 		Forward.addActionListener(this);
 		add(Back);
 		add(Forward);
@@ -49,7 +49,7 @@ public class ConnectTestPaneClass extends MapKernel.ToolPanel implements Extende
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		if(!MainHandle.getKernel().CacheRoadNetworkDatabase.Loaded){
-			JOptionPane.showMessageDialog(null,"请先生成路网","Warning",JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("请先生成路网"),MapKernel.MapWizard.LanguageDic.GetWords("Warning"),JOptionPane.WARNING_MESSAGE);
 			return;
 		}
 		MapKernel.CacheRoadNetworkDatabaseClass NetDB=MainHandle.getKernel().CacheRoadNetworkDatabase;
@@ -89,11 +89,11 @@ public class ConnectTestPaneClass extends MapKernel.ToolPanel implements Extende
 		Database.PointDataSet PointDB=MainHandle.getPointDatabase();
 		LineDB.DatabaseDelete("[info:Cache]");
 		if(k>NetDB.AnsTail[0]){
-			JOptionPane.showMessageDialog(null,"此路径为空","边界提示",JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("此路径为空"),MapKernel.MapWizard.LanguageDic.GetWords("边界提示"),JOptionPane.WARNING_MESSAGE);
 			return;
 		}
 		if(k<1){
-			JOptionPane.showMessageDialog(null,"此路径为空","边界提示",JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("此路径为空"),MapKernel.MapWizard.LanguageDic.GetWords("边界提示"),JOptionPane.WARNING_MESSAGE);
 			return;
 		}
 		int ptr=NetDB.AnsTail[k];
@@ -121,7 +121,7 @@ public class ConnectTestPaneClass extends MapKernel.ToolPanel implements Extende
 			temp+=MainHandle.AccurateMeterDistance(tx[i],ty[i],tx[i-1],ty[i-1]);
 			if(tref[i]!=tref[i-1]){
 				if(tref[i-1]!=-1){
-					PointDB.add(tx[i-1],ty[i-1],"[Title:进入"+LineDB.getTitle(tref[i-1])+"][Info:Cache][Info:Path]");
+					PointDB.add(tx[i-1],ty[i-1],"[Title:"+MapKernel.MapWizard.LanguageDic.GetWords("进入")+LineDB.getTitle(tref[i-1])+"][Info:Cache][Info:Path]");
 					PointDB.PointVisible[PointDB.PointNum-1]=727;//Red Word and Red Point
 				}
 			}
@@ -148,13 +148,13 @@ public class ConnectTestPaneClass extends MapKernel.ToolPanel implements Extende
 		if(Origin.isSelected()){
 			OriginLongitude=x;
 			OriginLatitude=y;
-			PointDB.DatabaseDelete("[Title:起点][Info:Cache]");
-			PointDB.add(x,y,151,"[Title:起点][Info:Cache]");
+			PointDB.DatabaseDelete("[Title:"+MapKernel.MapWizard.LanguageDic.GetWords("起点")+"][Info:Cache]");
+			PointDB.add(x,y,151,"[Title:"+MapKernel.MapWizard.LanguageDic.GetWords("起点")+"][Info:Cache]");
 		}else{
 			TerminalLongitude=x;
 			TerminalLatitude=y;
-			PointDB.DatabaseDelete("[Title:终点][Info:Cache]");
-			PointDB.add(x,y,151,"[Title:终点][Info:Cache]");
+			PointDB.DatabaseDelete("[Title:"+MapKernel.MapWizard.LanguageDic.GetWords("终点")+"][Info:Cache]");
+			PointDB.add(x,y,151,"[Title:"+MapKernel.MapWizard.LanguageDic.GetWords("终点")+"][Info:Cache]");
 		}
 		MainHandle.ScreenFlush();
 	}

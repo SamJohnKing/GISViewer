@@ -29,7 +29,7 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 		this.MainHandle=MainHandle;
 	}
 	public GISCompletionPaneClass(){
-		JLabel Title=new JLabel("电子地图补全面板");
+		JLabel Title=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("电子地图补全面板"));
 		Title.setFont(new Font("华文新魏",Font.BOLD,30));
 		Title.setForeground(Color.orange);
 		add(Title);
@@ -73,7 +73,7 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 	private void PointsDataRelease(){
 		try{
 		if((ThrowPointsDataField.getText()==null)||(ThrowPointsDataField.getText().equals(""))){
-			ThrowPointsDataField.setText(JOptionPane.showInputDialog("Please complete the Output File Name!!!"));
+			ThrowPointsDataField.setText(JOptionPane.showInputDialog(MapKernel.MapWizard.LanguageDic.GetWords("Please complete the Output File Name!!!")));
 		}
 		if(ThrowPointsDataField.getText()==null) return;
 		File f=new File(ThrowPointsDataField.getText()+MainHandle.GetInternationalTimeSignature()+".txt");
@@ -87,12 +87,12 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 		}
 		FOut.flush();
 		FOut.close();
-		JOptionPane.showMessageDialog(null,"OutputFinished!");
+		JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("OutputFinished!"));
 		}catch(Exception ex){MainHandle.SolveException(ex);}
 	}
 	private void LinesDataRelease(){
 		try{
-		ThrowLinesDataField.setText(JOptionPane.showInputDialog("Please complete the Output File Name!!!")+MainHandle.GetInternationalTimeSignature()+".txt");
+		ThrowLinesDataField.setText(JOptionPane.showInputDialog(MapKernel.MapWizard.LanguageDic.GetWords("Please complete the Output File Name!!!"))+MainHandle.GetInternationalTimeSignature()+".txt");
 		if(ThrowLinesDataField.getText()==null) return;
 		File f=new File(ThrowLinesDataField.getText());
 		BufferedWriter FOut=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f,false),"UTF-8"));
@@ -105,7 +105,7 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 		FOut.flush();
 		FOut.close();
 		MissingTrajectoryList.clear();
-		JOptionPane.showMessageDialog(null,"OutputFinished!");
+		JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("OutputFinished!"));
 		}catch(Exception ex){MainHandle.SolveException(ex);}
 	}
 	private int RetriveCounter=0;
@@ -133,7 +133,7 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 					if(MainHandle.getLineDatabase().LineNum+10>100000){
 						FIN.close();
 						MainHandle.ScreenFlush();
-						JOptionPane.showMessageDialog(null,"WARNING::LineDB OverFlowed!!!");
+						JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("WARNING::LineDB OverFlowed!!!"));
 						return;
 					}
 				}else{
@@ -168,7 +168,7 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 			}
 			FIN.close();
 			MainHandle.ScreenFlush();
-			JOptionPane.showMessageDialog(null,"InputFinished!");
+			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("InputFinished!"));
 		}catch(Exception ex){MainHandle.SolveException(ex);}
 	}
 	private ArrayList<ArrayList<Database.TimeStampPointStructure>> MissingTrajectoryList=null;
@@ -224,7 +224,7 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 					}
 					MapMatching=null;
 					MainHandle.ScreenFlush();
-					JOptionPane.showMessageDialog(null,"MapMatchingFinished!");
+					JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("MapMatchingFinished!"));
 				}
 			}catch(Exception ex){
 				MainHandle.SolveException(ex);
@@ -301,7 +301,7 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 			}
 			*/
 			try{
-				String JointPointNumString=JOptionPane.showInputDialog(null,"Input Joint Point Number");
+				String JointPointNumString=JOptionPane.showInputDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("Input Joint Point Number"));
 				if((JointPointNumString==null)||(JointPointNumString.equals(""))) return;
 				int JointPointNum=Integer.parseInt(JointPointNumString);
 				int TrajectoryCount=0;
@@ -355,7 +355,7 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 					MapMatching.Fresh();
 					MainHandle.ScreenFlush();
 					System.gc();
-					JOptionPane.showMessageDialog(null,"MapMatchingFinished!");
+					JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("MapMatchingFinished!"));
 				}
 			}catch(Exception ex){
 				MainHandle.SolveException(ex);
@@ -482,17 +482,17 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 	public void SpecificProcess(){
 		RetriveDataField=new JTextField(16);
 		add(RetriveDataField);
-		RetriveData=new JButton("Retrive");
+		RetriveData=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Retrive"));
 		add(RetriveData);
 		RetriveData.addActionListener(this);
-		LoadClear=new JButton("ClearLastResults");
+		LoadClear=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("ClearLastResults"));
 		add(LoadClear);
 		LoadClear.addActionListener(this);
-		AllLoadClear=new JButton("ClearAllResults");
+		AllLoadClear=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("ClearAllResults"));
 		add(AllLoadClear);
 		AllLoadClear.addActionListener(this);
 		//----------------------------------------------------------------------------------
-		SelectRoadID=new JCheckBox("Release Road ID & Trajectories");
+		SelectRoadID=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("Release Road ID & Trajectories"));
 		SelectRoadID.addItemListener(new ItemListener(){
 			@Override
 			public void itemStateChanged(ItemEvent arg0) {
@@ -506,64 +506,64 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 		SelectRoadID.setOpaque(false);
 		SelectRoadID.setFont(new Font("华文新魏",Font.BOLD,16));
 		SelectRoadID.setForeground(Color.orange);
-		ConveyRegionToAlgorithm=new JCheckBox("Convey Region to Algorithm");
+		ConveyRegionToAlgorithm=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("Convey Region to Algorithm"));
 		add(ConveyRegionToAlgorithm);
 		ConveyRegionToAlgorithm.setSelected(false);
 		ConveyRegionToAlgorithm.setOpaque(false);
 		ConveyRegionToAlgorithm.setFont(new Font("华文新魏",Font.BOLD,16));
 		ConveyRegionToAlgorithm.setForeground(Color.orange);
 		//-------------------------------------------------------------------------------
-		TrajectoryToPointsTransformer=new JButton("Trajectory to Points Tranformer");
+		TrajectoryToPointsTransformer=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Trajectory to Points Tranformer"));
 		add(TrajectoryToPointsTransformer);
 		TrajectoryToPointsTransformer.addActionListener(this);
 		
-		ThrowPointsData=new JButton("Release");
+		ThrowPointsData=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Release"));
 		add(ThrowPointsData);
 		ThrowPointsData.addActionListener(this);
 		ThrowPointsDataField=new JTextField(16);
 		add(ThrowPointsDataField);
 		
-		PointsAlgorithmExe1=new JButton("Execute1");
+		PointsAlgorithmExe1=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Execute1"));
 		add(PointsAlgorithmExe1);
 		PointsAlgorithmExe1.addActionListener(this);
 		ExePointsField1=new JTextField(16);
 		add(ExePointsField1);
 		
-		PointsAlgorithmExe2=new JButton("Execute2");
+		PointsAlgorithmExe2=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Execute2"));
 		add(PointsAlgorithmExe2);
 		PointsAlgorithmExe2.addActionListener(this);
 		ExePointsField2=new JTextField(16);
 		add(ExePointsField2);
 		
-		PointsAlgorithmExe3=new JButton("Execute3");
+		PointsAlgorithmExe3=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Execute3"));
 		add(PointsAlgorithmExe3);
 		PointsAlgorithmExe3.addActionListener(this);
 		ExePointsField3=new JTextField(16);
 		add(ExePointsField3);
 		//--------------------------------------------------------------------------------
-		TrajectoryToLinesTransformer=new JButton("Trajectory To Lines Transformer");
+		TrajectoryToLinesTransformer=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Trajectory To Lines Transformer"));
 		add(TrajectoryToLinesTransformer);
 		TrajectoryToLinesTransformer.addActionListener(this);
 		
-		ThrowLinesData=new JButton("Release");
+		ThrowLinesData=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Release"));
 		//add(ThrowLinesData);
 		ThrowLinesData.addActionListener(this);
 		ThrowLinesDataField=new JTextField(16);
 		//add(ThrowLinesDataField);
 		
-		LinesAlgorithmExe1=new JButton("Execute1");
+		LinesAlgorithmExe1=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Execute1"));
 		add(LinesAlgorithmExe1);
 		LinesAlgorithmExe1.addActionListener(this);
 		ExeLinesField1=new JTextField(16);
 		add(ExeLinesField1);
 		
-		LinesAlgorithmExe2=new JButton("Execute2");
+		LinesAlgorithmExe2=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Execute2"));
 		add(LinesAlgorithmExe2);
 		LinesAlgorithmExe2.addActionListener(this);
 		ExeLinesField2=new JTextField(16);
 		add(ExeLinesField2);
 		
-		LinesAlgorithmExe3=new JButton("Execute3");
+		LinesAlgorithmExe3=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Execute3"));
 		add(LinesAlgorithmExe3);
 		LinesAlgorithmExe3.addActionListener(this);
 		ExeLinesField3=new JTextField(16);
@@ -599,7 +599,7 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 			if(p!=-1) IndexList.add(i);
 		}
 		try{
-			String FileName=JOptionPane.showInputDialog("Please complete the Delete Road Index File Name!!!");
+			String FileName=JOptionPane.showInputDialog(MapKernel.MapWizard.LanguageDic.GetWords("Please complete the Delete Road Index File Name!!!"));
 			if(FileName==null) return;
 			File f=new File(FileName+MainHandle.GetInternationalTimeSignature()+".txt");
 			BufferedWriter FOut=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f,false),"UTF-8"));
@@ -608,7 +608,7 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 			}
 			FOut.flush();
 			FOut.close();
-			JOptionPane.showMessageDialog(null,"RecordDeleteRoadFinished!");
+			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("RecordDeleteRoadFinished!"));
 		}catch(Exception ex){MainHandle.SolveException(ex);}
 	}
 	public void ReleaseRoadID(ArrayList<Integer> PolygonList){
@@ -636,7 +636,8 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 			}
 		}
 		try{
-			String FileName=JOptionPane.showInputDialog("Please complete the Delete Road Index File Name!!!");
+			String FileName=JOptionPane.showInputDialog(
+					MapKernel.MapWizard.LanguageDic.GetWords("Please complete the Delete Road Index File Name!!!"));
 			if(FileName==null) return;
 			File f=new File(FileName+MainHandle.GetInternationalTimeSignature()+".txt");
 			BufferedWriter FOut=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f,false),"UTF-8"));
@@ -645,7 +646,7 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 			}
 			FOut.flush();
 			FOut.close();
-			JOptionPane.showMessageDialog(null,"RecordDeleteRoadFinished!");
+			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("RecordDeleteRoadFinished!"));
 		}catch(Exception ex){MainHandle.SolveException(ex);}
 	}
 	ArrayList<Integer> SelectedPolygonList=new ArrayList<Integer>();
@@ -653,7 +654,7 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 		try{
 		if(ConveyRegionToAlgorithm.isSelected())
 		{	
-			int n=JOptionPane.showConfirmDialog(null,"Do you want to Convey Region to Algorithm?","Hint", JOptionPane.YES_NO_OPTION);
+			int n=JOptionPane.showConfirmDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("Do you want to Convey Region to Algorithm?"),MapKernel.MapWizard.LanguageDic.GetWords("Hint"), JOptionPane.YES_NO_OPTION);
 			if(n==JOptionPane.NO_OPTION) return;
 			double Xmin=Math.min(x1, x2);
 			double Xmax=Math.max(x1, x2);
@@ -759,7 +760,7 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 		MainHandle.setPointHeadTailLinkVisible(false);
 		MainHandle.setPointHintVisible(false);
 		MainHandle.ScreenFlush();
-		int reply=JOptionPane.showConfirmDialog(null,"Yes To Choose Points;No To Choose Polygons");
+		int reply=JOptionPane.showConfirmDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("Yes To Choose Points;No To Choose Polygons"));
 		MainHandle.PointEmpty();
 		MainHandle.setPointConsecutiveLinkVisible(false);
 		MainHandle.setPointVisible(false);
@@ -846,7 +847,7 @@ public  class GISCompletionPaneClass extends ToolPanel implements ExtendedToolPa
 	}
 	@Override
 	public void confirm() {
-		JOptionPane.showMessageDialog(null, "ConfirmFunction");
+		JOptionPane.showMessageDialog(null, MapKernel.MapWizard.LanguageDic.GetWords("ConfirmFunction"));
 		// TODO Auto-generated method stub
 	}
 	@Override

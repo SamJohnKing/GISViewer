@@ -19,18 +19,18 @@ public class TaxiTrajectoryViewPaneClass extends MapKernel.ToolPanel implements 
 	JTextField Interval,ViewNum;
 	JButton TraceTaxi,StopTrace;
 	public TaxiTrajectoryViewPaneClass(){
-		PaneTitle=new JLabel("TaxiTrajectoryView");
+		PaneTitle=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("TaxiTrajectoryView"));
 		PaneTitle.setFont(new Font("华文新魏",Font.BOLD,25));
 		add(PaneTitle);
-		add(new JLabel("Interval Time Per impulse to Query"));
+		add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("Interval Time Per impulse to Query")));
 		Interval=new JTextField(20);
 		add(Interval);
-		add(new JLabel("Upper Number Limit of Taxi to Trace"));
+		add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("Upper Number Limit of Taxi to Trace")));
 		ViewNum=new JTextField(20);
 		add(ViewNum);
-		TraceTaxi=new JButton("Click to Trace the Taxi");
+		TraceTaxi=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Click to Trace the Taxi"));
 		TraceTaxi.addActionListener(this);
-		StopTrace=new JButton("Click to Stop the Tracing Process");
+		StopTrace=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Click to Stop the Tracing Process"));
 		StopTrace.addActionListener(this);
 		add(TraceTaxi);
 		add(StopTrace);
@@ -124,7 +124,8 @@ public class TaxiTrajectoryViewPaneClass extends MapKernel.ToolPanel implements 
 			ImpulseInterval=Integer.parseInt(Interval.getText());
 			UpperLimit=Integer.parseInt(ViewNum.getText());
 		}catch(Exception e){
-			JOptionPane.showMessageDialog(null,"格式错误","Notice the Format",JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("格式错误"),
+					MapKernel.MapWizard.LanguageDic.GetWords("Notice the Format"),JOptionPane.WARNING_MESSAGE);
 		}
 		}else if(arg0.getSource()==StopTrace){
 			ImpulseInterval=-1;

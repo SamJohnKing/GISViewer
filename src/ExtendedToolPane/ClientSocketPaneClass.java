@@ -24,7 +24,7 @@ public  class ClientSocketPaneClass extends ToolPanel implements ExtendedToolPan
 		ClientHandle.setHandle(MainHandle);
 	}
 	public ClientSocketPaneClass(){
-		JLabel Title=new JLabel("ClientSocketPane");
+		JLabel Title=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("ClientSocketPane"));
 		Title.setFont(new Font("华文新魏",Font.BOLD,30));
 		Title.setForeground(Color.orange);
 		add(Title);
@@ -76,25 +76,25 @@ public  class ClientSocketPaneClass extends ToolPanel implements ExtendedToolPan
 	JTextField SocketIPField,SocketNumField,SocketCommandLineField;
 	public void SpecificProcess(){
 		ClientHandle=new InternetHandle.ClientHandle();
-		JLabel IP=new JLabel("ClientSocketIP");
+		JLabel IP=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("ClientSocketIP"));
 		IP.setFont(new Font("华文新魏",Font.BOLD,16));
 		IP.setForeground(Color.orange);
 		add(IP);
 		SocketIPField=new JTextField(10);
 		add(SocketIPField);
-		JLabel port=new JLabel("ClientSocketPort");
+		JLabel port=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("ClientSocketPort"));
 		port.setFont(new Font("华文新魏",Font.BOLD,16));
 		port.setForeground(Color.orange);
 		add(port);
 		SocketNumField=new JTextField(10);
 		add(SocketNumField);
-		JLabel CommandLabel=new JLabel("Command Line Through Socket");
+		JLabel CommandLabel=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("Command Line Through Socket"));
 		CommandLabel.setFont(new Font("华文新魏",Font.BOLD,16));
 		CommandLabel.setForeground(Color.orange);
 		add(CommandLabel);
 		SocketCommandLineField=new JTextField(18);
 		add(SocketCommandLineField);
-		StartButton=new JButton("Exe");
+		StartButton=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("Exe"));
 		add(StartButton);
 		StartButton.addActionListener(this);
 	}
@@ -105,14 +105,14 @@ public  class ClientSocketPaneClass extends ToolPanel implements ExtendedToolPan
 		//-----------------
 	}
 	public void convey(double x,double y){
-		JOptionPane.showMessageDialog(null,"ConveyPoint");
+		JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("ConveyPoint"));
 	}
 	public void convey(double x1,double y1,double x2,double y2){
-		JOptionPane.showMessageDialog(null,"ConveyRegion");
+		JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("ConveyRegion"));
 	}
 	@Override
 	public void confirm() {
-		JOptionPane.showMessageDialog(null, "ConfirmFunction");
+		JOptionPane.showMessageDialog(null, MapKernel.MapWizard.LanguageDic.GetWords("ConfirmFunction"));
 		// TODO Auto-generated method stub
 	}
 	@Override

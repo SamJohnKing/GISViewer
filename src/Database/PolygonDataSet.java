@@ -153,7 +153,7 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 					out.write(AllPointY[PolygonHead[i]] + "," + AllPointX[PolygonHead[i]] + ","
 							+ PolygonHint[i].trim() + "," + PolygonVisible[i]+","+(isVertical[i]?"1":"0")+","+dx[i]+","+dy[i]);
 					out.newLine();
-					int temp=PolygonHead[i];
+					int temp=AllPointNext[PolygonHead[i]];
 					while(temp!=-1){
 						out.write(AllPointY[temp]+","+AllPointX[temp]+",,,,,");
 						out.newLine();
@@ -349,8 +349,8 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 	public String getTitle(int k){
 		int st=PolygonHint[k].indexOf("[Title:");
 		int en=PolygonHint[k].indexOf("]",st);
-		if(st==-1) return "无名称区域";
-		if(en==-1) return "无名称区域";
+		if(st==-1) return MapKernel.MapWizard.LanguageDic.GetWords("无名称区域");
+		if(en==-1) return MapKernel.MapWizard.LanguageDic.GetWords("无名称区域");
 		return PolygonHint[k].substring(st+7,en);
 	}
 	public void DatabaseDelete(String KeyWord) {

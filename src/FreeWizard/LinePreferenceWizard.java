@@ -41,39 +41,39 @@ public class LinePreferenceWizard extends JFrame implements FreeWizardInterface{
 	class FacePic extends JPanel implements ActionListener,MouseListener,MouseMotionListener,ItemListener{
 	public FacePic(){
 		setBounds(0,0,520,330);
-		Hide=new JButton("撤销更改并返回");
+		Hide=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("撤销更改并返回"));
 		Hide.addActionListener(this);
-		Confirm=new JButton("生效并返回");
+		Confirm=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("生效并返回"));
 		Confirm.addActionListener(this);
 		KeyWord=new JTextField(32);
 		Visible=new JTextField(4);
-		l0=new JLabel("【地理折线线路排布配置视窗】");
+		l0=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("【地理折线线路排布配置视窗】"));
 		l0.setFont(new Font("华文新魏",Font.BOLD,36));
 		add(l0);
-		add(new JLabel("关键字"));
+		add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("关键字")));
 		add(KeyWord);
-		add(new JLabel("特征值"));
+		add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("特征值")));
 		add(Visible);
 		//Specific---------------------------------------------
-		AutoApply=new JCheckBox("自动显示变化");
+		AutoApply=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("自动显示变化"));
 		AutoApply.setOpaque(false);
 		add(AutoApply);
-		IsUniversal=new JCheckBox("是否应用于其他检索项");
+		IsUniversal=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("是否应用于其他检索项"));
 		IsUniversal.setOpaque(false);
 		add(IsUniversal);
 		
-		add(new JLabel("显示名"));
+		add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("显示名")));
 		
 		ReTitle=new JTextField(18);
 		add(ReTitle);
 		
-		IsVisible=new JCheckBox("允许在地图上显示");
+		IsVisible=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("允许在地图上显示"));
 		IsVisible.setOpaque(false);
-		IsWordVisible=new JCheckBox("在地图上显示字");
+		IsWordVisible=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("在地图上显示字"));
 		IsWordVisible.setOpaque(false);
-		IsPointVisible=new JCheckBox("在地图上显示点");
+		IsPointVisible=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("在地图上显示点"));
 		IsPointVisible.setOpaque(false);
-		IsLineVisible=new JCheckBox("在地图上显示线");
+		IsLineVisible=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("在地图上显示线"));
 		IsLineVisible.setOpaque(false);
 		add(IsVisible);
 		add(IsWordVisible);
@@ -155,7 +155,7 @@ public class LinePreferenceWizard extends JFrame implements FreeWizardInterface{
 		LineGroup.add(LineCyan);
 		LineGroup.add(LinePink);
 		LineGroup.add(LineOrange);
-		add(new JLabel("字色"));
+		add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("字色")));
 		add(WordWhite);
 		add(WordRed);
 		add(WordYellow);
@@ -164,7 +164,7 @@ public class LinePreferenceWizard extends JFrame implements FreeWizardInterface{
 		add(WordCyan);
 		add(WordPink);
 		add(WordOrange);
-		add(new JLabel("点色"));
+		add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("点色")));
 		add(PointWhite);
 		add(PointRed);
 		add(PointYellow);
@@ -173,7 +173,7 @@ public class LinePreferenceWizard extends JFrame implements FreeWizardInterface{
 		add(PointCyan);
 		add(PointPink);
 		add(PointOrange);
-		add(new JLabel("线色"));
+		add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("线色")));
 		add(LineWhite);
 		add(LineRed);
 		add(LineYellow);
@@ -183,16 +183,16 @@ public class LinePreferenceWizard extends JFrame implements FreeWizardInterface{
 		add(LinePink);
 		add(LineOrange);
 		
-		add(new JLabel("追加信息"));
+		add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("追加信息")));
 		AppendInfo=new JTextField(28);
 		add(AppendInfo);
-		InfoWriteOver=new JCheckBox("覆写信息而不追加");
+		InfoWriteOver=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("覆写信息而不追加"));
 		InfoWriteOver.setOpaque(false);
 		add(InfoWriteOver);
-		add(new JLabel("追加触发"));
+		add(new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("追加触发")));
 		AppendSpur=new JTextField(28);
 		add(AppendSpur);
-		SpurWriteOver=new JCheckBox("覆写触发而不追加");
+		SpurWriteOver=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("覆写触发而不追加"));
 		SpurWriteOver.setOpaque(false);
 		add(SpurWriteOver);
 		
@@ -231,10 +231,10 @@ public class LinePreferenceWizard extends JFrame implements FreeWizardInterface{
 		Visible.setEditable(false);
 		KeyWord.setEditable(false);
 		//---------------------------------------------
-		Apply=new JButton("立即生效不返回");
+		Apply=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("立即生效不返回"));
 		Apply.addActionListener(this);
 		
-		ReLocation=new JButton("设置文字位置");
+		ReLocation=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("设置文字位置"));
 		ReLocation.addActionListener(this);
 		
 		add(ReLocation);
@@ -263,7 +263,8 @@ public class LinePreferenceWizard extends JFrame implements FreeWizardInterface{
 				  try{
 					  ProcessRow(Integer.parseInt(str));
 				  }catch(Exception ex){
-					  JOptionPane.showMessageDialog(null,"数据库检查到异常格式","数据格式异常",JOptionPane.WARNING_MESSAGE);
+					  JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("数据库检查到异常格式")
+							  ,MapKernel.MapWizard.LanguageDic.GetWords("数据格式异常"),JOptionPane.WARNING_MESSAGE);
 				  }
 				}
 			}else{
@@ -281,7 +282,8 @@ public class LinePreferenceWizard extends JFrame implements FreeWizardInterface{
 				  try{
 					  ProcessRow(Integer.parseInt(str));
 				  }catch(Exception ex){
-					  JOptionPane.showMessageDialog(null,"数据库检查到异常格式","数据格式异常",JOptionPane.WARNING_MESSAGE);
+					  JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("数据库检查到异常格式")
+							  ,MapKernel.MapWizard.LanguageDic.GetWords("数据格式异常"),JOptionPane.WARNING_MESSAGE);
 				  }
 				}
 			}else{
@@ -384,7 +386,8 @@ public class LinePreferenceWizard extends JFrame implements FreeWizardInterface{
 			  try{
 				  ProcessRow(Integer.parseInt(str));
 			  }catch(Exception ex){
-				  JOptionPane.showMessageDialog(null,"数据库检查到异常格式","数据格式异常",JOptionPane.WARNING_MESSAGE);
+				  JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("数据库检查到异常格式"),
+						  MapKernel.MapWizard.LanguageDic.GetWords("数据格式异常"),JOptionPane.WARNING_MESSAGE);
 			  }
 			}
 		}else{

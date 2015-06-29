@@ -79,16 +79,16 @@ public class PolygonHintReLocationWizard extends JFrame implements FreeWizardInt
 	}
 	class FacePic extends JPanel implements ActionListener,MouseListener,MouseMotionListener,ItemListener{
 	public FacePic(){
-		l0=new JLabel("【标签重定位】");
+		l0=new JLabel(MapKernel.MapWizard.LanguageDic.GetWords("【标签重定位】"));
 		l0.setFont(new Font("华文新魏",Font.BOLD,36));
 		add(l0);
 		setBounds(0,0,330,360);
-		Hide=new JButton("返回");
+		Hide=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("返回"));
 		Hide.addActionListener(this);
-		Reset=new JButton("重置");
+		Reset=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("重置"));
 		Reset.addActionListener(this);
-		WordVertical=new JRadioButton("竖排");
-		WordHorizontal=new JRadioButton("横排");
+		WordVertical=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("竖排"));
+		WordHorizontal=new JRadioButton(MapKernel.MapWizard.LanguageDic.GetWords("横排"));
 		Group=new ButtonGroup();
 		Group.add(WordVertical);
 		Group.add(WordHorizontal);
