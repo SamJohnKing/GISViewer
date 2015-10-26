@@ -552,6 +552,8 @@ public class LanguageResources {
 		ChineseToEnglish.put("横排","Horiz");
 		ChineseToEnglish.put("上一条","Last One");
 		ChineseToEnglish.put("下一条","Next One");
+		ChineseToEnglish.put("Map.jpg 数据不存在","Map.jpg DOES NOT EXIST");
+		EnglishToChinese.put("Map.jpg DOES NOT EXIST","Map.jpg 数据不存在");
 	}
 	public String GetWords(String str){
 		if(str==null) return "NULL";

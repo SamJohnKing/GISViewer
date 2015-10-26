@@ -4720,7 +4720,11 @@ public void ClearStateAfterSwitchPane(){//当工具栏切换时进行清空屏�
 				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("地图数据不存在"),"DATA DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
 				return;
 			}
-			Screen.image=null;
+			if(!(new File(ImageDir,"Map.jpg").exists())){
+				JOptionPane.showMessageDialog(null,LanguageDic.GetWords("Map.jpg 数据不存在"),"Map.jpg DOES NOT EXIST",JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			Screen.image=this.getToolkit().createImage(new File(ImageDir,"Map.jpg").toString());
 			Screen.repaint();
 		}else if(e.getSource()==TwoPointItem){
 			if(DIR==null){
