@@ -552,8 +552,15 @@ public class LanguageResources {
 		ChineseToEnglish.put("横排","Horiz");
 		ChineseToEnglish.put("上一条","Last One");
 		ChineseToEnglish.put("下一条","Next One");
+		//=========================================================================
 		ChineseToEnglish.put("Map.jpg 数据不存在","Map.jpg DOES NOT EXIST");
 		EnglishToChinese.put("Map.jpg DOES NOT EXIST","Map.jpg 数据不存在");
+		ChineseToEnglish.put("JPG生成成功","JPG Extraction Finished");
+		EnglishToChinese.put("JPG Extraction Finished","JPG生成成功");
+		ChineseToEnglish.put("元素可视化纹理开关","VisualFeatureSwitch");
+		EnglishToChinese.put("VisualFeatureSwitch","元素可视化纹理开关");
+		ChineseToEnglish.put("DeepZoom高清分割","DeepZoom HD Split");
+		EnglishToChinese.put("DeepZoom HD Split","DeepZoom高清分割");
 	}
 	public String GetWords(String str){
 		if(str==null) return "NULL";

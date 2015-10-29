@@ -17,29 +17,41 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 	public JTextField CommonString;
 	public JTextArea bulletin;
 	public JPanel ExtendedUltility;
+	public GridLayout GridPattern=new GridLayout(9,4);
+	public JButton GenerateScriptButton=new JButton("GenerateScript");
+	public JTextField PointRGBScript=new JTextField(10);
+	public JTextField LineRGBScript=new JTextField(10);
+	public JTextField PolygonRGBScript=new JTextField(10);
+	public JTextField PointAlphaScript=new JTextField(10);
+	public JTextField LineAlphaScript=new JTextField(10);
+	public JTextField PolygonAlphaScript=new JTextField(10);
+	public JTextField PointSizeScript=new JTextField(10);
+	public JTextField LineWidthScript=new JTextField(10);
+	public JTextField DashLineScript=new JTextField(10);
+	public JTextField ArrowLineScript=new JTextField(10);
+	public JTextField TitleScript=new JTextField(10);
+	public JTextField InfoScript=new JTextField(10);
+	
 	class FacePic extends JPanel implements ActionListener,MouseListener,MouseMotionListener,ItemListener{
 	public FacePic(){
-		setBounds(0,0,540,560);
+		setBounds(0,0,720,600);
 
 		l0=new JLabel("Global Preference Configuration ");
-		l0.setFont(new Font("serif",Font.BOLD+Font.ITALIC,26));
+		l0.setFont(new Font("serif",Font.BOLD+Font.ITALIC,28));
 		add(l0);
-		l1=new JLabel("Three Click to Hide the Preference Wizard");
-		l1.setFont(new Font("serif",0,20));
+		l1=new JLabel("[Three Click to Hide]");
+		l1.setFont(new Font("serif",0,28));
+		l1.setForeground(Color.red);
 		add(l1);
 		ExtendedUltility=new JPanel();
 		ExtendedUltility.setVisible(false);
-		ExtendedUltility.setPreferredSize(new Dimension(520,400));
+		ExtendedUltility.setPreferredSize(new Dimension(710,320));
 		//Specific---------------------------------------------
-		AllowPreciseLinkRegion=new JCheckBox("Auto matching Points with the nearby [LinkRegion] polygon Precisely");
-		AllowPreciseLinkRegion.setSelected(true);
-		AllowPreciseLinkRegion.setOpaque(false);
-		add(AllowPreciseLinkRegion);
 		ValidizeCommonString=new JCheckBox("Validize Common String");
 		ValidizeCommonString.setSelected(true);
 		ValidizeCommonString.setOpaque(false);
 		add(ValidizeCommonString);
-		CommonString=new JTextField(30);
+		CommonString=new JTextField(40);
 		add(CommonString);
 		VisualCommandLine=new JCheckBox("Select The CheckBox to Show the Extended Ultility Command List");
 		VisualCommandLine.setOpaque(false);
@@ -51,12 +63,81 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 				validate();
 			}
 		});
+		AllowPreciseLinkRegion=new JCheckBox("Auto matching Points with the nearby [LinkRegion] polygon Precisely");
+		AllowPreciseLinkRegion.setSelected(true);
+		AllowPreciseLinkRegion.setOpaque(false);
 		add(new JLabel("The Bulletin below Show Some Useful Information"));
-		bulletin=new JTextArea(6,48);
+		bulletin=new JTextArea(6,60);
+		bulletin.setLineWrap(true);
 		add(bulletin);
+		add(AllowPreciseLinkRegion);
 		add(VisualCommandLine);
 		add(ExtendedUltility);
 		ExtendedUltility.setOpaque(false);
+		ExtendedUltility.setLayout(GridPattern);
+		ExtendedUltility.add(new JLabel("Script[PointRGB:0x?]"));
+		ExtendedUltility.add(PointRGBScript);
+		ExtendedUltility.add(new JLabel("Script[PointAlpha:?0.5]"));
+		ExtendedUltility.add(PointAlphaScript);
+		
+		ExtendedUltility.add(new JLabel("Script[LineRGB:0x?]"));
+		ExtendedUltility.add(LineRGBScript);
+		ExtendedUltility.add(new JLabel("Script[LineAlpha:?0.5]"));
+		ExtendedUltility.add(LineAlphaScript);
+		
+		ExtendedUltility.add(new JLabel("Script[PolygonRGB:0x?]"));
+		ExtendedUltility.add(PolygonRGBScript);
+		ExtendedUltility.add(new JLabel("Script[PolygonAlpha:?0.5]"));
+		ExtendedUltility.add(PolygonAlphaScript);
+		
+		ExtendedUltility.add(new JLabel("Script[PointSize:?]"));
+		ExtendedUltility.add(PointSizeScript);
+		ExtendedUltility.add(new JLabel("Script[LineWidth:?]"));
+		ExtendedUltility.add(LineWidthScript);
+		ExtendedUltility.add(new JLabel("Script[DashLine:]"));
+		ExtendedUltility.add(DashLineScript);
+		ExtendedUltility.add(new JLabel("Script[ArrowLine:]"));
+		ExtendedUltility.add(ArrowLineScript);
+		ExtendedUltility.add(new JLabel("Script[Title:?]"));
+		ExtendedUltility.add(TitleScript);
+		ExtendedUltility.add(new JLabel("Script[Info:?]"));
+		ExtendedUltility.add(InfoScript);
+		ExtendedUltility.add(GenerateScriptButton);
+		GenerateScriptButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				CommonString.setText("");
+				bulletin.setText("");
+				String buf="";
+				if(PointRGBScript.getText()!=null)
+					if(!(PointRGBScript.getText().isEmpty())) buf+="[PointRGB:0x"+PointRGBScript.getText()+"]";
+				if(LineRGBScript.getText()!=null)
+					if(!(LineRGBScript.getText().isEmpty())) buf+="[LineRGB:0x"+LineRGBScript.getText()+"]";
+				if(PolygonRGBScript.getText()!=null)
+					if(!(PolygonRGBScript.getText().isEmpty())) buf+="[PolygonRGB:0x"+PolygonRGBScript.getText()+"]";
+				if(PointAlphaScript.getText()!=null)
+					if(!(PointAlphaScript.getText().isEmpty())) buf+="[PointAlpha:"+PointAlphaScript.getText()+"]";
+				if(LineAlphaScript.getText()!=null)
+					if(!(LineAlphaScript.getText().isEmpty())) buf+="[LineAlpha:"+LineAlphaScript.getText()+"]";
+				if(PolygonAlphaScript.getText()!=null)
+					if(!(PolygonAlphaScript.getText().isEmpty())) buf+="[PolygonAlpha:"+PolygonAlphaScript.getText()+"]";
+				if(PointSizeScript.getText()!=null)
+					if(!(PointSizeScript.getText().isEmpty())) buf+="[PointSize:"+PointSizeScript.getText()+"]";
+				if(LineWidthScript.getText()!=null)
+					if(!(LineWidthScript.getText().isEmpty())) buf+="[LineWidth:"+LineWidthScript.getText()+"]";
+				if(DashLineScript.getText()!=null)
+					if(!(DashLineScript.getText().isEmpty())) buf+="[DashLine:"+DashLineScript.getText()+"]";
+				if(ArrowLineScript.getText()!=null)
+					if(!(ArrowLineScript.getText().isEmpty())) buf+="[ArrowLine:"+ArrowLineScript.getText()+"]";
+				if(TitleScript.getText()==null) buf+="[Title:]";
+					else buf+="[Title:"+TitleScript.getText()+"]";
+				if(InfoScript.getText()!=null)
+					if(!(InfoScript.getText().isEmpty())) buf+="[Info:"+InfoScript.getText()+"]";
+				CommonString.setText(buf);
+				bulletin.setText(buf);
+			}
+		});
 		//Invalid Button---------------------------------------
 		JButton PointInputTransform=new JButton("PointInputTransform");
 		PointInputTransform.addActionListener(new ActionListener(){
@@ -200,13 +281,14 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 		});
 		ExtendedUltility.add(ImageDirChange);
 		//-----------------------------------------------------
+		//-----------------------------------------------------
 		addMouseListener(this);
 		addMouseMotionListener(this);
 	}
 	public void paintComponent(Graphics g){
 		Toolkit kit=getToolkit();
 		Image img=kit.getImage("Gear.jpg");
-		g.drawImage(img,0,0,540,560,this);
+		g.drawImage(img,0,0,this.getWidth(),this.getHeight(),this);
 	}
 	public void actionPerformed(ActionEvent e){
 	}
@@ -261,7 +343,7 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 		this.MainHandle=MainHandle;
 	}
 	public GlobalPreferenceWizard(){
-		setBounds(0,0,540,560);
+		setBounds(0,0,720,600);
 		setVisible(false);
 		setUndecorated(true);
 		setLocationRelativeTo(null);
