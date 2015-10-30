@@ -353,7 +353,7 @@ public class LanguageResources {
 		ChineseToEnglish.put("多边形网格化导出","Polygons to Grids");
 		ChineseToEnglish.put("设置有误","Errors in configuration");
 		ChineseToEnglish.put("显示/关闭点分布的浓度","Show/Veil the Alpha Distribution");
-		ChineseToEnglish.put("手工设定浓度图比例","Mannual Setting the Alpha level");
+		ChineseToEnglish.put("手工设定浓度图","Mannual Setting the Alpha level & Radiation");
 		ChineseToEnglish.put("导出数据库于网页地图上","Extract DB into Webpage");
 		ChineseToEnglish.put("平移PointDB数据","Offset the PointDB");
 		ChineseToEnglish.put("平移LineDB数据","Offset the LineDB");

@@ -17,14 +17,19 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 	public JTextField CommonString;
 	public JTextArea bulletin;
 	public JPanel ExtendedUltility;
-	public GridLayout GridPattern=new GridLayout(9,4);
+	public GridLayout GridPattern=new GridLayout(12,4);
 	public JButton GenerateScriptButton=new JButton("GenerateScript");
+	public JButton GenerateRandomStyleButton=new JButton("GenerateRandomStyle");
 	public JTextField PointRGBScript=new JTextField(10);
 	public JTextField LineRGBScript=new JTextField(10);
 	public JTextField PolygonRGBScript=new JTextField(10);
 	public JTextField PointAlphaScript=new JTextField(10);
 	public JTextField LineAlphaScript=new JTextField(10);
 	public JTextField PolygonAlphaScript=new JTextField(10);
+	public JTextField WordVisibleScript=new JTextField(10);
+	public JTextField PointVisibleScript=new JTextField(10);
+	public JTextField LineVisibleScript=new JTextField(10);
+	public JTextField PolygonVisibleScript=new JTextField(10);
 	public JTextField PointSizeScript=new JTextField(10);
 	public JTextField LineWidthScript=new JTextField(10);
 	public JTextField DashLineScript=new JTextField(10);
@@ -32,7 +37,77 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 	public JTextField TitleScript=new JTextField(10);
 	public JTextField InfoScript=new JTextField(10);
 	
-	class FacePic extends JPanel implements ActionListener,MouseListener,MouseMotionListener,ItemListener{
+	public class FacePic extends JPanel implements ActionListener,MouseListener,MouseMotionListener,ItemListener{
+	
+	public void GenerateStyle(){
+		CommonString.setText("");
+		bulletin.setText("");
+		String buf="";
+		if(PointRGBScript.getText()!=null)
+			if(!(PointRGBScript.getText().isEmpty())) buf+="[PointRGB:0x"+PointRGBScript.getText()+"]";
+		if(LineRGBScript.getText()!=null)
+			if(!(LineRGBScript.getText().isEmpty())) buf+="[LineRGB:0x"+LineRGBScript.getText()+"]";
+		if(PolygonRGBScript.getText()!=null)
+			if(!(PolygonRGBScript.getText().isEmpty())) buf+="[PolygonRGB:0x"+PolygonRGBScript.getText()+"]";
+		if(PointAlphaScript.getText()!=null)
+			if(!(PointAlphaScript.getText().isEmpty())) buf+="[PointAlpha:"+PointAlphaScript.getText()+"]";
+		if(LineAlphaScript.getText()!=null)
+			if(!(LineAlphaScript.getText().isEmpty())) buf+="[LineAlpha:"+LineAlphaScript.getText()+"]";
+		if(PolygonAlphaScript.getText()!=null)
+			if(!(PolygonAlphaScript.getText().isEmpty())) buf+="[PolygonAlpha:"+PolygonAlphaScript.getText()+"]";
+		if(WordVisibleScript.getText()!=null)
+			if(!(WordVisibleScript.getText().isEmpty())) buf+="[WordVisible:]";
+		if(PointVisibleScript.getText()!=null)
+			if(!(PointVisibleScript.getText().isEmpty())) buf+="[PointVisible:]";
+		if(LineVisibleScript.getText()!=null)
+			if(!(LineVisibleScript.getText().isEmpty())) buf+="[LineVisible:]";
+		if(PolygonVisibleScript.getText()!=null)
+			if(!(PolygonVisibleScript.getText().isEmpty())) buf+="[PolygonVisible:]";
+		if(PointSizeScript.getText()!=null)
+			if(!(PointSizeScript.getText().isEmpty())) buf+="[PointSize:"+PointSizeScript.getText()+"]";
+		if(LineWidthScript.getText()!=null)
+			if(!(LineWidthScript.getText().isEmpty())) buf+="[LineWidth:"+LineWidthScript.getText()+"]";
+		if(DashLineScript.getText()!=null)
+			if(!(DashLineScript.getText().isEmpty())) buf+="[DashLine:"+DashLineScript.getText()+"]";
+		if(ArrowLineScript.getText()!=null)
+			if(!(ArrowLineScript.getText().isEmpty())) buf+="[ArrowLine:"+ArrowLineScript.getText()+"]";
+		if(TitleScript.getText()==null) buf+="[Title:]";
+			else buf+="[Title:"+TitleScript.getText()+"]";
+		if(InfoScript.getText()!=null)
+			if(!(InfoScript.getText().isEmpty())) buf+="[Info:"+InfoScript.getText()+"]";
+		CommonString.setText(buf);
+		bulletin.setText(buf);
+	}
+	public void RenderRandomStyle(boolean full){
+		java.util.Random RandomItem=new java.util.Random();
+		int PointRGB=(int)((RandomItem.nextInt(256*256*256)+java.util.Calendar.getInstance().getTimeInMillis())%(256*256*256));
+		float PointAlpha=(float)((RandomItem.nextInt(1000)+java.util.Calendar.getInstance().getTimeInMillis())%1000)/2000+0.49f;
+		PointRGBScript.setText(Integer.toHexString(PointRGB));
+		PointAlphaScript.setText(Float.toString(PointAlpha));
+		
+		int LineRGB=(int)((RandomItem.nextInt(256*256*256)+java.util.Calendar.getInstance().getTimeInMillis())%(256*256*256));
+		float LineAlpha=(float)((RandomItem.nextInt(1000)+java.util.Calendar.getInstance().getTimeInMillis())%1000)/2000+0.49F;
+		LineRGBScript.setText(Integer.toHexString(LineRGB));
+		LineAlphaScript.setText(Float.toString(LineAlpha));
+		
+		int PolygonRGB=(int)((RandomItem.nextInt(256*256*256)+java.util.Calendar.getInstance().getTimeInMillis())%(256*256*256));
+		float PolygonAlpha=(float)((RandomItem.nextInt(1000)+java.util.Calendar.getInstance().getTimeInMillis())%1000)/3000;
+		PolygonRGBScript.setText(Integer.toHexString(PolygonRGB));
+		PolygonAlphaScript.setText(Float.toString(PolygonAlpha));
+		
+		if(full){
+			WordVisibleScript.setText("1");
+			PointVisibleScript.setText("1");
+			LineVisibleScript.setText("1");
+			PolygonVisibleScript.setText("1");
+			PointSizeScript.setText("6");
+			LineWidthScript.setText("2");
+			DashLineScript.setText("1");
+			ArrowLineScript.setText("1");
+		}
+		
+		GenerateStyle();
+	}
 	public FacePic(){
 		setBounds(0,0,720,600);
 
@@ -45,7 +120,7 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 		add(l1);
 		ExtendedUltility=new JPanel();
 		ExtendedUltility.setVisible(false);
-		ExtendedUltility.setPreferredSize(new Dimension(710,320));
+		ExtendedUltility.setPreferredSize(new Dimension(710,340));
 		//Specific---------------------------------------------
 		ValidizeCommonString=new JCheckBox("Validize Common String");
 		ValidizeCommonString.setSelected(true);
@@ -77,65 +152,70 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 		ExtendedUltility.setLayout(GridPattern);
 		ExtendedUltility.add(new JLabel("Script[PointRGB:0x?]"));
 		ExtendedUltility.add(PointRGBScript);
+		PointRGBScript.addActionListener(this);
 		ExtendedUltility.add(new JLabel("Script[PointAlpha:?0.5]"));
 		ExtendedUltility.add(PointAlphaScript);
+		PointAlphaScript.addActionListener(this);
 		
 		ExtendedUltility.add(new JLabel("Script[LineRGB:0x?]"));
 		ExtendedUltility.add(LineRGBScript);
+		LineRGBScript.addActionListener(this);
 		ExtendedUltility.add(new JLabel("Script[LineAlpha:?0.5]"));
 		ExtendedUltility.add(LineAlphaScript);
+		LineAlphaScript.addActionListener(this);
 		
 		ExtendedUltility.add(new JLabel("Script[PolygonRGB:0x?]"));
 		ExtendedUltility.add(PolygonRGBScript);
+		PolygonRGBScript.addActionListener(this);
 		ExtendedUltility.add(new JLabel("Script[PolygonAlpha:?0.5]"));
 		ExtendedUltility.add(PolygonAlphaScript);
+		PolygonAlphaScript.addActionListener(this);
+		
+		ExtendedUltility.add(new JLabel("Script[WordVisible:]"));
+		ExtendedUltility.add(WordVisibleScript);
+		WordVisibleScript.addActionListener(this);
+		ExtendedUltility.add(new JLabel("Script[PointVisible:]"));
+		ExtendedUltility.add(PointVisibleScript);
+		PointVisibleScript.addActionListener(this);
+		ExtendedUltility.add(new JLabel("Script[LineVisible:]"));
+		ExtendedUltility.add(LineVisibleScript);
+		LineVisibleScript.addActionListener(this);
+		ExtendedUltility.add(new JLabel("Script[PolygonVisible:]"));
+		ExtendedUltility.add(PolygonVisibleScript);
+		PolygonVisibleScript.addActionListener(this);
 		
 		ExtendedUltility.add(new JLabel("Script[PointSize:?]"));
 		ExtendedUltility.add(PointSizeScript);
+		PointSizeScript.addActionListener(this);
 		ExtendedUltility.add(new JLabel("Script[LineWidth:?]"));
 		ExtendedUltility.add(LineWidthScript);
+		LineWidthScript.addActionListener(this);
 		ExtendedUltility.add(new JLabel("Script[DashLine:]"));
 		ExtendedUltility.add(DashLineScript);
+		DashLineScript.addActionListener(this);
 		ExtendedUltility.add(new JLabel("Script[ArrowLine:]"));
 		ExtendedUltility.add(ArrowLineScript);
+		ArrowLineScript.addActionListener(this);
 		ExtendedUltility.add(new JLabel("Script[Title:?]"));
 		ExtendedUltility.add(TitleScript);
+		TitleScript.addActionListener(this);
 		ExtendedUltility.add(new JLabel("Script[Info:?]"));
 		ExtendedUltility.add(InfoScript);
+		InfoScript.addActionListener(this);
 		ExtendedUltility.add(GenerateScriptButton);
+		ExtendedUltility.add(GenerateRandomStyleButton);
+		GenerateRandomStyleButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				RenderRandomStyle(false);
+			}
+		});
 		GenerateScriptButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				CommonString.setText("");
-				bulletin.setText("");
-				String buf="";
-				if(PointRGBScript.getText()!=null)
-					if(!(PointRGBScript.getText().isEmpty())) buf+="[PointRGB:0x"+PointRGBScript.getText()+"]";
-				if(LineRGBScript.getText()!=null)
-					if(!(LineRGBScript.getText().isEmpty())) buf+="[LineRGB:0x"+LineRGBScript.getText()+"]";
-				if(PolygonRGBScript.getText()!=null)
-					if(!(PolygonRGBScript.getText().isEmpty())) buf+="[PolygonRGB:0x"+PolygonRGBScript.getText()+"]";
-				if(PointAlphaScript.getText()!=null)
-					if(!(PointAlphaScript.getText().isEmpty())) buf+="[PointAlpha:"+PointAlphaScript.getText()+"]";
-				if(LineAlphaScript.getText()!=null)
-					if(!(LineAlphaScript.getText().isEmpty())) buf+="[LineAlpha:"+LineAlphaScript.getText()+"]";
-				if(PolygonAlphaScript.getText()!=null)
-					if(!(PolygonAlphaScript.getText().isEmpty())) buf+="[PolygonAlpha:"+PolygonAlphaScript.getText()+"]";
-				if(PointSizeScript.getText()!=null)
-					if(!(PointSizeScript.getText().isEmpty())) buf+="[PointSize:"+PointSizeScript.getText()+"]";
-				if(LineWidthScript.getText()!=null)
-					if(!(LineWidthScript.getText().isEmpty())) buf+="[LineWidth:"+LineWidthScript.getText()+"]";
-				if(DashLineScript.getText()!=null)
-					if(!(DashLineScript.getText().isEmpty())) buf+="[DashLine:"+DashLineScript.getText()+"]";
-				if(ArrowLineScript.getText()!=null)
-					if(!(ArrowLineScript.getText().isEmpty())) buf+="[ArrowLine:"+ArrowLineScript.getText()+"]";
-				if(TitleScript.getText()==null) buf+="[Title:]";
-					else buf+="[Title:"+TitleScript.getText()+"]";
-				if(InfoScript.getText()!=null)
-					if(!(InfoScript.getText().isEmpty())) buf+="[Info:"+InfoScript.getText()+"]";
-				CommonString.setText(buf);
-				bulletin.setText(buf);
+				GenerateStyle();
 			}
 		});
 		//Invalid Button---------------------------------------
@@ -291,6 +371,7 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 		g.drawImage(img,0,0,this.getWidth(),this.getHeight(),this);
 	}
 	public void actionPerformed(ActionEvent e){
+		GenerateStyle();
 	}
 	public void mouseDragged(MouseEvent e) {
 		Move(e.getX()-PressedX,e.getY()-PressedY);
