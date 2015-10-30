@@ -561,6 +561,8 @@ public class LanguageResources {
 		EnglishToChinese.put("VisualFeatureSwitch","元素可视化纹理开关");
 		ChineseToEnglish.put("DeepZoom高清分割","DeepZoom HD Split");
 		EnglishToChinese.put("DeepZoom HD Split","DeepZoom高清分割");
+		ChineseToEnglish.put("打开网页第二屏幕", "Open Webpage Secondary Screen");
+		EnglishToChinese.put("Open Webpage Secondary Screen", "打开网页第二屏幕");
 	}
 	public String GetWords(String str){
 		if(str==null) return "NULL";

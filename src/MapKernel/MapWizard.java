@@ -40,6 +40,7 @@ import com.sun.image.codec.jpeg.*;
 
 public class MapWizard extends JFrame implements ActionListener {
 	// The Elements:------------------------
+	public static MapWizard SingleItem=null;
 	CardLayout ToolCard;
 	JMenuBar menubar;
 	JMenu FileMenu, EditMenu, MapControlMenu, MapDataMenu, HelpMenu;
@@ -2587,8 +2588,8 @@ public class MapWizard extends JFrame implements ActionListener {
 				return true;
 			return false;
 		}
-
-		public boolean CheckInScreen(int x, int y) {
+		
+		public boolean CheckInScreen(int x, int y, int ScreenWidth, int ScreenHeight) {
 			if (x < 0)
 				return false;
 			if (x > ScreenWidth)
@@ -2600,7 +2601,7 @@ public class MapWizard extends JFrame implements ActionListener {
 			return true;
 		}
 
-		public boolean CheckInScreen(int x1, int y1, int x2, int y2) {
+		public boolean CheckInScreen(int x1, int y1, int x2, int y2, int ScreenWidth, int ScreenHeight) {
 			if (Math.max(Math.min(x1, x2), 0) > Math.min(Math.max(x1, x2),
 					ScreenWidth))
 				return false;
@@ -2851,9 +2852,9 @@ public class MapWizard extends JFrame implements ActionListener {
 		int LineCount;
 		boolean IsLandMarkOnScreen = false, IsLandMarkNameOnScreen = false;
 		boolean[] IsLandMarkSelected = new boolean[10000];
-		float[][] AlphaGridsCounter = new float[1000][1000];
-		float[][] RadiationGridsCounter=new float[1000][1000];
-		float[][] AlphaGridsValue = new float[1000][1000];
+		float[][] AlphaGridsCounter = new float[3000][3000];
+		float[][] RadiationGridsCounter=new float[3000][3000];
+		float[][] AlphaGridsValue = new float[3000][3000];
 		double LastScreenLongitude = -1000, LastScreenLatitude = -1000,
 				LastLongitudeScale = -1, LastLatitudeScale = -1;
 		int LastAlphaPercentScale = 0;
@@ -2972,7 +2973,7 @@ public class MapWizard extends JFrame implements ActionListener {
 								AlphaComposite.SRC_OVER,
 								AlphaGridsValue[Row_i][Col_i]>0.1f?0.99f:AlphaGridsValue[Row_i][Col_i]*9.99f);
 						g_2d.setComposite(ac);
-						g_2d.setColor(new Color(Color.HSBtoRGB((1f-AlphaGridsValue[Row_i][Col_i])*0.66f, 1.0f, 0.5f)));
+						g_2d.setColor(new Color(Color.HSBtoRGB((AlphaGridsValue[Row_i][Col_i])*0.5f+0.1f, 1.0f, 1.0f)));
 						g_2d.fillRect((int) (Col_i * ScreenXstep),
 								(int) (Row_i * ScreenYstep), (int) ScreenXstep,
 								(int) ScreenYstep);
@@ -3086,77 +3087,7 @@ public class MapWizard extends JFrame implements ActionListener {
 				return 6;
 			}
 		}
-
-		public void paint(Graphics g) {
-			if (DIR == null) {// 没打开文件，不显示
-				setVisible(false);
-				return;
-			} else
-				setVisible(true);
-			if (image == null) {
-				setBackground(Color.black);
-			} else if (ShowBackGround) {
-				// ------------------------------------------------------------------------------------------
-				// ScreenBackGroundMove----------------------------------------------------------------------
-				double MoveX = 0;
-				double MoveY = 0;
-				if (BackGroundMoveVectorNum != 0) {
-					int min_1 = -1;
-					double min_1_dis = 1e100;
-					int min_2 = -1;
-					double min_2_dis = 1e100;
-					int min_3 = -1;
-					double min_3_dis = 1e100;
-					double dis = 1e100;
-					double center_x = ScreenLongitude + LongitudeScale / 2;
-					double center_y = ScreenLatitude - LatitudeScale / 2;
-					for (int i = 0; i < BackGroundMoveVectorNum; i++) {
-						dis = Math.abs(center_x - BackGroundMoveX[i])
-								+ Math.abs(center_y - BackGroundMoveY[i]);
-						if (dis < min_1_dis) {
-							min_3 = min_2;
-							min_3_dis = min_2_dis;
-							min_2 = min_1;
-							min_2_dis = min_1_dis;
-							min_1 = i;
-							min_1_dis = dis;
-						} else if (dis < min_2_dis) {
-							min_3 = min_2;
-							min_3_dis = min_2_dis;
-							min_2 = i;
-							min_2_dis = dis;
-						} else if (dis < min_3_dis) {
-							min_3 = i;
-							min_3_dis = dis;
-						}
-					}
-					double dis_sum = 1 / min_1_dis + 1 / min_2_dis + 1
-							/ min_3_dis;
-					MoveX = BackGroundMoveDx[min_1] / min_1_dis
-							+ BackGroundMoveDx[min_2] / min_2_dis
-							+ BackGroundMoveDx[min_3] / min_3_dis;
-					MoveX /= dis_sum;
-					MoveY = BackGroundMoveDy[min_1] / min_1_dis
-							+ BackGroundMoveDy[min_2] / min_2_dis
-							+ BackGroundMoveDy[min_3] / min_3_dis;
-					MoveY /= dis_sum;
-				}
-				// ------------------------------------------------------------------------------------------
-				double Xst = ((ScreenLongitude - MoveX) - LongitudeStart)
-						/ (LongitudeEnd - LongitudeStart)
-						* image.getWidth(this);
-				double Yst = (LatitudeEnd - (ScreenLatitude - MoveY))
-						/ (LatitudeEnd - LatitudeStart) * image.getHeight(this);
-				double Xlen = (LongitudeScale)
-						/ (LongitudeEnd - LongitudeStart)
-						* image.getWidth(this);
-				double Ylen = (LatitudeScale) / (LatitudeEnd - LatitudeStart)
-						* image.getHeight(this);
-				// 将需要显示的经纬度范围转化为窗口界面中像素值
-				g.drawImage(image, 0, 0, ScreenWidth, ScreenHeight, (int) Xst,
-						(int) Yst, (int) (Xst + Xlen), (int) (Yst + Ylen), this);
-			}
-			Graphics2D g_2d = (Graphics2D) g;
+		public void DBpaint(Graphics2D g_2d,double ScreenLongitude,double ScreenLatitude,double LongitudeScale,double LatitudeScale,int ScreenWidth,int ScreenHeight){
 			BasicStroke bs = new BasicStroke(2, BasicStroke.CAP_ROUND,
 					BasicStroke.JOIN_ROUND);
 			g_2d.setStroke(bs);
@@ -3555,9 +3486,9 @@ public class MapWizard extends JFrame implements ActionListener {
 										y2 += ScreenDeltaY;
 										line = new Line2D.Double(x1, y1, x2, y2);
 
-										if (CheckInScreen(x1, y1)
-												|| CheckInScreen(x2, y2)
-												|| CheckInScreen(x1, y1, x2, y2)) {
+										if (CheckInScreen(x1, y1, ScreenWidth, ScreenHeight)
+												|| CheckInScreen(x2, y2, ScreenWidth, ScreenHeight)
+												|| CheckInScreen(x1, y1, x2, y2, ScreenWidth, ScreenHeight)) {
 											if (ShowVisualFeature)
 												g_2d.setStroke(bs_temp);
 											g_2d.draw(line);
@@ -3624,7 +3555,7 @@ public class MapWizard extends JFrame implements ActionListener {
 												/ LatitudeScale * ScreenHeight);
 										xx += ScreenDeltaX;
 										yy += ScreenDeltaY;
-										if (CheckInScreen(xx, yy)) {
+										if (CheckInScreen(xx, yy, ScreenWidth, ScreenHeight)) {
 											if (ShowVisualFeature)
 												PointSize = GetVisualPointSize(LineDatabase.LineHint[i]);
 											else
@@ -3671,7 +3602,7 @@ public class MapWizard extends JFrame implements ActionListener {
 													/ LatitudeScale * ScreenHeight);
 											xx += ScreenDeltaX;
 											yy += ScreenDeltaY;
-											if (!CheckInScreen(xx, yy))
+											if (!CheckInScreen(xx, yy, ScreenWidth, ScreenHeight))
 												continue;
 											g_2d.drawString(
 													str.substring(ii, ii + 1),
@@ -3681,7 +3612,7 @@ public class MapWizard extends JFrame implements ActionListener {
 										continue;
 									}
 									if (!CheckInScreen(xx - 50, yy - 50,
-											xx + 50, yy + 50))
+											xx + 50, yy + 50, ScreenWidth, ScreenHeight))
 										continue;
 									DrawCount++;
 									if (LineDatabase.isVertical[i] == false)
@@ -3789,9 +3720,9 @@ public class MapWizard extends JFrame implements ActionListener {
 										y2 += ScreenDeltaY;
 										line = new Line2D.Double(x1, y1, x2, y2);
 										ColorPolygon.addPoint(x1, y1);
-										if (CheckInScreen(x1, y1)
-												|| CheckInScreen(x2, y2)
-												|| CheckInScreen(x1, y1, x2, y2)) {
+										if (CheckInScreen(x1, y1, ScreenWidth, ScreenHeight)
+												|| CheckInScreen(x2, y2, ScreenWidth, ScreenHeight)
+												|| CheckInScreen(x1, y1, x2, y2, ScreenWidth, ScreenHeight)) {
 											if (ShowVisualFeature)
 												g_2d.setStroke(bs_temp);
 											g_2d.draw(line);
@@ -3864,7 +3795,7 @@ public class MapWizard extends JFrame implements ActionListener {
 												/ LatitudeScale * ScreenHeight);
 										xx += ScreenDeltaX;
 										yy += ScreenDeltaY;
-										if (CheckInScreen(xx, yy)) {
+										if (CheckInScreen(xx, yy, ScreenWidth, ScreenHeight)) {
 											if (ShowVisualFeature)
 												PointSize = GetVisualPointSize(PolygonDatabase.PolygonHint[i]);
 											else
@@ -3902,7 +3833,7 @@ public class MapWizard extends JFrame implements ActionListener {
 													/ LatitudeScale * ScreenHeight);
 											xx += ScreenDeltaX;
 											yy += ScreenDeltaY;
-											if (!CheckInScreen(xx, yy))
+											if (!CheckInScreen(xx, yy, ScreenWidth, ScreenHeight))
 												continue;
 											g_2d.drawString(
 													str.substring(ii, ii + 1),
@@ -3919,7 +3850,7 @@ public class MapWizard extends JFrame implements ActionListener {
 									xx += ScreenDeltaX;
 									yy += ScreenDeltaY;
 									if (!CheckInScreen(xx - 50, yy - 50,
-											xx + 50, yy + 50))
+											xx + 50, yy + 50, ScreenWidth, ScreenHeight))
 										continue;
 									DrawCount++;
 									if (PolygonDatabase.isVertical[i] == false)
@@ -3985,7 +3916,7 @@ public class MapWizard extends JFrame implements ActionListener {
 										/ LatitudeScale * ScreenHeight);
 								xx += ScreenDeltaX;
 								yy += ScreenDeltaY;
-								if (!CheckInScreen(xx, yy))
+								if (!CheckInScreen(xx, yy, ScreenWidth, ScreenHeight))
 									continue;
 								if (!IsEngravePointShape) {
 									if (ShowVisualFeature)
@@ -4017,7 +3948,7 @@ public class MapWizard extends JFrame implements ActionListener {
 										/ LatitudeScale * ScreenHeight);
 								xx += ScreenDeltaX;
 								yy += ScreenDeltaY;
-								if (!CheckInScreen(xx, yy))
+								if (!CheckInScreen(xx, yy, ScreenWidth, ScreenHeight))
 									continue;
 								g_2d.drawString(PointDatabase.getTitle(i),
 										xx + 3, yy + 3);
@@ -4141,7 +4072,7 @@ public class MapWizard extends JFrame implements ActionListener {
 								AlphaComposite.SRC_OVER,
 								AlphaGridsValue[Row_i][Col_i]);
 						g_2d.setComposite(ac);
-						g_2d.setColor(new Color(Color.HSBtoRGB((1f-AlphaGridsValue[Row_i][Col_i])*0.66f, 1.0f, 0.5f)));
+						g_2d.setColor(new Color(Color.HSBtoRGB((1f-AlphaGridsValue[Row_i][Col_i])*0.67f, 1.0f, 1.0f)));
 						g_2d.fillRect((int) (Col_i * ScreenXstep),
 								(int) (Row_i * ScreenYstep), (int) ScreenXstep,
 								(int) ScreenYstep);
@@ -4188,6 +4119,78 @@ public class MapWizard extends JFrame implements ActionListener {
 				g_2d.setColor(Color.green);
 			}
 			// ----------------------------------------------------
+		}
+		public void paint(Graphics g) {
+			if (DIR == null) {// 没打开文件，不显示
+				setVisible(false);
+				return;
+			} else
+				setVisible(true);
+			if (image == null) {
+				setBackground(Color.black);
+			} else if (ShowBackGround) {
+				// ------------------------------------------------------------------------------------------
+				// ScreenBackGroundMove----------------------------------------------------------------------
+				double MoveX = 0;
+				double MoveY = 0;
+				if (BackGroundMoveVectorNum != 0) {
+					int min_1 = -1;
+					double min_1_dis = 1e100;
+					int min_2 = -1;
+					double min_2_dis = 1e100;
+					int min_3 = -1;
+					double min_3_dis = 1e100;
+					double dis = 1e100;
+					double center_x = ScreenLongitude + LongitudeScale / 2;
+					double center_y = ScreenLatitude - LatitudeScale / 2;
+					for (int i = 0; i < BackGroundMoveVectorNum; i++) {
+						dis = Math.abs(center_x - BackGroundMoveX[i])
+								+ Math.abs(center_y - BackGroundMoveY[i]);
+						if (dis < min_1_dis) {
+							min_3 = min_2;
+							min_3_dis = min_2_dis;
+							min_2 = min_1;
+							min_2_dis = min_1_dis;
+							min_1 = i;
+							min_1_dis = dis;
+						} else if (dis < min_2_dis) {
+							min_3 = min_2;
+							min_3_dis = min_2_dis;
+							min_2 = i;
+							min_2_dis = dis;
+						} else if (dis < min_3_dis) {
+							min_3 = i;
+							min_3_dis = dis;
+						}
+					}
+					double dis_sum = 1 / min_1_dis + 1 / min_2_dis + 1
+							/ min_3_dis;
+					MoveX = BackGroundMoveDx[min_1] / min_1_dis
+							+ BackGroundMoveDx[min_2] / min_2_dis
+							+ BackGroundMoveDx[min_3] / min_3_dis;
+					MoveX /= dis_sum;
+					MoveY = BackGroundMoveDy[min_1] / min_1_dis
+							+ BackGroundMoveDy[min_2] / min_2_dis
+							+ BackGroundMoveDy[min_3] / min_3_dis;
+					MoveY /= dis_sum;
+				}
+				// ------------------------------------------------------------------------------------------
+				double Xst = ((ScreenLongitude - MoveX) - LongitudeStart)
+						/ (LongitudeEnd - LongitudeStart)
+						* image.getWidth(this);
+				double Yst = (LatitudeEnd - (ScreenLatitude - MoveY))
+						/ (LatitudeEnd - LatitudeStart) * image.getHeight(this);
+				double Xlen = (LongitudeScale)
+						/ (LongitudeEnd - LongitudeStart)
+						* image.getWidth(this);
+				double Ylen = (LatitudeScale) / (LatitudeEnd - LatitudeStart)
+						* image.getHeight(this);
+				// 将需要显示的经纬度范围转化为窗口界面中像素值
+				g.drawImage(image, 0, 0, ScreenWidth, ScreenHeight, (int) Xst,
+						(int) Yst, (int) (Xst + Xlen), (int) (Yst + Ylen), this);
+			}
+			Graphics2D g_2d = (Graphics2D) g;
+			DBpaint(g_2d, ScreenLongitude, ScreenLatitude, LongitudeScale, LatitudeScale, ScreenWidth, ScreenHeight);
 		}
 
 		public void MoveMiddle(double midx, double midy) {// 将屏幕的中心位置移动到给定的经纬度位置
@@ -4793,6 +4796,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 	// ---------------------------------------------------------------
 	public MapWizard() {
+		SingleItem=this;
 		Face SoftFace = new Face();
 		Idle(3000);
 		SoftFace.dispose();
@@ -4886,7 +4890,7 @@ public class MapWizard extends JFrame implements ActionListener {
 			AllLineInvisible, AllPolygonInvisible;
 	JMenuItem EngravePointShape, ClearLineDBItem, ClearPolygonDBItem,
 			VisualFeatureSwitchItem;
-	JMenuItem SplitJPGItem;
+	JMenuItem SplitJPGItem,OpenSecondaryScreenItem;
 
 	boolean IsEngravePointShape = false;
 	boolean IsAllElementInvisible = false;
@@ -4896,8 +4900,12 @@ public class MapWizard extends JFrame implements ActionListener {
 
 	void ForbidenOperationSwitch() {
 		this.getContentPane().setVisible(!this.getContentPane().isVisible());
+		this.Screen.setVisible(this.getContentPane().isVisible());
 	}
-
+	public boolean IsForbidenOperation(){
+		return (!this.getContentPane().isVisible());
+	}
+	
 	public void init(){
 //Basic Elements --------------------------------
 		menubar=new JMenuBar();
@@ -4994,8 +5002,16 @@ public class MapWizard extends JFrame implements ActionListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				ForbidenOperationSwitch();
-			}	
+				try{
+					if(IsForbidenOperation())
+						if(SecondaryScreen.SwtHtmlBrowser.SingleItemThread!=null)
+							SecondaryScreen.SwtHtmlBrowser.Running=false;
+				}catch(Exception ex){
+					ex.printStackTrace();
+				}
+				if(SecondaryScreen.SwtHtmlBrowser.SingleItemThread==null) ForbidenOperationSwitch();
+				else JOptionPane.showMessageDialog(null, "Secondary Screen Closed");
+			}
 		});
 		
 		ShowCenterItem=new JMenuItem(LanguageDic.GetWords("显示中心区域"));
@@ -5645,6 +5661,24 @@ public class MapWizard extends JFrame implements ActionListener {
 				JPGSplitOutput(null,-1,true);
 			}
 		});
+		
+		OpenSecondaryScreenItem=new JMenuItem(LanguageDic.GetWords("打开网页第二屏幕"));
+		OpenSecondaryScreenItem.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(SecondaryScreen.SwtHtmlBrowser.SingleItemThread==null)
+					if(!IsForbidenOperation()) ForbidenOperationSwitch();
+				// TODO Auto-generated method stub
+				String str_width=JOptionPane.showInputDialog(null,"Secondary Screen Width");
+				String str_height=JOptionPane.showInputDialog(null,"Secondary Screnn Height");
+				try{
+					SecondaryScreen.SwtHtmlBrowser.InitiateBrowser(Integer.parseInt(str_width),Integer.parseInt(str_height));
+				}catch(Exception ex){
+					ex.printStackTrace();
+					return;
+				}
+			}
+		});
 //MenuAdd---------------------------------------------------------
 		FileMenu=new JMenu(LanguageDic.GetWords("文件      "));
 		EditMenu=new JMenu(LanguageDic.GetWords("编辑      "));
@@ -5687,6 +5721,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		EditMenu.add(ServerSocketPaneItem);
 		EditMenu.add(ClientSocketPaneItem);
 		EditMenu.add(HtmlMapOutputPaneItem);
+		EditMenu.add(OpenSecondaryScreenItem);
 		//----------------------------------
 		MapControlMenu.add(TwoPointItem);
 		MapControlMenu.add(CalibrateItem);
