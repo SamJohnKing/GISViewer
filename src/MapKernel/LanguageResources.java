@@ -552,6 +552,7 @@ public class LanguageResources {
 		ChineseToEnglish.put("横排","Horiz");
 		ChineseToEnglish.put("上一条","Last One");
 		ChineseToEnglish.put("下一条","Next One");
+		ChineseToEnglish.put("改换目录前是否使所有更改生效，是则缓存写回数据库，否则放弃所有更改","Please Save the Data before Change DIR");
 		//=========================================================================
 		ChineseToEnglish.put("Map.jpg 数据不存在","Map.jpg DOES NOT EXIST");
 		EnglishToChinese.put("Map.jpg DOES NOT EXIST","Map.jpg 数据不存在");

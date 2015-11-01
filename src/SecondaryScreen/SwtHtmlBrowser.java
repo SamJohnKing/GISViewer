@@ -1,12 +1,14 @@
 package SecondaryScreen;
 
-
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
+import javax.swing.Timer;
 
 import org.eclipse.swt.SWT; 
 import org.eclipse.swt.browser.Browser; 
@@ -30,10 +32,7 @@ import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
@@ -53,10 +52,12 @@ public class SwtHtmlBrowser implements Runnable{
 	static int MapWidth=0;
 	static int MapHeight=0;
 	static double WebLongitudeStart,WebLongitudeEnd,WebLatitudeStart,WebLatitudeEnd;
+	static double DeviationLongitude,DeviationLatitude;
 	static Browser browser=null;
 	public static Thread SingleItemThread=null;
 	public static boolean Running=false;
 	public static byte AlphaSettingValue=10;
+	public static int FlushInterval=500;
 	public static final class CallJava extends BrowserFunction{
 		public CallJava (Browser JavaWeb,String FunctionName){
 			super(JavaWeb,FunctionName);
@@ -79,13 +80,63 @@ public class SwtHtmlBrowser implements Runnable{
 	}
 	public static void InitiateBrowser(int Width,int Height){
 		if(SingleItemThread!=null) return;
+		FlushInterval=500;
+		DeviationLongitude=0;
+		DeviationLatitude=0;
 		MapWidth=Width;
 		MapHeight=Height;
 		SingleItemThread=new Thread(new SwtHtmlBrowser());
 		Running=true;
 		SingleItemThread.start();
 	}
+	public static void DBPaint(PaintEvent e){
+		browser.execute("MapBoundsToJavaWeb();");
+		BufferedImage Alpha_Image=new BufferedImage(MapWidth,MapHeight,BufferedImage.TYPE_INT_ARGB);
+		BufferedImage Source_Image=new BufferedImage(MapWidth,MapHeight,BufferedImage.TYPE_INT_RGB);
+		Graphics2D g_alpha=Alpha_Image.createGraphics();
+		Graphics2D g_2d = Source_Image.createGraphics();
+		MapKernel.MapWizard.SingleItem.Screen.DBpaint(g_alpha, WebLongitudeStart-DeviationLongitude, WebLatitudeEnd-DeviationLatitude, 
+				WebLongitudeEnd-WebLongitudeStart, WebLatitudeEnd-WebLatitudeStart, MapWidth, MapHeight);
+		MapKernel.MapWizard.SingleItem.Screen.DBpaint(g_2d, WebLongitudeStart-DeviationLongitude, WebLatitudeEnd-DeviationLatitude, 
+				WebLongitudeEnd-WebLongitudeStart, WebLatitudeEnd-WebLatitudeStart, MapWidth, MapHeight);
+		ImageData SWT_ImageData=convertToSWT(Source_Image);
+		//-----------------------------------------------------------
+			byte[] alphaValues = new byte[SWT_ImageData.height
+					* SWT_ImageData.width];
+			byte[] RGB_List = SWT_ImageData.data;
+			int offset = 0;
+			int k = 0;
+			int r, g, b, a;
+			for (int i = 0; i < SWT_ImageData.height; i++) {
+				for (int j = 0; j < SWT_ImageData.width; j++) {
+					k = offset + j * 3;
+					b = (RGB_List[k] = (byte) ((Alpha_Image
+							.getRGB(j, i) >> 16) & 0xff));
+					g = (RGB_List[k + 1] = (byte) ((Alpha_Image.getRGB(
+							j, i) >> 8) & 0xff));
+					r = (RGB_List[k + 2] = (byte) ((Alpha_Image.getRGB(
+							j, i) >> 0) & 0xff));
+					a = (byte) ((Alpha_Image.getRGB(j, i) >> 24) & 0xff);
+					// b=RGB_List[k] & 0xff;
+					// g=RGB_List[k+1] & 0xff;
+					// r=RGB_List[k+2] & 0xff;
+					if(Math.abs(r)+Math.abs(g)+Math.abs(b)+Math.abs(a)==0) alphaValues[i*SWT_ImageData.width+j]=(byte)0;
+					else alphaValues[i*SWT_ImageData.width+j]=(byte)a;
+					
+					//if (Math.abs(r) + Math.abs(g) + Math.abs(b) == 0)
+					//	alphaValues[i * SWT_ImageData.width + j] = AlphaSettingValue;
+					//else
+					//	alphaValues[i * SWT_ImageData.width + j] = (byte) a;
+				}
+				offset += SWT_ImageData.bytesPerLine;
+		}
+		SWT_ImageData.alphaData=alphaValues;
+		//-------------------------------------------------------------
+		Image SWT_Image=new Image(null,SWT_ImageData);
+		e.gc.drawImage(SWT_Image, 0, 0, MapWidth, MapHeight, 0, 0, MapWidth, MapHeight);
+	}
 	public static void InitiateBrowser(){
+		try{
 	       	Display display=new Display(); 
 	        final Shell shell=new Shell(display); 
 	        shell.setText("GeoCity Secondary Screen"); 
@@ -93,80 +144,103 @@ public class SwtHtmlBrowser implements Runnable{
 	        //Canvas
 	        final Canvas canvaspane=new Canvas(shell,SWT.TRANSPARENT);
 	        canvaspane.setVisible(false);
-	        canvaspane.setBounds(10, 15, MapWidth, MapHeight);
+	        canvaspane.setBounds(0, 0, MapWidth, MapHeight);
 	        canvaspane.addPaintListener(new PaintListener(){
 				@Override
 				public void paintControl(PaintEvent e) {
 					// TODO Auto-generated method stub
-					browser.execute("MapBoundsToJavaWeb();");
-					BufferedImage Alpha_Image=new BufferedImage(MapWidth,MapHeight,BufferedImage.TYPE_INT_ARGB);
-					BufferedImage Source_Image=new BufferedImage(MapWidth,MapHeight,BufferedImage.TYPE_INT_RGB);
-					Graphics2D g_alpha=Alpha_Image.createGraphics();
-					Graphics2D g_2d = Source_Image.createGraphics();
-					MapKernel.MapWizard.SingleItem.Screen.DBpaint(g_alpha, WebLongitudeStart, WebLatitudeEnd, 
-							WebLongitudeEnd-WebLongitudeStart, WebLatitudeEnd-WebLatitudeStart, MapWidth, MapHeight);
-					MapKernel.MapWizard.SingleItem.Screen.DBpaint(g_2d, WebLongitudeStart, WebLatitudeEnd, 
-							WebLongitudeEnd-WebLongitudeStart, WebLatitudeEnd-WebLatitudeStart, MapWidth, MapHeight);
-					ImageData SWT_ImageData=convertToSWT(Source_Image);
-					if (AlphaSettingValue!=-1) {
-						byte[] alphaValues = new byte[SWT_ImageData.height
-								* SWT_ImageData.width];
-						byte[] RGB_List = SWT_ImageData.data;
-						int offset = 0;
-						int k = 0;
-						int r, g, b, a;
-						for (int i = 0; i < SWT_ImageData.height; i++) {
-							for (int j = 0; j < SWT_ImageData.width; j++) {
-								k = offset + j * 3;
-								b = (RGB_List[k] = (byte) ((Alpha_Image
-										.getRGB(j, i) >> 16) & 0xff));
-								g = (RGB_List[k + 1] = (byte) ((Alpha_Image.getRGB(
-										j, i) >> 8) & 0xff));
-								r = (RGB_List[k + 2] = (byte) ((Alpha_Image.getRGB(
-										j, i) >> 0) & 0xff));
-								a = (byte) ((Alpha_Image.getRGB(j, i) >> 24) & 0xff);
-								// b=RGB_List[k] & 0xff;
-								// g=RGB_List[k+1] & 0xff;
-								// r=RGB_List[k+2] & 0xff;
-								// alphaValues[i*SWT_ImageData.width+j]=(byte)a;
-								if (Math.abs(r) + Math.abs(g) + Math.abs(b) == 0)
-									alphaValues[i * SWT_ImageData.width + j] = AlphaSettingValue;
-								else
-									alphaValues[i * SWT_ImageData.width + j] = (byte) a;
-							}
-							offset += SWT_ImageData.bytesPerLine;
-						}
-						SWT_ImageData.alphaData = alphaValues;
-					}
-
-					Image SWT_Image=new Image(null,SWT_ImageData);
-					e.gc.drawImage(SWT_Image, 0, 0, MapWidth, MapHeight, 0, 0, MapWidth, MapHeight);
+					DBPaint(e);
 				}
 	        });
+	        canvaspane.addMouseListener(new MouseListener(){
+	        	long DownTimestamp=0;
+				@Override
+				public void mouseDoubleClick(MouseEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+				@Override
+				public void mouseDown(MouseEvent arg0) {
+					// TODO Auto-generated method stub
+					DownTimestamp=java.util.Calendar.getInstance().getTimeInMillis();
+				}
+				@Override
+				public void mouseUp(MouseEvent arg0) {
+					// TODO Auto-generated method stub
+					if(java.util.Calendar.getInstance().getInstance().getTimeInMillis()-DownTimestamp<1000){
+						if(MapKernel.MapWizard.SingleItem.NowPanel.getString().equals("MapElementsEditorPane")){
+							ExtendedToolPane.ExtendedToolPaneInterface DBEditor=(ExtendedToolPane.ExtendedToolPaneInterface)
+									(MapKernel.MapWizard.SingleItem.NowPanel);
+							if(arg0.button==1){
+								double DBLongitude=WebLongitudeStart+(WebLongitudeEnd-WebLongitudeStart)*arg0.x/MapWidth-DeviationLongitude;
+								double DBLatitude=WebLatitudeEnd-(WebLatitudeEnd-WebLatitudeStart)*arg0.y/MapHeight-DeviationLatitude;
+								DBEditor.convey(DBLongitude, DBLatitude);
+							}else{
+								DBEditor.confirm();
+							}
+						}
+					}
+				}
+	        });
+	        
+	        final Canvas Mask=new Canvas(shell,SWT.TRANSPARENT);
+	        Mask.setVisible(false);
+	        Mask.setBounds(0, 0, MapWidth, MapHeight);
+	        Mask.addPaintListener(new PaintListener(){
+				@Override
+				public void paintControl(PaintEvent e) {
+					// TODO Auto-generated method stub
+					e.gc.setBackground(new Color(null,0,0,0));
+					e.gc.setAlpha(AlphaSettingValue);
+					e.gc.fillRectangle(0, 0, MapWidth, MapHeight);
+				}
+	        });
+	        
 	        //------------------------------------------------------
 	        //JSEditor
 	        Label lb1=new Label(shell,SWT.CENTER);
-	        lb1.setBounds(MapWidth+40,35,275,25);
+	        lb1.setBounds(MapWidth+10,35,275,25);
 	        lb1.setText("JavaScript Editors");
 	        lb1.setFont(new Font(display,"Consolas",16,SWT.BOLD));//设置文字的字体字号
 	        lb1.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 	        
 	        final Text JScode=new Text(shell,SWT.BORDER|SWT.WRAP);
-	        JScode.setBounds(MapWidth+40, 60 , 275, 100);
+	        JScode.setBounds(MapWidth+10, 60 , 275, 100);
 	        
 	        final Text AlphaSettingText=new Text(shell,SWT.BORDER);
-	        AlphaSettingText.setBounds(MapWidth+245, 200 , 70, 30);
+	        AlphaSettingText.setBounds(MapWidth+215, 200 , 70, 30);
+	        
+	        final Text UrlAddressText=new Text(shell,SWT.BORDER);
+	        UrlAddressText.setBounds(MapWidth+60, 235, 225, 30);
+	        
+	        final Text LongitudeEastText=new Text(shell,SWT.BORDER);
+	        LongitudeEastText.setBounds(MapWidth+10,270,70,30);
+	        
+	        final Text LatitudeNorthText=new Text(shell,SWT.BORDER);
+	        LatitudeNorthText.setBounds(MapWidth+215,270,70,30);
 	        //------------------------------------------------------
 	        //Buttons
-	       	Button ShowCanvasButton=new Button(shell,SWT.NONE);
-	       	ShowCanvasButton.addListener(SWT.Selection, new Listener(){
+	       	Button UnLockButton=new Button(shell,SWT.NONE);
+	       	UnLockButton.addListener(SWT.Selection, new Listener(){
 	            public void handleEvent(Event event) 
 	            { 
-	            	canvaspane.setVisible(!canvaspane.getVisible());
+	            	canvaspane.setVisible(false);
+	            	Mask.setVisible(false);
 	            } 
 	       	});
-	       	ShowCanvasButton.setBounds(MapWidth+40, 5, 200, 30);
-	       	ShowCanvasButton.setText("Show/Veil Screen Canvas");
+	       	UnLockButton.setBounds(MapWidth+10, 5, 100, 30);
+	       	UnLockButton.setText("UnLock Map");
+	       	
+	       	Button LockButton=new Button(shell,SWT.NONE);
+	       	LockButton.addListener(SWT.Selection, new Listener(){
+	            public void handleEvent(Event event) 
+	            { 
+	            	canvaspane.setVisible(true);
+	            	Mask.setVisible(true);
+	            } 
+	       	});
+	       	LockButton.setBounds(MapWidth+120, 5, 160, 30);
+	       	LockButton.setText("Lock Map Show Data");
 	       	
 	       	Button Execute_JSCode=new Button(shell,SWT.NONE);
 	       	Execute_JSCode.addListener(SWT.Selection, new Listener(){
@@ -175,7 +249,7 @@ public class SwtHtmlBrowser implements Runnable{
 	            	browser.execute(JScode.getText());
 	            } 
 	       	});
-	       	Execute_JSCode.setBounds(MapWidth+40,165,200,30);
+	       	Execute_JSCode.setBounds(MapWidth+10,165,200,30);
 	       	Execute_JSCode.setText("Execute JavaScript Code");
 	       	
 	       	Button Setting_Alpha=new Button(shell,SWT.NONE);
@@ -184,30 +258,103 @@ public class SwtHtmlBrowser implements Runnable{
 	            { 
 	            	try{
 	            		AlphaSettingValue=(byte)(Integer.parseInt(AlphaSettingText.getText())%256);
+	            		Mask.setVisible(true);
+	            		Mask.redraw();
 	            	}catch(Exception ex){
 	            		ex.printStackTrace();
 	            		return;
 	            	}
 	            } 
 	       	});
-	       	Setting_Alpha.setBounds(MapWidth+40,200,200,30);
+	       	Setting_Alpha.setBounds(MapWidth+10,200,200,30);
 	       	Setting_Alpha.setText("Setting Mask Alpha Value");
+	       	
+	       	Button GoUrl=new Button(shell,SWT.NONE);
+	       	GoUrl.addListener(SWT.Selection,new Listener(){
+	            public void handleEvent(Event event) 
+	            { 
+	            	GoUrlAction(UrlAddressText.getText());
+	            } 
+	       	});
+	        GoUrl.setBounds(MapWidth+10, 235, 45, 30);
+	        GoUrl.setText("GoUrl");
+	        
+	        Button LongitudeLatitudeDelta=new Button(shell,SWT.NONE);
+	        LongitudeLatitudeDelta.setBounds(MapWidth+85,270,125,30);
+	        LongitudeLatitudeDelta.addListener(SWT.Selection, new Listener(){
+				@Override
+				public void handleEvent(Event arg0) {
+					// TODO Auto-generated method stub
+					try{
+						DeviationLongitude=Double.parseDouble(LongitudeEastText.getText());
+						DeviationLatitude=Double.parseDouble(LatitudeNorthText.getText());
+					}catch(Exception ex){
+						ex.printStackTrace();
+						return;
+					}
+				}
+	        });
+	        LongitudeLatitudeDelta.setText("Data::(Lng→ || Lat↑)");
+	        
+	        
+	        
+	        final Text ScreenFlushSetting=new Text(shell,SWT.BORDER);
+	        ScreenFlushSetting.setBounds(MapWidth+215,305,70,30);
+	        
+	        final Button ScreenFlushCheckbox=new Button(shell,SWT.CHECK);
+	        ScreenFlushCheckbox.setBounds(MapWidth+10,305,205,30);
+	        ScreenFlushCheckbox.setText("Editable:: Flush Screen in [ms]");
+	        ScreenFlushCheckbox.addSelectionListener(new SelectionListener(){
+				@Override
+				public void widgetDefaultSelected(SelectionEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+				@Override
+				public void widgetSelected(SelectionEvent arg0) {
+					// TODO Auto-generated method stub
+					if(ScreenFlushCheckbox.getSelection()){
+						try{
+							FlushInterval=Integer.parseInt(ScreenFlushSetting.getText());
+						}catch(Exception ex){
+							ex.printStackTrace();
+							ScreenFlushCheckbox.setSelection(false);
+							ScreenFlushCheckbox.redraw();
+						}
+					}
+				}
+	        });
 	        //----------------------------------------------------------------
-	        browser=new Browser(shell,SWT.BORDER); 
-	        browser.setBounds(0,0,MapWidth+37,MapHeight+30); 
-	        shell.setSize(browser.getSize().x+300,browser.getSize().y+40);
+	        browser=new Browser(shell,SWT.NONE); 
+	        browser.setBounds(0,0,MapWidth,MapHeight); 
+	        shell.setSize(browser.getSize().x+310,browser.getSize().y+40);
 	        new CallJava(browser,"CallJava");
 	        //----------------------------------------------------------------
-	        browser.setUrl("D:/WebstormProjects/MapWebUI_LeafletTamplate/OpenStreetMap_Sample.html");
-	        shell.open(); 
-	     
+	        java.io.File HTML_fin=new java.io.File("./OpenStreetMap_Sample.html");
+	        browser.setUrl(HTML_fin.getAbsolutePath());
+	        shell.open();
+	        JScode.setText("ResizeMap("+MapWidth+","+MapHeight+")");
 	        
+	        long TimerCounter=java.util.Calendar.getInstance().getTimeInMillis();
 	        while ((Running)&&(!shell.isDisposed())) { 
 	            if (!display.readAndDispatch()) 
 	              display.sleep(); 
+	            	if(ScreenFlushCheckbox.getSelection()){
+	            		if(java.util.Calendar.getInstance().getTimeInMillis()-TimerCounter>FlushInterval){
+	            			TimerCounter=java.util.Calendar.getInstance().getTimeInMillis();
+	            			canvaspane.redraw();
+	            		}
+	            	}
 	          } 
 	          display.dispose(); 
-	  		SingleItemThread=null;
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}finally{
+			SingleItemThread=null;
+		}
+	}
+	public static void GoUrlAction(String URL_str){
+		browser.setUrl(URL_str);
 	}
 	
 	public static BufferedImage convertToAWT(ImageData data) {

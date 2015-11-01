@@ -80,7 +80,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	ConcentrateTaxiWizardClass ConcentrateTaxiWizard;
 	About AboutFrame;
 	double SelectedX1, SelectEdX2, SelectedY1, SelectedY2;
-	ToolPanel NowPanel;
+	public ToolPanel NowPanel;
 	Timer myTimer = new Timer(1000, this);
 	public ClockWizardClass ClockWizard;
 	MapHandle Handle;
@@ -4899,8 +4899,13 @@ public class MapWizard extends JFrame implements ActionListener {
 	boolean IsAllPolygonInvisible = false;
 
 	void ForbidenOperationSwitch() {
-		this.getContentPane().setVisible(!this.getContentPane().isVisible());
-		this.Screen.setVisible(this.getContentPane().isVisible());
+		this.Screen.setVisible(!this.Screen.isVisible());
+		this.getContentPane().setVisible(this.Screen.isVisible());
+		
+	}
+	void OperationSwitch(boolean status){
+		this.getContentPane().setVisible(status);
+		this.Screen.setVisible(status);
 	}
 	public boolean IsForbidenOperation(){
 		return (!this.getContentPane().isVisible());
@@ -5003,7 +5008,7 @@ public class MapWizard extends JFrame implements ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				try{
-					if(IsForbidenOperation())
+					if(!Screen.isVisible())
 						if(SecondaryScreen.SwtHtmlBrowser.SingleItemThread!=null)
 							SecondaryScreen.SwtHtmlBrowser.Running=false;
 				}catch(Exception ex){
@@ -5667,7 +5672,9 @@ public class MapWizard extends JFrame implements ActionListener {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if(SecondaryScreen.SwtHtmlBrowser.SingleItemThread==null)
-					if(!IsForbidenOperation()) ForbidenOperationSwitch();
+				{
+					if(Screen.isVisible()) Screen.setVisible(false);
+				}else return;
 				// TODO Auto-generated method stub
 				String str_width=JOptionPane.showInputDialog(null,"Secondary Screen Width");
 				String str_height=JOptionPane.showInputDialog(null,"Secondary Screnn Height");
@@ -5972,7 +5979,7 @@ public class MapWizard extends JFrame implements ActionListener {
 				TaxiTrajectoryDatabase
 						.DatabaseFileInput(TaxiTrajectoryDatabaseFile);
 			}
-			Screen.setVisible(true);
+			OperationSwitch(true);
 			in.close();
 		} catch (Exception e) {
 			System.out.println(e);
