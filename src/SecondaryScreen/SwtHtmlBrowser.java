@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 import org.eclipse.swt.SWT; 
@@ -325,6 +326,79 @@ public class SwtHtmlBrowser implements Runnable{
 				}
 	        });
 	        //----------------------------------------------------------------
+	        //HeatMap Compnent    
+	        
+	        final Label GridsRowNumberLabel=new Label(shell,SWT.LEFT);
+	        GridsRowNumberLabel.setBounds(MapWidth+10,375,150,20);
+	        GridsRowNumberLabel.setText("GridsRowNumber::");
+	        GridsRowNumberLabel.setFont(new Font(display,"Consolas",12,SWT.BOLD));//设置文字的字体字号
+	        GridsRowNumberLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
+	        final Text GridsRowNumberText=new Text(shell,SWT.BORDER);
+	        GridsRowNumberText.setBounds(MapWidth+175,375,110,20);
+	        
+	        final Label GridsColumnNumberLabel=new Label(shell,SWT.LEFT);
+	        GridsColumnNumberLabel.setBounds(MapWidth+10,400,150,20);
+	        GridsColumnNumberLabel.setText("GridsColNumber::");
+	        GridsColumnNumberLabel.setFont(new Font(display,"Consolas",12,SWT.BOLD));//设置文字的字体字号
+	        GridsColumnNumberLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
+	        final Text GridsColumnNumberText=new Text(shell,SWT.BORDER);
+	        GridsColumnNumberText.setBounds(MapWidth+175,400,110,20);
+	        
+	        final Label RadiationLabel=new Label(shell,SWT.LEFT);
+	        RadiationLabel.setBounds(MapWidth+10,425,150,20);
+	        RadiationLabel.setText("RadiationLevel::");
+	        RadiationLabel.setFont(new Font(display,"Consolas",12,SWT.BOLD));//设置文字的字体字号
+	        RadiationLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
+	        final Text RadiationText=new Text(shell,SWT.BORDER);
+	        RadiationText.setBounds(MapWidth+175,425,110,20);
+	        
+	        Label FullAlphaLevelLabel=new Label(shell,SWT.LEFT);
+	        FullAlphaLevelLabel.setBounds(MapWidth+10,450,150,20);
+	        FullAlphaLevelLabel.setText("100% Alpha Level::");
+	        FullAlphaLevelLabel.setFont(new Font(display,"Consolas",12,SWT.BOLD));//设置文字的字体字号
+	        FullAlphaLevelLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
+	        final Text FullAlphaLevelText=new Text(shell,SWT.BORDER);
+	        FullAlphaLevelText.setBounds(MapWidth+175,450,110,20);
+	        
+	        final Button HeatMapCheckBox=new Button(shell,SWT.CHECK);
+	        HeatMapCheckBox.setBounds(MapWidth+10,340,250,30);
+	        HeatMapCheckBox.setText("Show HeatMap of Points in Screen");
+	        HeatMapCheckBox.addSelectionListener(new SelectionListener(){
+				@Override
+				public void widgetDefaultSelected(SelectionEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+				@Override
+				public void widgetSelected(SelectionEvent arg0) {
+					// TODO Auto-generated method stub
+					
+					if(HeatMapCheckBox.getSelection()){
+						try{
+							MapKernel.MapWizard.SingleItem.AlphaGridsRow=Integer.parseInt(GridsRowNumberText.getText());
+							MapKernel.MapWizard.SingleItem.AlphaGridsColumn=Integer.parseInt(GridsColumnNumberText.getText());
+							MapKernel.MapWizard.SingleItem.AlphaPercentScale=Integer.parseInt(FullAlphaLevelText.getText());
+							MapKernel.MapWizard.SingleItem.RadiationDistance=Integer.parseInt(RadiationText.getText());
+						}catch(Exception ex){
+							ex.printStackTrace();
+							HeatMapCheckBox.setSelection(false);
+							return;
+						}
+						MapKernel.MapWizard.SingleItem.IsShowAlphaDistribution=true;
+					}else{
+						MapKernel.MapWizard.SingleItem.IsShowAlphaDistribution=false;
+						MapKernel.MapWizard.SingleItem.Handle.VeilTextArea1();
+						MapKernel.MapWizard.SingleItem.Handle.VeilTextArea2();
+						MapKernel.MapWizard.SingleItem.Screen.LastLatitudeScale=-1;
+						MapKernel.MapWizard.SingleItem.Screen.LastLongitudeScale=-1;
+						MapKernel.MapWizard.SingleItem.Screen.LastScreenLatitude=-1000;
+						MapKernel.MapWizard.SingleItem.Screen.LastScreenLongitude=-1000;
+						MapKernel.MapWizard.SingleItem.Screen.LastAlphaPercentScale=0;
+						MapKernel.MapWizard.SingleItem.Screen.LastRadiationDistance=0;
+					}
+				}
+	        });    
+	        //----------------------------------------------------------------
 	        browser=new Browser(shell,SWT.NONE); 
 	        browser.setBounds(0,0,MapWidth,MapHeight); 
 	        shell.setSize(browser.getSize().x+310,browser.getSize().y+40);
@@ -333,7 +407,7 @@ public class SwtHtmlBrowser implements Runnable{
 	        java.io.File HTML_fin=new java.io.File("./OpenStreetMap_Sample.html");
 	        browser.setUrl(HTML_fin.getAbsolutePath());
 	        shell.open();
-	        JScode.setText("ResizeMap("+MapWidth+","+MapHeight+")");
+	        JScode.setText("ResizeMap("+MapWidth+","+MapHeight+");");
 	        
 	        long TimerCounter=java.util.Calendar.getInstance().getTimeInMillis();
 	        while ((Running)&&(!shell.isDisposed())) { 

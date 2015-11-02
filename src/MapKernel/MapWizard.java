@@ -83,7 +83,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	public ToolPanel NowPanel;
 	Timer myTimer = new Timer(1000, this);
 	public ClockWizardClass ClockWizard;
-	MapHandle Handle;
+	public MapHandle Handle;
 
 	// -----------------------------------------------------------------------
 	public void CleanUp() {// 打开文件时清空所有数据结构
@@ -2855,10 +2855,10 @@ public class MapWizard extends JFrame implements ActionListener {
 		float[][] AlphaGridsCounter = new float[3000][3000];
 		float[][] RadiationGridsCounter=new float[3000][3000];
 		float[][] AlphaGridsValue = new float[3000][3000];
-		double LastScreenLongitude = -1000, LastScreenLatitude = -1000,
+		public double LastScreenLongitude = -1000, LastScreenLatitude = -1000,
 				LastLongitudeScale = -1, LastLatitudeScale = -1;
-		int LastAlphaPercentScale = 0;
-		int LastRadiationDistance = 0;
+		public int LastAlphaPercentScale = 0;
+		public int LastRadiationDistance = 0;
 
 		public void AlphaDrawer(String FilePath) {
 			try {
@@ -4733,9 +4733,9 @@ public class MapWizard extends JFrame implements ActionListener {
 	boolean IsAlignPolygonsTag = false;
 
 	JMenuItem ShowPointsAlphaDistribution;
-	boolean IsShowAlphaDistribution = false;
-	int AlphaGridsRow = 100;
-	int AlphaGridsColumn = 100;
+	public boolean IsShowAlphaDistribution = false;
+	public int AlphaGridsRow = 100;
+	public int AlphaGridsColumn = 100;
 	JMenuItem SetAlphaPercentScale;
 	public int AlphaPercentScale = 0;
 	public int RadiationDistance = 0;
