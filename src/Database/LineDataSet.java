@@ -28,16 +28,19 @@ public class LineDataSet implements LineDatabaseInterface{
 		DatabaseInit();
 	}
 	public void DatabaseFileInput(File Input){
+		BufferedReader in=null;
 		try{
 			if(Input==null) return;
-			BufferedReader in=new BufferedReader(new InputStreamReader(new FileInputStream(Input),"UTF-8"));
+			in=new BufferedReader(new InputStreamReader(new FileInputStream(Input),"UTF-8"));
 			String buf;
 			double DeltaX=0,DeltaY=0;
 			if (Input.getName().endsWith(".csv")) {
 				buf=in.readLine();
+				if(buf==null) return;
 				String[] AttributionList=buf.split(",");
 				while((buf=in.readLine())!=null){
-					String[] ValueList=buf.split(",");
+					if(buf.isEmpty()||buf.equals("-1")) continue;
+					String[] ValueList=buf.split(",",-1);
 					String Latitude_Str=null;
 					String Longitude_Str=null;
 					Latitude_Str="0";
@@ -73,7 +76,7 @@ public class LineDataSet implements LineDatabaseInterface{
 					append(LineNum, Double.parseDouble(Longitude_Str),
 							Double.parseDouble(Latitude_Str));
 					buf = in.readLine();
-					while ((buf!=null)&&(!buf.isEmpty())) {
+					while ((buf!=null)&&(!buf.isEmpty())&&(!buf.equals("-1"))) {
 						ValueList=buf.split(",");
 						Latitude_Str="0";
 						Longitude_Str="0";
@@ -126,16 +129,23 @@ public class LineDataSet implements LineDatabaseInterface{
 					LineNum++;
 				}
 			}
-			in.close();
 		}catch(Exception e){
 			e.printStackTrace();
+		}finally{
+			try{
+				in.close();
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
 		}
 	}
 	public void DatabaseFileOutput(File Output){
+		if(Output==null) return;
+		FileOutputStream fostream=null;
+		BufferedWriter out=null;
 		try{
-			if(Output==null) return;
-			FileOutputStream fostream=new FileOutputStream(Output,false);
-			BufferedWriter out=new BufferedWriter(new OutputStreamWriter(fostream,"UTF-8"));
+			fostream=new FileOutputStream(Output,false);
+			out=new BufferedWriter(new OutputStreamWriter(fostream,"UTF-8"));
 			//-------------------------------------------------------------
 			if (Output.getName().endsWith(".csv")) {
 				fostream.write(new byte[] { (byte) 0xEF, (byte) 0xBB,
@@ -177,10 +187,15 @@ public class LineDataSet implements LineDatabaseInterface{
 				out.write("[LineEnd]------------------------------");
 				out.newLine();
 			}
-			out.flush();
-			out.close();
 		}catch(Exception e){
 			e.printStackTrace();
+		}finally{
+			try{
+				out.flush();
+				out.close();
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
 		}
 	}
 	public void MoveEntireData(double longitude_delta,double latitude_delta){

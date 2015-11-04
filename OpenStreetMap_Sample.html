@@ -217,6 +217,7 @@ map.fitBounds([
 		}
 
 		map.on('click', onMapClick);
+		L.control.scale().addTo(map);
 //------------------------------------------
 	//To JavaWeb
 document.body.scroll="no";
@@ -230,5 +231,6 @@ function ResizeMap(ScreenWidth,ScreenHeight){
 	map.invalidateSize(true);
 }
 </script>
+	<script src="data2.js"></script>
 </body>
 </html>

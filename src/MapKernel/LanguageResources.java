@@ -564,6 +564,7 @@ public class LanguageResources {
 		EnglishToChinese.put("DeepZoom HD Split","DeepZoom高清分割");
 		ChineseToEnglish.put("打开网页第二屏幕", "Open Webpage Secondary Screen");
 		EnglishToChinese.put("Open Webpage Secondary Screen", "打开网页第二屏幕");
+		ChineseToEnglish.put("设定      ", "Setting    ");
 	}
 	public String GetWords(String str){
 		if(str==null) return "NULL";
@@ -573,13 +574,13 @@ public class LanguageResources {
 			else if(EnglishToChinese.containsKey(str))
 				return str;
 			else
-				return "NULL";
+				return str;
 		}else if(MapWizard.Language.equals("CH")){
 			if(EnglishToChinese.containsKey(str))
 				return EnglishToChinese.get(str);
 			else if(ChineseToEnglish.containsKey(str))
 				return str;
-			else return "NULL";
+			else return str;
 		}else return str;
 	}
 }

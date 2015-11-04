@@ -4,7 +4,10 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
@@ -59,6 +62,7 @@ public class SwtHtmlBrowser implements Runnable{
 	public static boolean Running=false;
 	public static byte AlphaSettingValue=10;
 	public static int FlushInterval=500;
+	public static String JavaScriptInputData="";
 	public static final class CallJava extends BrowserFunction{
 		public CallJava (Browser JavaWeb,String FunctionName){
 			super(JavaWeb,FunctionName);
@@ -71,6 +75,21 @@ public class SwtHtmlBrowser implements Runnable{
 					WebLongitudeEnd = Double.parseDouble(Results[2].toString());
 					WebLatitudeStart = Double.parseDouble(Results[3].toString());
 					WebLatitudeEnd = Double.parseDouble(Results[4].toString());
+				}else if(FunctionType.equals("DataInput")){
+					JavaScriptInputData+=Results[1].toString();
+				}else if(FunctionType.equals("DataClear")){
+					JavaScriptInputData="";
+					System.gc();
+				}else if(FunctionType.equals("DataSave")){
+					FileOutputStream fostream=new FileOutputStream(Results[1].toString(),false);
+					BufferedWriter BFout=new BufferedWriter(new OutputStreamWriter(fostream,"UTF-8"));
+					try{
+						BFout.write(JavaScriptInputData+"\n");
+					}catch(Exception ex){
+						ex.printStackTrace();
+					}finally{
+						BFout.close();
+					}
 				}
 				return null;
 			} catch (Exception ex) {
@@ -379,6 +398,8 @@ public class SwtHtmlBrowser implements Runnable{
 							MapKernel.MapWizard.SingleItem.AlphaGridsColumn=Integer.parseInt(GridsColumnNumberText.getText());
 							MapKernel.MapWizard.SingleItem.AlphaPercentScale=Integer.parseInt(FullAlphaLevelText.getText());
 							MapKernel.MapWizard.SingleItem.RadiationDistance=Integer.parseInt(RadiationText.getText());
+							canvaspane.redraw();
+							Mask.redraw();
 						}catch(Exception ex){
 							ex.printStackTrace();
 							HeatMapCheckBox.setSelection(false);

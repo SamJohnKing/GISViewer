@@ -43,7 +43,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	public static MapWizard SingleItem=null;
 	CardLayout ToolCard;
 	JMenuBar menubar;
-	JMenu FileMenu, EditMenu, MapControlMenu, MapDataMenu, HelpMenu;
+	JMenu FileMenu, EditMenu, SettingMenu, MapControlMenu, MapDataMenu, HelpMenu;
 	JPanel Tool;
 	public ScreenCanvas Screen;
 	public int VisualObjectMaxNum = 25000;
@@ -5002,7 +5002,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		WashScreenItem=new JMenuItem(LanguageDic.GetWords("清洗屏幕"));
 		WashScreenItem.addActionListener(this);		
 		
-		JMenuItem WizardForbidenOperationSwitch=new JMenuItem(LanguageDic.GetWords("可视化开关"));
+		final JMenuItem WizardForbidenOperationSwitch=new JMenuItem(LanguageDic.GetWords("可视化开关"));
 		WizardForbidenOperationSwitch.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -5689,6 +5689,7 @@ public class MapWizard extends JFrame implements ActionListener {
 //MenuAdd---------------------------------------------------------
 		FileMenu=new JMenu(LanguageDic.GetWords("文件      "));
 		EditMenu=new JMenu(LanguageDic.GetWords("编辑      "));
+		SettingMenu=new JMenu(LanguageDic.GetWords("设定      "));
 		MapControlMenu=new JMenu(LanguageDic.GetWords("控制      "));
 		MapDataMenu=new JMenu(LanguageDic.GetWords("地图数据      "));
 		ExtendedAbility=new JMenu(LanguageDic.GetWords("功能扩展      "));
@@ -5736,7 +5737,6 @@ public class MapWizard extends JFrame implements ActionListener {
 		MapControlMenu.add(ClearLastPoint);
 		MapControlMenu.add(ClearDirection);
 		MapControlMenu.add(WashScreenItem);
-		MapControlMenu.add(WizardForbidenOperationSwitch);
 		MapControlMenu.add(ShowCenterItem);
 		MapControlMenu.add(VeilCenterItem);
 		MapControlMenu.add(LandMarkOnScreenItem);
@@ -5745,26 +5745,144 @@ public class MapWizard extends JFrame implements ActionListener {
 		MapControlMenu.add(LandMarkNameVeilItem);
 		MapControlMenu.add(ScreenLocationMicroDelta);
 		MapControlMenu.add(ScreenLocationReset);
-		MapControlMenu.add(AllElementInvisible);
-		MapControlMenu.add(VisualFeatureSwitchItem);
-		MapControlMenu.add(VisualObjectMaxNumSetItem);
-		//--------------------------------
+		//----------------------------------------------
+		SettingMenu.add(WizardForbidenOperationSwitch);
+		SettingMenu.add(AllElementInvisible);
+		SettingMenu.add(VisualFeatureSwitchItem);
+		SettingMenu.add(VisualObjectMaxNumSetItem);
+		SettingMenu.add(AllPointInvisible);
+		SettingMenu.add(AllLineInvisible);
+		SettingMenu.add(AllPolygonInvisible);
+		SettingMenu.add(EngravePointShape);
+		SettingMenu.add(AlignPointsTagItem);
+		SettingMenu.add(AlignLinesTagItem);
+		SettingMenu.add(AlignPolygonsTagItem);
+		SettingMenu.addMouseListener(new MouseListener(){
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+String str;
+				
+				str=WizardForbidenOperationSwitch.getText();
+				if(Screen.isVisible()){
+					WizardForbidenOperationSwitch.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
+					WizardForbidenOperationSwitch.setForeground(new Color(112, 170, 57));
+				}else{WizardForbidenOperationSwitch.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+					WizardForbidenOperationSwitch.setForeground(Color.red);
+				}
+
+				str=AllElementInvisible.getText();
+				if(IsAllElementInvisible){
+					AllElementInvisible.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+					AllElementInvisible.setForeground(Color.red);
+				}else{
+					AllElementInvisible.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
+					AllElementInvisible.setForeground(new Color(112, 170, 57));
+				}
+				
+				str=VisualFeatureSwitchItem.getText();
+				if(ShowVisualFeature){
+					VisualFeatureSwitchItem.setText("[Visual]"+(str.substring(str.indexOf(']')+1)));
+					VisualFeatureSwitchItem.setForeground(new Color(112, 170, 57));
+				}else{
+					VisualFeatureSwitchItem.setText("[Original]"+(str.substring(str.indexOf(']')+1)));
+					VisualFeatureSwitchItem.setForeground(Color.red);
+				}
+				
+				str=VisualObjectMaxNumSetItem.getText();
+				VisualObjectMaxNumSetItem.setText("["+VisualObjectMaxNum+"]"+(str.substring(str.indexOf(']')+1)));
+				
+				str=AllPointInvisible.getText();
+				if(IsAllPointInvisible){
+					AllPointInvisible.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+					AllPointInvisible.setForeground(Color.red);
+				}else{
+					AllPointInvisible.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
+					AllPointInvisible.setForeground(new Color(112, 170, 57));
+				}
+				
+				str=AllLineInvisible.getText();
+				if(IsAllLineInvisible){
+					AllLineInvisible.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+					AllLineInvisible.setForeground(Color.red);
+				}else{
+					AllLineInvisible.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
+					AllLineInvisible.setForeground(new Color(112, 170, 57));
+				}
+				
+				str=AllPolygonInvisible.getText();
+				if(IsAllPolygonInvisible){
+					AllPolygonInvisible.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+					AllPolygonInvisible.setForeground(Color.red);
+				}else{
+					AllPolygonInvisible.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
+					AllPolygonInvisible.setForeground(new Color(112, 170, 57));
+				}
+				
+				str=EngravePointShape.getText();
+				if(IsEngravePointShape){
+					EngravePointShape.setText("[Engraved]"+(str.substring(str.indexOf(']')+1)));
+					EngravePointShape.setForeground(new Color(112, 170, 57));
+				}else{
+					EngravePointShape.setText("[UnEngraved]"+(str.substring(str.indexOf(']')+1)));
+					EngravePointShape.setForeground(Color.red);
+				}
+				
+				str=AlignPointsTagItem.getText();
+				AlignPointsTagItem.setText("["+IsAlignPointsTag+"]"+(str.substring(str.indexOf(']')+1)));
+				
+				str=AlignLinesTagItem.getText();
+				if(IsAlignLinesTag){
+					AlignLinesTagItem.setText("[Aligned]"+(str.substring(str.indexOf(']')+1)));
+					AlignLinesTagItem.setForeground(new Color(112, 170, 57));
+				}else{
+					AlignLinesTagItem.setText("[UnAligned]"+(str.substring(str.indexOf(']')+1)));
+					AlignLinesTagItem.setForeground(Color.red);
+				}
+				
+				str=AlignPolygonsTagItem.getText();
+				if(IsAlignPolygonsTag){
+					AlignPolygonsTagItem.setText("[Aligned]"+(str.substring(str.indexOf(']')+1)));
+					AlignPolygonsTagItem.setForeground(new Color(112, 170, 57));
+				}else{
+					AlignPolygonsTagItem.setText("[UnAligned]"+(str.substring(str.indexOf(']')+1)));
+					AlignPolygonsTagItem.setForeground(Color.red);
+				}
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		//----------------------------------------------
 		MapDataMenu.add(BasicInfoItem);
 		MapDataMenu.add(LandMarkQueryItem);
 		MapDataMenu.add(ShowPolygonDatabaseView);
 		MapDataMenu.add(ShowLineDatabaseView);
 		MapDataMenu.add(ShowPointDatabaseView);
-		MapDataMenu.add(ShowAutoDrivePane);
-		MapDataMenu.add(AllPointInvisible);
-		MapDataMenu.add(AllLineInvisible);
-		MapDataMenu.add(AllPolygonInvisible);
 		MapDataMenu.add(ClearPointDBItem);
 		MapDataMenu.add(ClearLineDBItem);
 		MapDataMenu.add(ClearPolygonDBItem);
-		MapDataMenu.add(EngravePointShape);
-		MapDataMenu.add(AlignPointsTagItem);
-		MapDataMenu.add(AlignLinesTagItem);
-		MapDataMenu.add(AlignPolygonsTagItem);
 		MapDataMenu.add(ShowPointsAlphaDistribution);
 		MapDataMenu.add(SetAlphaPercentScale);
 		//------------------------------
@@ -5773,6 +5891,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		HelpMenu.add(AboutFrameItem);
 		//---------------------------------
 		ExtendedAbility.add(GISCompletionPaneItem);
+		ExtendedAbility.add(ShowAutoDrivePane);
 		ExtendedAbility.add(ShowTaxiSearchItem);
 		ExtendedAbility.add(RouteSearchItem);
 		ExtendedAbility.add(MyTimerOn);
@@ -5787,6 +5906,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		menubar.add(FileMenu);
 		menubar.add(EditMenu);
 		menubar.add(MapControlMenu);
+		menubar.add(SettingMenu);
 		menubar.add(MapDataMenu);
 		menubar.add(ExtendedAbility);
 		menubar.add(HelpMenu);
@@ -7005,7 +7125,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		}
 
 		void OtherFormatPointInput(File PointDatabaseFile) {
-			BufferedReader BIN;
+			BufferedReader BIN=null;
 			String s1 = "";
 			int i, j, k;
 			int count = 0;
@@ -7037,6 +7157,12 @@ public class MapWizard extends JFrame implements ActionListener {
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.out.println(s1);
+			}finally{
+				try{
+					if(BIN!=null) BIN.close();
+				}catch(Exception ex){
+					ex.printStackTrace();
+				}
 			}
 		}
 
@@ -7091,7 +7217,7 @@ public class MapWizard extends JFrame implements ActionListener {
 				HighestRate = 10000;
 				// DIR=FileDialog.getCurrentDirectory();
 				// Resize();
-				BIN.close();
+				if(BIN!=null) BIN.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -7099,7 +7225,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		}
 
 		public void PointAppend() {
-			BufferedReader BIN;
+			BufferedReader BIN=null;
 			String s1;
 			int i, j, k;
 			try {
@@ -7145,9 +7271,15 @@ public class MapWizard extends JFrame implements ActionListener {
 				HighestRate = 10000;
 				// DIR=FileDialog.getCurrentDirectory();
 				// Resize();
-				BIN.close();
+
 			} catch (Exception e) {
 				e.printStackTrace();
+			}finally{
+				try{
+					if(BIN!=null) BIN.close();
+				}catch(Exception ex){
+					ex.printStackTrace();
+				}
 			}
 			Handle.ScreenFlush();
 		}
@@ -7219,7 +7351,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 		void OtherFormatLineInput(File LineDatabaseFile) {
 			int LineNum = 0;
-			BufferedReader BIN;
+			BufferedReader BIN=null;
 			String s1 = "";
 			int i, j, k;
 			int count = 0;
@@ -7253,6 +7385,12 @@ public class MapWizard extends JFrame implements ActionListener {
 				e.printStackTrace();
 				System.out.println(">>>>>>>>>>>>LineNum：" + LineNum);
 				System.out.println(s1);
+			}finally{
+				try{
+					if(BIN!=null) BIN.close();
+				}catch(Exception ex){
+					ex.printStackTrace();
+				}
 			}
 		}
 
@@ -7316,7 +7454,7 @@ public class MapWizard extends JFrame implements ActionListener {
 				HighestRate = (int) 1e9;
 				// DIR=FileDialog.getCurrentDirectory();
 				// Resize();
-				BIN.close();
+				if(BIN!=null) BIN.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.out.println(">>>>>>>>>>>>LineNum：" + LineNum);
@@ -7327,7 +7465,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 		public void LineAppend() {
 			int LineNum = 0;
-			BufferedReader BIN;
+			BufferedReader BIN=null;
 			String s1 = "";
 			int i, j, k;
 			int count;
@@ -7385,6 +7523,12 @@ public class MapWizard extends JFrame implements ActionListener {
 				e.printStackTrace();
 				System.out.println(">>>>>>>>>>>>LineNum：" + LineNum);
 				System.out.println(s1);
+			}finally{
+				try{
+					if(BIN!=null) BIN.close();
+				}catch(Exception ex){
+					ex.printStackTrace();
+				}
 			}
 			Handle.ScreenFlush();
 		}
