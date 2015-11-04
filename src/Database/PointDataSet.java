@@ -31,6 +31,7 @@ public class PointDataSet implements PointDatabaseInterface{
 			if(Input.getName().endsWith(".csv")){
 				buf=in.readLine();
 				if(buf==null) return;
+				buf=buf.substring(buf.lastIndexOf('\uFEFF')+1);
 				String[] AttributionList=buf.split(",");
 				while((buf=in.readLine())!=null){
 					if(buf.isEmpty()||buf.equals("-1")) continue;
@@ -42,13 +43,13 @@ public class PointDataSet implements PointDatabaseInterface{
 					for(int i=0;i<AttributionList.length;i++){
 						if(i>=ValueList.length) break;
 						String signal=AttributionList[i].toLowerCase();
-						if(signal.indexOf("latitude")!=-1){
+						if(signal.endsWith("latitude")){
 							AllPointY[PointNum]=Double.parseDouble(ValueList[i]);
-						}else if(signal.indexOf("longitude")!=-1){
+						}else if(signal.endsWith("longitude")){
 							AllPointX[PointNum]=Double.parseDouble(ValueList[i]);
-						}else if(signal.indexOf("hint")!=-1){
+						}else if(signal.equals("hint")){
 							PointHint[PointNum]=ValueList[i];
-						}else if(signal.indexOf("visible")!=-1){
+						}else if(signal.equals("visible")){
 							PointVisible[PointNum]=Integer.parseInt(ValueList[i]);
 						}else{
 							if(i<ValueList.length){

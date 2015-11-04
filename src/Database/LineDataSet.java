@@ -37,6 +37,7 @@ public class LineDataSet implements LineDatabaseInterface{
 			if (Input.getName().endsWith(".csv")) {
 				buf=in.readLine();
 				if(buf==null) return;
+				buf=buf.substring(buf.lastIndexOf('\uFEFF')+1);
 				String[] AttributionList=buf.split(",");
 				while((buf=in.readLine())!=null){
 					if(buf.isEmpty()||buf.equals("-1")) continue;
@@ -57,11 +58,11 @@ public class LineDataSet implements LineDatabaseInterface{
 							Latitude_Str=ValueList[i];
 						}else if(signal.endsWith("longitude")){
 							Longitude_Str=ValueList[i];
-						}else if(signal.endsWith("hint")){
+						}else if(signal.equals("hint")){
 							LineHint[LineNum]=ValueList[i];
-						}else if(signal.endsWith("visible")){
+						}else if(signal.equals("visible")){
 							LineVisible[LineNum]=Integer.parseInt(ValueList[i]);
-						}else if(signal.endsWith("vertical")){
+						}else if(signal.equals("vertical")){
 							isVertical[LineNum] = ValueList[i].equals("0") ? false : true;
 						}else if(signal.equals("dx")){
 							dx[LineNum] = Double.parseDouble(ValueList[i]);
