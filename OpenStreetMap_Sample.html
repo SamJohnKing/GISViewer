@@ -178,7 +178,7 @@
 <body style="margin:0px 0px 0px 0px">
 	<div style="width:100%; height:100%;" id="map"></div>
 <script type='text/javascript'>
-var map = new L.Map('map', {center: new L.LatLng(39.5, 117), zoom: 9, zoomAnimation: true });
+var map = new L.Map('map', {center: new L.LatLng(39.5, 117), zoom: 9, zoomAnimation: true, maxZoom: 19});
 map.addLayer(new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'));
 map.fitBounds([
 	[31.05, 121.25],
@@ -231,6 +231,5 @@ function ResizeMap(ScreenWidth,ScreenHeight){
 	map.invalidateSize(true);
 }
 </script>
-	<script src="data2.js"></script>
 </body>
 </html>
