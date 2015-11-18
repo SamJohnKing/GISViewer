@@ -565,6 +565,7 @@ public class LanguageResources {
 		ChineseToEnglish.put("打开网页第二屏幕", "Open Webpage Secondary Screen");
 		EnglishToChinese.put("Open Webpage Secondary Screen", "打开网页第二屏幕");
 		ChineseToEnglish.put("设定      ", "Setting    ");
+		ChineseToEnglish.put("色彩Alpha值透射开关", "AlphaFeatureSwitch");
 	}
 	public String GetWords(String str){
 		if(str==null) return "NULL";

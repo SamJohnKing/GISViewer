@@ -32,17 +32,18 @@ public class PointDataSet implements PointDatabaseInterface{
 				buf=in.readLine();
 				if(buf==null) return;
 				buf=buf.substring(buf.lastIndexOf('\uFEFF')+1);
-				String[] AttributionList=buf.split(",");
+				String[] AttributionList=buf.split(",|\t");
 				while((buf=in.readLine())!=null){
 					if(buf.isEmpty()||buf.equals("-1")) continue;
-					String[] ValueList=buf.split(",",-1);
+					String[] ValueList=buf.split(",|\t",-1);
 					AllPointY[PointNum]=0;
 					AllPointX[PointNum]=0;
 					PointHint[PointNum]="";
 					PointVisible[PointNum]=7;
 					for(int i=0;i<AttributionList.length;i++){
 						if(i>=ValueList.length) break;
-						String signal=AttributionList[i].toLowerCase();
+						String signal=AttributionList[i].toLowerCase().trim();
+						ValueList[i]=ValueList[i].trim();
 						if(signal.endsWith("latitude")){
 							AllPointY[PointNum]=Double.parseDouble(ValueList[i]);
 						}else if(signal.endsWith("longitude")){

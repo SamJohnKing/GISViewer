@@ -39,10 +39,10 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 				buf = in.readLine();
 				if(buf==null) return;
 				buf=buf.substring(buf.lastIndexOf('\uFEFF')+1);
-				String[] AttributionList = buf.split(",");
+				String[] AttributionList = buf.split(",|\t");
 				while ((buf = in.readLine()) != null) {
 					if(buf.isEmpty()||buf.equals("-1")) continue;
-					String[] ValueList = buf.split(",",-1);
+					String[] ValueList = buf.split(",|\t",-1);
 					String Latitude_Str = null;
 					String Longitude_Str = null;
 					Latitude_Str = "0";
@@ -55,7 +55,8 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 					for (int i = 0; i < AttributionList.length; i++) {
 						if (i >= ValueList.length)
 							break;
-						String signal = AttributionList[i].toLowerCase();
+						String signal=AttributionList[i].toLowerCase().trim();
+						ValueList[i]=ValueList[i].trim();
 						if (signal.endsWith("latitude")) {
 							Latitude_Str = ValueList[i];
 						} else if (signal.endsWith("longitude")) {

@@ -39,6 +39,25 @@ import java.io.*;
 import com.sun.image.codec.jpeg.*;
 
 public class MapWizard extends JFrame implements ActionListener {
+	// Default Initiate Elements------------
+	public void DefualtInitiateOpenItem(){
+		DIR=new File("D:\\DefaultDataSource");
+		if(!DIR.exists()) DIR.mkdirs();
+		ImageDir=new File(DIR,"Image");
+		if(!ImageDir.exists()) ImageDir.mkdirs();
+		LongitudeStart=-10000;
+		LongitudeEnd=10000;
+		LatitudeStart=-10000;
+		LatitudeEnd=10000;
+		HighestRate=1000000;
+		PolygonDatabaseFile=new File(DIR,"PolygonDatabase.csv");
+		LineDatabaseFile=new File(DIR,"LineDatabase.csv");
+		PointDatabaseFile=new File(DIR,"PointDatabase.csv");
+		Screen.ScreenLatitude=500;
+		Screen.LatitudeScale=1000;
+		Screen.ScreenLongitude=-500;
+		Screen.LongitudeScale=1000;
+	}
 	// The Elements:------------------------
 	public static MapWizard SingleItem=null;
 	CardLayout ToolCard;
@@ -2527,7 +2546,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		Image image;
 		Toolkit tool;
 		double rate;
-		boolean lock;
+		public boolean lock;
 		boolean ShowCenter = false;
 		public double ScreenLongitude, ScreenLatitude;
 		public double LongitudeScale, LatitudeScale;
@@ -2859,7 +2878,9 @@ public class MapWizard extends JFrame implements ActionListener {
 				LastLongitudeScale = -1, LastLatitudeScale = -1;
 		public int LastAlphaPercentScale = 0;
 		public int LastRadiationDistance = 0;
-
+		public Color HeatMapColorChooser(float Alpha){
+			return new Color(Color.HSBtoRGB((1f-Alpha)*0.67f, 1.0f, 1.0f));
+		}
 		public void AlphaDrawer(String FilePath) {
 			try {
 				boolean BeforeVisible = IsAllPointInvisible;
@@ -2913,7 +2934,8 @@ public class MapWizard extends JFrame implements ActionListener {
 						if(RadiationDistance!=0)
 						for(dx=0; dx<= RadiationDistance; dx++){
 							for(dy=0;dy<=RadiationDistance-dx;dy++){
-							M_dist=dx+dy;
+							M_dist=(int)Math.sqrt(dx*dx+dy*dy);
+							if(M_dist>RadiationDistance) continue;
 							if(dx==0){
 								if(Row_i-dy>=0) 
 									RadiationGridsCounter[Row_i-dy][Col_i]+=(RadiationDistance-M_dist+0.001f)*power/RadiationDistance;
@@ -2965,23 +2987,34 @@ public class MapWizard extends JFrame implements ActionListener {
 				}
 				double ScreenXstep = ((double) ScreenWidth) / AlphaGridsColumn;
 				double ScreenYstep = ((double) ScreenHeight) / AlphaGridsRow;
+				
 				for (int Row_i = 0; Row_i < AlphaGridsRow; Row_i++) {
 					for (int Col_i = 0; Col_i < AlphaGridsColumn; Col_i++) {
-						if (AlphaGridsValue[Row_i][Col_i] < 0.01)
+						if (AlphaGridsValue[Row_i][Col_i] < 0.05)
 							continue;
 						AlphaComposite ac = AlphaComposite.getInstance(
 								AlphaComposite.SRC_OVER,
-								AlphaGridsValue[Row_i][Col_i]>0.1f?0.99f:AlphaGridsValue[Row_i][Col_i]*9.99f);
+								AlphaGridsValue[Row_i][Col_i]*0.8f+0.19f);
 						g_2d.setComposite(ac);
-						g_2d.setColor(new Color(Color.HSBtoRGB((AlphaGridsValue[Row_i][Col_i])*0.5f+0.1f, 1.0f, 1.0f)));
+						g_2d.setColor(HeatMapColorChooser(AlphaGridsValue[Row_i][Col_i]));
 						g_2d.fillRect((int) (Col_i * ScreenXstep),
 								(int) (Row_i * ScreenYstep), (int) ScreenXstep,
 								(int) ScreenYstep);
 					}
 				}
+				
 				AlphaComposite ac = AlphaComposite.getInstance(
 						AlphaComposite.SRC_OVER, 1);
 				g_2d.setComposite(ac);
+				float Alpha_Float=0f;
+				g_2d.setFont(new Font("黑体", 0, 14));
+				for(int Alpha_i=0;Alpha_i<=100;Alpha_i++){
+					Alpha_Float=((float) Alpha_i)/100f;
+					g_2d.setColor(HeatMapColorChooser(Alpha_Float));
+					g_2d.fillRect(ScreenWidth-75, ScreenHeight-46-Alpha_i*2, 30, 2);
+					if(Alpha_i%25==0) g_2d.drawString(Alpha_i+"%", ScreenWidth-40, ScreenHeight-40-Alpha_i*2);
+				}
+				
 				ImageIO.write(PNGimage, "png", new File(FilePath));
 				System.gc();
 			} catch (Exception ee) {
@@ -3015,7 +3048,10 @@ public class MapWizard extends JFrame implements ActionListener {
 						BasicStroke.JOIN_ROUND);
 			}
 		}
-
+		public Color AlphaColor(float r,float g,float b,float a){
+			if(ShowAlphaFeature) return new Color(r,g,b,a);
+			else return new Color(r,g,b);
+		}
 		public Color GetVisualColor(String info, String Prefix) {// PointRGB,PointAlpha,LineRGB,LinrAlpha,PolygonRGB,PolygonAlpha
 			try {
 				if (info == null)
@@ -3033,9 +3069,8 @@ public class MapWizard extends JFrame implements ActionListener {
 							info.indexOf(']', p1 + 7 + Prefix.length())));
 				if (RGB_str != null) {
 					if (RGB_str.startsWith("0x")) {
-						color_defult = new Color(Integer.parseInt(
-								RGB_str.substring(2), 16));
-						color_defult = new Color(
+						color_defult = new Color(Integer.parseInt(RGB_str.substring(2), 16));
+						color_defult = AlphaColor(
 								(float) color_defult.getRed() / 256,
 								(float) color_defult.getGreen() / 256,
 								(float) color_defult.getBlue() / 256, Alpha);
@@ -3043,7 +3078,7 @@ public class MapWizard extends JFrame implements ActionListener {
 						String[] v = RGB_str.split(",");
 						if (v.length > 3)
 							Alpha = Float.parseFloat(v[3]);
-						color_defult = new Color(Float.parseFloat(v[0]) / 256,
+						color_defult = AlphaColor(Float.parseFloat(v[0]) / 256,
 								Float.parseFloat(v[1]) / 256,
 								Float.parseFloat(v[2]) / 256, Alpha);
 					}
@@ -3413,6 +3448,11 @@ public class MapWizard extends JFrame implements ActionListener {
 			// Draw for Extended Database--------------------------
 			SetAREA(ScreenLongitude, ScreenLongitude + LongitudeScale,
 					ScreenLatitude - LatitudeScale, ScreenLatitude);
+			boolean ScriptLineVisible=false;
+			boolean ScriptPointVisible=false;
+			boolean ScriptFontVisible=false;
+			boolean ScriptPolygonVisible=false;
+			
 			if (!IsAllLineInvisible)
 				if (LineDatabaseFile != null) {
 					int binary, choose, now, p1, p2;
@@ -3439,8 +3479,7 @@ public class MapWizard extends JFrame implements ActionListener {
 									}
 								if (((!ShowVisualFeature)&&((binary & Ox("1000")) != 0))
 									||(ShowVisualFeature&&(LineDatabase.LineHint[i].indexOf("[LineVisible:]")!=-1)))
-								{// For
-																	// Line----------------------------
+								{// For Line----------------------------
 									choose = (binary >> 10) & Ox("111");
 									g_2d.setColor(getChooseColor(choose));
 
@@ -3527,8 +3566,7 @@ public class MapWizard extends JFrame implements ActionListener {
 								}
 								if ( ((!ShowVisualFeature)&&((binary & Ox("100")) != 0))
 										||(ShowVisualFeature&&(LineDatabase.LineHint[i].indexOf("[PointVisible:]")!=-1))
-										) {// For
-																// Point-------------------------
+										) {// For Point-------------------------
 									choose = (binary >> 7) & Ox("111");
 									g_2d.setColor(getChooseColor(choose));
 
@@ -3569,12 +3607,12 @@ public class MapWizard extends JFrame implements ActionListener {
 									}
 
 								}
+								if(!IsAllLineInvisible)
 								if (
 										((!ShowVisualFeature)&&((binary & Ox("10")) != 0))
 										||
 										(ShowVisualFeature&&(LineDatabase.LineHint[i].indexOf("[WordVisible:]")!=-1))
-									){// For
-																// Word--------------------------
+									){// For Word--------------------------
 									choose = (binary >> 4) & Ox("111");
 									g_2d.setColor(getChooseColor(choose));
 									now = LineDatabase.LineHead[i];
@@ -3662,8 +3700,7 @@ public class MapWizard extends JFrame implements ActionListener {
 										((!ShowVisualFeature)&&((binary & Ox("1000")) != 0))
 										||
 										(ShowVisualFeature&&(PolygonDatabase.PolygonHint[i].indexOf("[LineVisible:]")!=-1))
-									){// For
-																	// Line----------------------------
+									){// For Line----------------------------
 									choose = (binary >> 10) & Ox("111");
 									g_2d.setColor(getChooseColor(choose));
 
@@ -3767,8 +3804,7 @@ public class MapWizard extends JFrame implements ActionListener {
 										((!ShowVisualFeature)&&((binary & Ox("100")) != 0))
 										||
 										(ShowVisualFeature&&(PolygonDatabase.PolygonHint[i].indexOf("[PointVisible:]")!=-1))
-									){// For
-																// Point-------------------------
+									){// For Point-------------------------
 									choose = (binary >> 7) & Ox("111");
 									g_2d.setColor(getChooseColor(choose));
 
@@ -3809,12 +3845,12 @@ public class MapWizard extends JFrame implements ActionListener {
 									}
 
 								}
+								if(!IsAllFontInvisible)
 								if (
 										((!ShowVisualFeature)&&((binary & Ox("10")) != 0))
 										||
 										(ShowVisualFeature&&(PolygonDatabase.PolygonHint[i].indexOf("[WordVisible:]")!=-1))
-									){// For
-																// Word--------------------------
+									){// For Word--------------------------
 									choose = (binary >> 4) & Ox("111");
 									g_2d.setColor(getChooseColor(choose));
 									now = PolygonDatabase.PolygonHead[i];
@@ -3897,8 +3933,7 @@ public class MapWizard extends JFrame implements ActionListener {
 									((!ShowVisualFeature)&&((binary & Ox("100")) != 0))
 									||
 									(ShowVisualFeature&&(PointDatabase.PointHint[i].indexOf("[PointVisible:]")!=-1))
-								){// For
-															// Point-------------------------
+								){// For Point-------------------------
 								choose = (binary >> 7) & Ox("111");
 								g_2d.setColor(getChooseColor(choose));
 
@@ -3930,17 +3965,17 @@ public class MapWizard extends JFrame implements ActionListener {
 									g_2d.drawRect(xx, yy, 1, 1);
 								DrawCount++;
 							}
+							if(!IsAllFontInvisible)
 							if (
 									((!ShowVisualFeature)&&((binary & Ox("10")) != 0))
 									||
 									(ShowVisualFeature&&(PointDatabase.PointHint[i].indexOf("[WordVisible:]")!=-1))
-									) {// For
-															// Word--------------------------
+									) {// For Word--------------------------
 								choose = (binary >> 4) & Ox("111");
 								g_2d.setColor(getChooseColor(choose));
 								if (IsAlignPointsTag > 0) {
 									g_2d.setFont(new Font("黑体", 0,
-											IsAlignPointsTag));
+											IsAlignPointsTag-1));
 								}
 								int xx = (int) ((PointDatabase.AllPointX[i] - ScreenLongitude)
 										/ LongitudeScale * ScreenWidth);
@@ -4010,7 +4045,8 @@ public class MapWizard extends JFrame implements ActionListener {
 							if(RadiationDistance!=0)
 							for(dx=0; dx<= RadiationDistance; dx++){
 								for(dy=0;dy<=RadiationDistance-dx;dy++){
-								M_dist=dx+dy;
+								M_dist=(int)Math.sqrt(dx*dx+dy*dy);
+								if(M_dist>RadiationDistance) continue;
 								if(dx==0){
 									if(Row_i-dy>=0) 
 										RadiationGridsCounter[Row_i-dy][Col_i]+=(RadiationDistance-M_dist+0.001f)*power/RadiationDistance;
@@ -4070,15 +4106,25 @@ public class MapWizard extends JFrame implements ActionListener {
 							continue;
 						AlphaComposite ac = AlphaComposite.getInstance(
 								AlphaComposite.SRC_OVER,
-								AlphaGridsValue[Row_i][Col_i]);
+								AlphaGridsValue[Row_i][Col_i]*0.8f+0.19f);
 						g_2d.setComposite(ac);
-						g_2d.setColor(new Color(Color.HSBtoRGB((1f-AlphaGridsValue[Row_i][Col_i])*0.67f, 1.0f, 1.0f)));
+						g_2d.setColor(HeatMapColorChooser(AlphaGridsValue[Row_i][Col_i]));
 						g_2d.fillRect((int) (Col_i * ScreenXstep),
 								(int) (Row_i * ScreenYstep), (int) ScreenXstep,
 								(int) ScreenYstep);
 					}
 				}
-
+				AlphaComposite ac = AlphaComposite.getInstance(
+						AlphaComposite.SRC_OVER, 1);
+				g_2d.setComposite(ac);
+				float Alpha_Float=0f;
+				g_2d.setFont(new Font("黑体", 0, 14));
+				for(int Alpha_i=0;Alpha_i<=100;Alpha_i++){
+					Alpha_Float=((float) Alpha_i)/100f;
+					g_2d.setColor(HeatMapColorChooser(Alpha_Float));
+					g_2d.fillRect(ScreenWidth-75, ScreenHeight-46-Alpha_i*2, 30, 2);
+					if(Alpha_i%25==0) g_2d.drawString(Alpha_i+"%", ScreenWidth-40, ScreenHeight-40-Alpha_i*2);
+				}
 			}
 			AlphaComposite ac = AlphaComposite.getInstance(
 					AlphaComposite.SRC_OVER, 1);
@@ -4772,6 +4818,9 @@ public class MapWizard extends JFrame implements ActionListener {
 
 	HtmlMapOutputPaneClass HtmlMapOutputPane;
 	JMenuItem HtmlMapOutputPaneItem;
+	
+	YangshanPortASCPaneClass YangshanPortASCPane;
+	JMenuItem YangshanPortASCPaneItem;
 
 	public JMenuItem PointDBDeviationItem;
 	public JMenuItem LineDBDeviationItem;
@@ -4788,7 +4837,8 @@ public class MapWizard extends JFrame implements ActionListener {
 	public static String Language = "None";
 	public static LanguageResources LanguageDic = new LanguageResources();
 
-	public static boolean ShowVisualFeature = true;
+	public static boolean ShowVisualFeature = false;
+	public static boolean ShowAlphaFeature = false;
 	// Screen End-----------------------------------------------------
 	// Preference Elements--------------------------------------------
 	FreeWizard.GlobalPreferenceWizard Preference;
@@ -4887,9 +4937,9 @@ public class MapWizard extends JFrame implements ActionListener {
 	JMenuItem ChangeMapBackground, setDefaultMapBackground,
 			ScreenLocationMicroDelta, ScreenLocationReset;
 	JMenuItem ClearPointDBItem, AllElementInvisible, AllPointInvisible,
-			AllLineInvisible, AllPolygonInvisible;
+			AllLineInvisible, AllPolygonInvisible, AllFontInvisible;
 	JMenuItem EngravePointShape, ClearLineDBItem, ClearPolygonDBItem,
-			VisualFeatureSwitchItem;
+			VisualFeatureSwitchItem,AlphaFeatureSwitchItem;
 	JMenuItem SplitJPGItem,OpenSecondaryScreenItem;
 
 	boolean IsEngravePointShape = false;
@@ -4897,6 +4947,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	boolean IsAllPointInvisible = false;
 	boolean IsAllLineInvisible = false;
 	boolean IsAllPolygonInvisible = false;
+	boolean IsAllFontInvisible = false;
 
 	void ForbidenOperationSwitch() {
 		this.Screen.setVisible(!this.Screen.isVisible());
@@ -5240,6 +5291,16 @@ public class MapWizard extends JFrame implements ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				IsAllPolygonInvisible=!IsAllPolygonInvisible;
+				Screen.repaint();
+			}
+		});
+		
+		AllFontInvisible=new JMenuItem(LanguageDic.GetWords("All Font Invisible"));
+		AllFontInvisible.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				IsAllFontInvisible=!IsAllFontInvisible;
 				Screen.repaint();
 			}
 		});
@@ -5658,6 +5719,16 @@ public class MapWizard extends JFrame implements ActionListener {
 			}
 		});
 		
+		AlphaFeatureSwitchItem=new JMenuItem(LanguageDic.GetWords("色彩Alpha值透射开关"));
+		AlphaFeatureSwitchItem.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				ShowAlphaFeature=!ShowAlphaFeature;
+				Handle.ScreenFlush();
+			}
+		});
+		
 		SplitJPGItem=new JMenuItem(LanguageDic.GetWords("DeepZoom高清分割"));
 		SplitJPGItem.addActionListener(new ActionListener(){
 			@Override
@@ -5684,6 +5755,18 @@ public class MapWizard extends JFrame implements ActionListener {
 					ex.printStackTrace();
 					return;
 				}
+			}
+		});
+		
+		YangshanPortASCPaneItem=new JMenuItem(LanguageDic.GetWords("YangshanPortASCPane"));
+		YangshanPortASCPaneItem.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				NowPanel=YangshanPortASCPane;
+				ClearStateAfterSwitchPane();
+				ToolCard.show(Tool,"YangshanPortASCPane");
+				YangshanPortASCPane.emerge();	
 			}
 		});
 //MenuAdd---------------------------------------------------------
@@ -5749,10 +5832,12 @@ public class MapWizard extends JFrame implements ActionListener {
 		SettingMenu.add(WizardForbidenOperationSwitch);
 		SettingMenu.add(AllElementInvisible);
 		SettingMenu.add(VisualFeatureSwitchItem);
+		SettingMenu.add(AlphaFeatureSwitchItem);
 		SettingMenu.add(VisualObjectMaxNumSetItem);
 		SettingMenu.add(AllPointInvisible);
 		SettingMenu.add(AllLineInvisible);
 		SettingMenu.add(AllPolygonInvisible);
+		SettingMenu.add(AllFontInvisible);
 		SettingMenu.add(EngravePointShape);
 		SettingMenu.add(AlignPointsTagItem);
 		SettingMenu.add(AlignLinesTagItem);
@@ -5767,7 +5852,7 @@ public class MapWizard extends JFrame implements ActionListener {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-String str;
+				String str;
 				
 				str=WizardForbidenOperationSwitch.getText();
 				if(Screen.isVisible()){
@@ -5793,6 +5878,15 @@ String str;
 				}else{
 					VisualFeatureSwitchItem.setText("[Original]"+(str.substring(str.indexOf(']')+1)));
 					VisualFeatureSwitchItem.setForeground(Color.red);
+				}
+				
+				str=AlphaFeatureSwitchItem.getText();
+				if(ShowAlphaFeature){
+					AlphaFeatureSwitchItem.setText("[Visual]"+(str.substring(str.indexOf(']')+1)));
+					AlphaFeatureSwitchItem.setForeground(new Color(112, 170, 57));
+				}else{
+					AlphaFeatureSwitchItem.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+					AlphaFeatureSwitchItem.setForeground(Color.red);
 				}
 				
 				str=VisualObjectMaxNumSetItem.getText();
@@ -5823,6 +5917,15 @@ String str;
 				}else{
 					AllPolygonInvisible.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
 					AllPolygonInvisible.setForeground(new Color(112, 170, 57));
+				}
+				
+				str=AllFontInvisible.getText();
+				if(IsAllFontInvisible){
+					AllFontInvisible.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+					AllFontInvisible.setForeground(Color.red);
+				}else{
+					AllFontInvisible.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
+					AllFontInvisible.setForeground(new Color(112, 170, 57));
 				}
 				
 				str=EngravePointShape.getText();
@@ -5891,6 +5994,7 @@ String str;
 		HelpMenu.add(AboutFrameItem);
 		//---------------------------------
 		ExtendedAbility.add(GISCompletionPaneItem);
+		ExtendedAbility.add(YangshanPortASCPaneItem);
 		ExtendedAbility.add(ShowAutoDrivePane);
 		ExtendedAbility.add(ShowTaxiSearchItem);
 		ExtendedAbility.add(RouteSearchItem);
@@ -5991,6 +6095,11 @@ String str;
 		HtmlMapOutputPane=new HtmlMapOutputPaneClass();
 		HtmlMapOutputPane.setHandle(Handle);
 		Tool.add("HtmlMapOutputPane",HtmlMapOutputPane);
+		
+		YangshanPortASCPane=new YangshanPortASCPaneClass();
+		YangshanPortASCPane.setHandle(Handle);
+		Tool.add("YangshanPortASCPane",YangshanPortASCPane);
+		
 	//final----------------------------
 		NowPanel=NULL;
 		ToolCard.show(Tool,"NULL");
@@ -6727,6 +6836,10 @@ String str;
 			this.second = second;
 		}
 
+		public String getTimeString(){
+			return hour+":"+minute+":"+second;
+		}
+		
 		public int getHour() {
 			return hour;
 		}
