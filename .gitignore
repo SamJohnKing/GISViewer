@@ -56,3 +56,6 @@
 /DB.config
 /MapTemp.html
 /bin/
+/.settings/
+/.classpath/
+/.project/
