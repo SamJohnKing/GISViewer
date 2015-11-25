@@ -1,8 +1,8 @@
 package MapKernel;
 
-public class main {
+public class GeoCityInfo_main {
 	public static void main(String args[]){
 		new MapWizard();
-		MapWizard.SingleItem.DefualtInitiateOpenItem();
+		OpenGLPackage.port.OpenGL_main(args);
 	}
 }

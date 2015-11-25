@@ -40,8 +40,9 @@ import com.sun.image.codec.jpeg.*;
 
 public class MapWizard extends JFrame implements ActionListener {
 	// Default Initiate Elements------------
-	public void DefualtInitiateOpenItem(){
-		DIR=new File("D:\\DefaultDataSource");
+	public void DefualtInitiateOpenItem(String DIRPath){
+		if(DIRPath.isEmpty()) DIR=new File("D:\\DefaultDataSource");
+		else DIR=new File(DIRPath);
 		if(!DIR.exists()) DIR.mkdirs();
 		ImageDir=new File(DIR,"Image");
 		if(!ImageDir.exists()) ImageDir.mkdirs();
@@ -49,14 +50,10 @@ public class MapWizard extends JFrame implements ActionListener {
 		LongitudeEnd=10000;
 		LatitudeStart=-10000;
 		LatitudeEnd=10000;
-		HighestRate=1000000;
+		HighestRate=100000000;
 		PolygonDatabaseFile=new File(DIR,"PolygonDatabase.csv");
 		LineDatabaseFile=new File(DIR,"LineDatabase.csv");
 		PointDatabaseFile=new File(DIR,"PointDatabase.csv");
-		Screen.ScreenLatitude=500;
-		Screen.LatitudeScale=1000;
-		Screen.ScreenLongitude=-500;
-		Screen.LongitudeScale=1000;
 	}
 	// The Elements:------------------------
 	public static MapWizard SingleItem=null;
@@ -2548,8 +2545,8 @@ public class MapWizard extends JFrame implements ActionListener {
 		double rate;
 		public boolean lock;
 		boolean ShowCenter = false;
-		public double ScreenLongitude, ScreenLatitude;
-		public double LongitudeScale, LatitudeScale;
+		public double  ScreenLongitude=-500, ScreenLatitude=500;
+		public double LongitudeScale=1000, LatitudeScale=1000;
 		public int ScreenWidth, ScreenHeight;
 		boolean IsShowDirection = false;
 		boolean ShowLargeRegion = false;
@@ -3794,6 +3791,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 									if (ShowVisualFeature) {
 										g_2d.setColor(color_Polygon);
+										if(!IsAllPolygonColorInvisible)
 										if(PolygonDatabase.PolygonHint[i].indexOf("[PolygonVisible:]")!=-1)
 											g_2d.fillPolygon(ColorPolygon);
 										g_2d.setColor(color_default);
@@ -4879,9 +4877,13 @@ public class MapWizard extends JFrame implements ActionListener {
 							.parseInt(pair[1]);
 				else if (pair[0].equals("Language"))
 					Language = pair[1];
+				else if (pair[0].equals("DefaultDataSource")){
+					DefualtInitiateOpenItem(pair[1]);
+				}
 			}
 			Configfin.close();
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			JOptionPane.showMessageDialog(null,
 					"Please Check the setting in DB.config");
 			System.exit(0);
@@ -4937,7 +4939,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	JMenuItem ChangeMapBackground, setDefaultMapBackground,
 			ScreenLocationMicroDelta, ScreenLocationReset;
 	JMenuItem ClearPointDBItem, AllElementInvisible, AllPointInvisible,
-			AllLineInvisible, AllPolygonInvisible, AllFontInvisible;
+			AllLineInvisible, AllPolygonInvisible, AllFontInvisible, AllPolygonColorInvisible;
 	JMenuItem EngravePointShape, ClearLineDBItem, ClearPolygonDBItem,
 			VisualFeatureSwitchItem,AlphaFeatureSwitchItem;
 	JMenuItem SplitJPGItem,OpenSecondaryScreenItem;
@@ -4948,6 +4950,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	boolean IsAllLineInvisible = false;
 	boolean IsAllPolygonInvisible = false;
 	boolean IsAllFontInvisible = false;
+	boolean IsAllPolygonColorInvisible = false;
 
 	void ForbidenOperationSwitch() {
 		this.Screen.setVisible(!this.Screen.isVisible());
@@ -5301,6 +5304,16 @@ public class MapWizard extends JFrame implements ActionListener {
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
 				IsAllFontInvisible=!IsAllFontInvisible;
+				Screen.repaint();
+			}
+		});
+		
+		AllPolygonColorInvisible=new JMenuItem(LanguageDic.GetWords("All Polygon Color Invisible"));
+		AllPolygonColorInvisible.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				IsAllPolygonColorInvisible=!IsAllPolygonColorInvisible;
 				Screen.repaint();
 			}
 		});
@@ -5838,6 +5851,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		SettingMenu.add(AllLineInvisible);
 		SettingMenu.add(AllPolygonInvisible);
 		SettingMenu.add(AllFontInvisible);
+		SettingMenu.add(AllPolygonColorInvisible);
 		SettingMenu.add(EngravePointShape);
 		SettingMenu.add(AlignPointsTagItem);
 		SettingMenu.add(AlignLinesTagItem);
@@ -5926,6 +5940,15 @@ public class MapWizard extends JFrame implements ActionListener {
 				}else{
 					AllFontInvisible.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
 					AllFontInvisible.setForeground(new Color(112, 170, 57));
+				}
+				
+				str=AllPolygonColorInvisible.getText();
+				if(IsAllPolygonColorInvisible){
+					AllPolygonColorInvisible.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+					AllPolygonColorInvisible.setForeground(Color.red);
+				}else{
+					AllPolygonColorInvisible.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
+					AllPolygonColorInvisible.setForeground(new Color(112, 170, 57));
 				}
 				
 				str=EngravePointShape.getText();
@@ -7265,7 +7288,6 @@ public class MapWizard extends JFrame implements ActionListener {
 						count++;
 					}
 				}
-				HighestRate = (int) 1e9;
 				// Resize();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -7327,7 +7349,6 @@ public class MapWizard extends JFrame implements ActionListener {
 						PointDatabase.add(x, y, "[Info:ManualAdd][Title:]");
 					}
 				}
-				HighestRate = 10000;
 				// DIR=FileDialog.getCurrentDirectory();
 				// Resize();
 				if(BIN!=null) BIN.close();
@@ -7381,7 +7402,6 @@ public class MapWizard extends JFrame implements ActionListener {
 						PointDatabase.add(x, y, "[Info:ManualAdd][Title:]");
 					}
 				}
-				HighestRate = 10000;
 				// DIR=FileDialog.getCurrentDirectory();
 				// Resize();
 
@@ -7492,7 +7512,6 @@ public class MapWizard extends JFrame implements ActionListener {
 						count++;
 					}
 				}
-				HighestRate = (int) 1e9;
 				// Resize();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -7564,7 +7583,6 @@ public class MapWizard extends JFrame implements ActionListener {
 					}
 					LineDatabase.add(xx, yy, count, "[Info:ManualAdd][Title:]");
 				}
-				HighestRate = (int) 1e9;
 				// DIR=FileDialog.getCurrentDirectory();
 				// Resize();
 				if(BIN!=null) BIN.close();
@@ -7629,7 +7647,6 @@ public class MapWizard extends JFrame implements ActionListener {
 					}
 					LineDatabase.add(xx, yy, count, "[Info:ManualAdd][Title:]");
 				}
-				HighestRate = (int) 1e9;
 				// DIR=FileDialog.getCurrentDirectory();
 				// Resize();
 			} catch (Exception e) {
@@ -7653,7 +7670,6 @@ public class MapWizard extends JFrame implements ActionListener {
 				PolygonDatabase.DatabaseInit();
 				PolygonDatabaseFile = FileDialog.getSelectedFile();
 				PolygonDatabase.DatabaseFileInput(PolygonDatabaseFile);
-				HighestRate = 10000;
 				// DIR=FileDialog.getCurrentDirectory();
 				// Resize();
 				Screen.repaint();
@@ -7700,7 +7716,6 @@ public class MapWizard extends JFrame implements ActionListener {
 			int state = FileDialog.showOpenDialog(null);
 			if (state == JFileChooser.APPROVE_OPTION) {
 				PolygonDatabase.DatabaseFileInput(FileDialog.getSelectedFile());
-				HighestRate = 10000;
 				// DIR=FileDialog.getCurrentDirectory();
 				// Resize();
 				Screen.repaint();
