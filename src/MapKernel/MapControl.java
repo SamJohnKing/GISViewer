@@ -42,6 +42,7 @@ public interface MapControl {
 	abstract public void setKernel(MapWizard obj);
 	abstract public MapWizard getKernel();
 	abstract public int getSecond();
+	abstract public long getMilliSecond();
 	abstract public double getLongitudeStart();
 	abstract public double getLongitudeEnd();
 	abstract public double getLatitudeStart();

@@ -34,7 +34,7 @@ public class AutoCrossLinkPaneClass extends MapKernel.ToolPanel implements Exten
 	}
 	public void paintComponent(Graphics g){
 		Toolkit kit=getToolkit();
-		Image img=kit.getImage("BackGround34.jpg");
+		Image img=kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround34.jpg"));
 		g.drawImage(img,0,0,280,680,this);
 	}
 	@Override

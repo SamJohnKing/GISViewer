@@ -36,25 +36,81 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 	public JTextField ArrowLineScript=new JTextField(10);
 	public JTextField TitleScript=new JTextField(10);
 	public JTextField InfoScript=new JTextField(10);
+	public JLabel PointRGB_Script_Label=new JLabel("Script[PointRGB:0x?]");
+	public JLabel LineRGB_Script_Label=new JLabel("Script[LineRGB:0x?]");
+	public JLabel PolygonRGB_Script_Label=new JLabel("Script[PolygonRGB:0x?]");
 	
 	public class FacePic extends JPanel implements ActionListener,MouseListener,MouseMotionListener,ItemListener{
-	
 	public void GenerateStyle(){
 		CommonString.setText("");
 		bulletin.setText("");
 		String buf="";
 		if(PointRGBScript.getText()!=null)
-			if(!(PointRGBScript.getText().isEmpty())) buf+="[PointRGB:0x"+PointRGBScript.getText()+"]";
+			if(!(PointRGBScript.getText().isEmpty())){
+				buf+="[PointRGB:0x"+PointRGBScript.getText()+"]";
+				try{
+					PointRGB_Script_Label.setForeground(new Color(Integer.parseInt(PointRGBScript.getText(), 16)));
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, "Point_RGB_Err");
+				}
+			}
 		if(LineRGBScript.getText()!=null)
-			if(!(LineRGBScript.getText().isEmpty())) buf+="[LineRGB:0x"+LineRGBScript.getText()+"]";
+			if(!(LineRGBScript.getText().isEmpty())){
+				buf+="[LineRGB:0x"+LineRGBScript.getText()+"]";
+				try{
+					LineRGB_Script_Label.setForeground(new Color(Integer.parseInt(LineRGBScript.getText(), 16)));
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, "Line_RGB_Err");
+				}
+			}
 		if(PolygonRGBScript.getText()!=null)
-			if(!(PolygonRGBScript.getText().isEmpty())) buf+="[PolygonRGB:0x"+PolygonRGBScript.getText()+"]";
+			if(!(PolygonRGBScript.getText().isEmpty())){
+				buf+="[PolygonRGB:0x"+PolygonRGBScript.getText()+"]";
+				try{
+					PolygonRGB_Script_Label.setForeground(new Color(Integer.parseInt(PolygonRGBScript.getText(), 16)));
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, "Polygon_RGB_Err");
+				}
+			}
 		if(PointAlphaScript.getText()!=null)
-			if(!(PointAlphaScript.getText().isEmpty())) buf+="[PointAlpha:"+PointAlphaScript.getText()+"]";
+			if(!(PointAlphaScript.getText().isEmpty())){
+				buf+="[PointAlpha:"+PointAlphaScript.getText()+"]";
+				try{
+					Color Origin=PointRGB_Script_Label.getForeground();
+					if(!MapKernel.MapWizard.SingleItem.ShowAlphaFeature)
+						PointRGB_Script_Label.setForeground(new Color(Origin.getRed(),Origin.getGreen(),Origin.getBlue()));
+					else
+					PointRGB_Script_Label.setForeground(new Color(Origin.getRed(),Origin.getGreen(),Origin.getBlue(),(int)(255*Float.parseFloat(PointAlphaScript.getText()))));
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, "Poing_Alpha_Err");
+				}
+			}
 		if(LineAlphaScript.getText()!=null)
-			if(!(LineAlphaScript.getText().isEmpty())) buf+="[LineAlpha:"+LineAlphaScript.getText()+"]";
+			if(!(LineAlphaScript.getText().isEmpty())){
+				buf+="[LineAlpha:"+LineAlphaScript.getText()+"]";
+				try{
+					Color Origin=LineRGB_Script_Label.getForeground();
+					if(!MapKernel.MapWizard.SingleItem.ShowAlphaFeature)
+						LineRGB_Script_Label.setForeground(new Color(Origin.getRed(),Origin.getGreen(),Origin.getBlue()));
+					else
+					LineRGB_Script_Label.setForeground(new Color(Origin.getRed(),Origin.getGreen(),Origin.getBlue(),(int)(255*Float.parseFloat(LineAlphaScript.getText()))));
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, "Line_Alpha_Err");
+				}
+			}
 		if(PolygonAlphaScript.getText()!=null)
-			if(!(PolygonAlphaScript.getText().isEmpty())) buf+="[PolygonAlpha:"+PolygonAlphaScript.getText()+"]";
+			if(!(PolygonAlphaScript.getText().isEmpty())){
+				buf+="[PolygonAlpha:"+PolygonAlphaScript.getText()+"]";
+				try{
+					Color Origin=PolygonRGB_Script_Label.getForeground();
+					if(!MapKernel.MapWizard.SingleItem.ShowAlphaFeature)
+						PolygonRGB_Script_Label.setForeground(new Color(Origin.getRed(),Origin.getGreen(),Origin.getBlue()));
+					else
+					PolygonRGB_Script_Label.setForeground(new Color(Origin.getRed(),Origin.getGreen(),Origin.getBlue(),(int)(255*Float.parseFloat(PolygonAlphaScript.getText()))));
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, "Polygon_Alpha_Err");
+				}
+			}
 		if(WordVisibleScript.getText()!=null)
 			if(!(WordVisibleScript.getText().isEmpty())) buf+="[WordVisible:]";
 		if(PointVisibleScript.getText()!=null)
@@ -150,21 +206,21 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 		add(ExtendedUltility);
 		ExtendedUltility.setOpaque(false);
 		ExtendedUltility.setLayout(GridPattern);
-		ExtendedUltility.add(new JLabel("Script[PointRGB:0x?]"));
+		ExtendedUltility.add(PointRGB_Script_Label);
 		ExtendedUltility.add(PointRGBScript);
 		PointRGBScript.addActionListener(this);
 		ExtendedUltility.add(new JLabel("Script[PointAlpha:?0.5]"));
 		ExtendedUltility.add(PointAlphaScript);
 		PointAlphaScript.addActionListener(this);
 		
-		ExtendedUltility.add(new JLabel("Script[LineRGB:0x?]"));
+		ExtendedUltility.add(LineRGB_Script_Label);
 		ExtendedUltility.add(LineRGBScript);
 		LineRGBScript.addActionListener(this);
 		ExtendedUltility.add(new JLabel("Script[LineAlpha:?0.5]"));
 		ExtendedUltility.add(LineAlphaScript);
 		LineAlphaScript.addActionListener(this);
 		
-		ExtendedUltility.add(new JLabel("Script[PolygonRGB:0x?]"));
+		ExtendedUltility.add(PolygonRGB_Script_Label);
 		ExtendedUltility.add(PolygonRGBScript);
 		PolygonRGBScript.addActionListener(this);
 		ExtendedUltility.add(new JLabel("Script[PolygonAlpha:?0.5]"));
@@ -367,7 +423,7 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 	}
 	public void paintComponent(Graphics g){
 		Toolkit kit=getToolkit();
-		Image img=kit.getImage("Gear.jpg");
+		Image img=kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("Gear.jpg"));
 		g.drawImage(img,0,0,this.getWidth(),this.getHeight(),this);
 	}
 	public void actionPerformed(ActionEvent e){

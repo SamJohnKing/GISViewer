@@ -41,7 +41,7 @@ public class PointAddPaneClass extends ToolPanel implements ExtendedToolPaneInte
 	}
 	public void paintComponent(Graphics g){
 		Toolkit kit=getToolkit();
-		Image img=kit.getImage("BackGround18.jpg");
+		Image img=kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround18.jpg"));
 		g.drawImage(img,0,0,280,680,this);
 	}
 	public void setLongitudeLatitude(double x,double y){

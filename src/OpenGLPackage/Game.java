@@ -35,6 +35,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.GL11;
 
 /**
  * A bare-bones implementation of a LWJGL application.
@@ -90,9 +91,10 @@ public abstract class Game {
 		lastFPS = getTime();
 		
 		// While we're still running and the user hasn't closed the window... 
-		while (running && !Display.isCloseRequested()) {
+		while (running /*&& !Display.isCloseRequested()*/) {
+
 			delta = tick();
-			
+
 			// If the game was resized, we need to update our projection
 			if (Display.wasResized())
 				resize();
@@ -143,8 +145,8 @@ public abstract class Game {
 			// Flip the buffers and sync to 60 FPS
 			Display.update();
 			Display.sync(60);
+
 		}
-		
 		// Dispose any resources and destroy our window
 		dispose();
 		Display.destroy();

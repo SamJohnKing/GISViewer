@@ -206,6 +206,7 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 		}
 	}
 	public void MoveEntireData(double longitude_delta,double latitude_delta){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		for(int i=0;i<PolygonNum;i++){
 			int ptr=PolygonHead[i];
 			while(ptr!=-1){
@@ -214,6 +215,7 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 				ptr=AllPointNext[ptr];
 			}
 		}
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public int PointAllocate(){
 		PointUse++;
@@ -244,6 +246,7 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 	}
 	public void add(double[] PointX,double[] PointY,int PointCount,String Hint){
 		if(PointCount==0) return;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		PolygonHead[PolygonNum]=-1;
 		PolygonTail[PolygonNum]=-1;
 		for(int i=0;i<PointCount;i++){
@@ -255,12 +258,14 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 		dx[PolygonNum]=0;
 		dy[PolygonNum]=0;
 		PolygonNum++;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void GenerateConvexHull(double[] PointX,double[] PointY,int PointCount,String Hint){
 		int n=ConvexHullGenerator.Process(PointX,PointY,PointCount);
 		add(PointX,PointY,n,Hint);
 	}
 	public void Clear(int index){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		PolygonHead[index]=-1;
 		PolygonTail[index]=-1;
 		PolygonHint[index]=null;
@@ -268,10 +273,12 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 		isVertical[index]=false;
 		dx[index]=0;
 		dy[index]=0;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void DatabaseDelete(int k){
 		if(k>=PolygonNum) return;
 		if(k<0) return;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		int temp=PolygonHead[k];
 		PolygonHead[k]=-1;
 		int tmp;
@@ -290,10 +297,12 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 			dy[i-1]=dy[i];
 		}
 		PolygonNum--;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void DatabaseRemove(int k){
 		if(k>=PolygonNum) return;
 		if(k<0) return;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		int temp=PolygonHead[k];
 		int tmp;
 		while(temp!=-1){
@@ -303,8 +312,10 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 		}
 		PolygonVisible[k]=-1;
 		PolygonHead[k]=-1;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void DatabaseResize(){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		int count=0;
 		for(int i=0;i<PolygonNum;i++){
 			if(PolygonVisible[i]<0) continue;
@@ -327,6 +338,7 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 			dy[i]=0;
 		}
 		PolygonNum=count;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public static int PolygonMaxNum=100000;
 	public static int PointMaxNum=10000000;
@@ -356,8 +368,10 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 		System.gc();
 	}
 	public void update(int index,int visible,String Hint){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		PolygonVisible[index]=visible;
 		PolygonHint[index]=Hint;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void update(String index,String visible,String Hint){
 		update(Integer.parseInt(index),Integer.parseInt(visible),Hint);

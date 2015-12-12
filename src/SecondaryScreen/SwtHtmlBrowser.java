@@ -425,7 +425,7 @@ public class SwtHtmlBrowser implements Runnable{
 	        shell.setSize(browser.getSize().x+310,browser.getSize().y+40);
 	        new CallJava(browser,"CallJava");
 	        //----------------------------------------------------------------
-	        java.io.File HTML_fin=new java.io.File("./OpenStreetMap_Sample.html");
+	        java.io.File HTML_fin=new java.io.File(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("OpenStreetMap_Sample.html"));
 	        browser.setUrl(HTML_fin.getAbsolutePath());
 	        shell.open();
 	        JScode.setText("ResizeMap("+MapWidth+","+MapHeight+");");

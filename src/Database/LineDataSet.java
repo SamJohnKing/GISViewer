@@ -201,6 +201,7 @@ public class LineDataSet implements LineDatabaseInterface{
 		}
 	}
 	public void MoveEntireData(double longitude_delta,double latitude_delta){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		for(int i=0;i<LineNum;i++){
 			int ptr=LineHead[i];
 			while(ptr!=-1){
@@ -209,6 +210,7 @@ public class LineDataSet implements LineDatabaseInterface{
 				ptr=AllPointNext[ptr];
 			}
 		}
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public int PointAllocate(){
 		PointUse++;
@@ -222,6 +224,7 @@ public class LineDataSet implements LineDatabaseInterface{
 		FreeHead=k;
 	}
 	public void Clear(int index){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		LineHead[index]=-1;
 		LineTail[index]=-1;
 		LineHint[index]=null;
@@ -229,6 +232,7 @@ public class LineDataSet implements LineDatabaseInterface{
 		isVertical[index]=false;
 		dx[index]=0;
 		dy[index]=0;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void append(int k,double x,double y){
 		if(LineHead[k]==-1){
@@ -248,6 +252,7 @@ public class LineDataSet implements LineDatabaseInterface{
 	}
 	public void add(double[] PointX,double[] PointY,int PointCount,String Hint){
 		if(PointCount==0) return;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		LineHead[LineNum]=-1;
 		LineTail[LineNum]=-1;
 		for(int i=0;i<PointCount;i++){
@@ -259,6 +264,7 @@ public class LineDataSet implements LineDatabaseInterface{
 		dx[LineNum]=0;
 		dy[LineNum]=0;
 		LineNum++;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void add(java.util.ArrayList arr,String Hint){
 		if(arr.size()==0) return;
@@ -310,6 +316,7 @@ public class LineDataSet implements LineDatabaseInterface{
 	public void DatabaseDelete(int k){
 		if(k>=LineNum) return;
 		if(k<0) return;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		int temp=LineHead[k];
 		LineHead[k]=-1;
 		int tmp;
@@ -328,10 +335,12 @@ public class LineDataSet implements LineDatabaseInterface{
 			dy[i-1]=dy[i];
 		}
 		LineNum--;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void DatabaseRemove(int k){
 		if(k>=LineNum) return;
 		if(k<0) return;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		int temp=LineHead[k];
 		int tmp;
 		while(temp!=-1){
@@ -341,8 +350,10 @@ public class LineDataSet implements LineDatabaseInterface{
 		}
 		LineVisible[k]=-1;
 		LineHead[k]=-1;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void DatabaseResize(){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		int count=0;
 		for(int i=0;i<LineNum;i++){
 			if(LineVisible[i]<0) continue;
@@ -365,6 +376,7 @@ public class LineDataSet implements LineDatabaseInterface{
 			dy[i]=0;
 		}
 		LineNum=count;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public static int LineMaxNum=20000000;
 	public static int PointMaxNum=50000000;
@@ -394,8 +406,10 @@ public class LineDataSet implements LineDatabaseInterface{
 		System.gc();
 	}
 	public void update(int index,int visible,String Hint){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		LineVisible[index]=visible;
 		LineHint[index]=Hint;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void update(String index,String visible,String Hint){
 		update(Integer.parseInt(index),Integer.parseInt(visible),Hint);

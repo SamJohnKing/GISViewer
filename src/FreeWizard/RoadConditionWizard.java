@@ -172,7 +172,7 @@ public class RoadConditionWizard extends JFrame implements FreeWizardInterface{
 		}
 		public void paintComponent(Graphics g){
 			Toolkit kit=getToolkit();
-			Image img=kit.getImage("BackGround17.jpg");
+			Image img=kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround17.jpg"));
 			g.drawImage(img,0,0,600,435,this);
 		}
 		public void actionPerformed(ActionEvent e){

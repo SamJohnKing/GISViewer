@@ -37,7 +37,7 @@ public  class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPan
 	}
 	public void paintComponent(Graphics g){
 		Toolkit kit=getToolkit();
-		Image img=kit.getImage("BackGround21.jpg");
+		Image img=kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround21.jpg"));
 		g.drawImage(img,0,0,280,680,this);
 	}
 	public void setLongitudeLatitude(double x,double y){}

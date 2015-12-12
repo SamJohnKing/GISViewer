@@ -36,7 +36,7 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 	}
 	public void paintComponent(Graphics g){
 		Toolkit kit=getToolkit();
-		Image img=kit.getImage("BackGround21.jpg");
+		Image img=kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround21.jpg"));
 		g.drawImage(img,0,0,280,680,this);
 	}
 	public void setLongitudeLatitude(double x,double y){}
@@ -178,7 +178,7 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 		Grid[row][col]++;
 	}
 	String GenerateHTML(String FileName){
-		File OutFile=new File(FileName);
+		File OutFile=new File(MapKernel.GeoCityInfo_main.Append_Folder_Prefix(FileName));
 		try{
 			BufferedReader in=new BufferedReader(new InputStreamReader(new FileInputStream(OpenSourceFilePath.getText()),"UTF-8"));
 			BufferedWriter out=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(OutFile,false),"UTF-8"));

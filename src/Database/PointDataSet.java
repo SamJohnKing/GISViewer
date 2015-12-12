@@ -137,10 +137,12 @@ public class PointDataSet implements PointDatabaseInterface{
 		}
 	}
 	public void MoveEntireData(double longitude_delta,double latitude_delta){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		for(int i=0;i<PointNum;i++){
 			AllPointX[i]+=longitude_delta;
 			AllPointY[i]+=latitude_delta;
 		}
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void add(java.util.ArrayList arr,String Hint){
 		Object p=arr.get(arr.size()-1);
@@ -154,22 +156,27 @@ public class PointDataSet implements PointDatabaseInterface{
 		add(p.x,p.y,Hint);
 	}
 	public void add(double PointX,double PointY,String Hint){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		AllPointX[PointNum]=PointX;
 		AllPointY[PointNum]=PointY;
 		PointHint[PointNum]=Hint;
 		PointVisible[PointNum]=7;
 		PointNum++;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void add(double PointX,double PointY,int Attribute,String Hint){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		AllPointX[PointNum]=PointX;
 		AllPointY[PointNum]=PointY;
 		PointHint[PointNum]=Hint;
 		PointVisible[PointNum]=Attribute;
 		PointNum++;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void DatabaseDelete(int k){
 		if(k>=PointNum) return;
 		if(k<0) return;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		for(int i=k+1;i<PointNum;i++){
 			AllPointX[i-1]=AllPointX[i];
 			AllPointY[i-1]=AllPointY[i];
@@ -177,11 +184,15 @@ public class PointDataSet implements PointDatabaseInterface{
 			PointVisible[i-1]=PointVisible[i];
 		}
 		PointNum--;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void DatabaseRemove(int k){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		PointVisible[k]=-1;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void DatabaseResize(){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		int count=0;
 		for(int i=0;i<PointNum;i++){
 			if(PointVisible[i]<0) continue;
@@ -196,6 +207,7 @@ public class PointDataSet implements PointDatabaseInterface{
 			PointVisible[i]=0;
 		}
 		PointNum=count;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public static int PointMaxNum=10000000;
 	public void DatabaseInit(){
@@ -210,12 +222,16 @@ public class PointDataSet implements PointDatabaseInterface{
 		System.gc();
 	}
 	public void Clear(int index){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		PointHint[index]=null;
 		PointVisible[index]=0;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void update(int index,int visible,String Hint){
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		PointVisible[index]=visible;
 		PointHint[index]=Hint;
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void update(String index,String visible,String Hint){
 		update(Integer.parseInt(index),Integer.parseInt(visible),Hint);

@@ -247,7 +247,7 @@ public class LinePreferenceWizard extends JFrame implements FreeWizardInterface{
 	}
 	public void paintComponent(Graphics g){
 		Toolkit kit=getToolkit();
-		Image img=kit.getImage("Gear.jpg");
+		Image img=kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("Gear.jpg"));
 		g.drawImage(img,0,0,520,330,this);
 	}
 	public void actionPerformed(ActionEvent e){

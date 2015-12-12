@@ -97,7 +97,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	About AboutFrame;
 	double SelectedX1, SelectEdX2, SelectedY1, SelectedY2;
 	public ToolPanel NowPanel;
-	Timer myTimer = new Timer(1000, this);
+	Timer myTimer = new Timer(50, this);
 	public ClockWizardClass ClockWizard;
 	public MapHandle Handle;
 
@@ -175,7 +175,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 			public void paintComponent(Graphics g) {
 				Toolkit kit = getToolkit();
-				Image img = kit.getImage("Metal.jpg");
+				Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("Metal.jpg"));
 				g.drawImage(img, 0, 0, XWidth, YHeight, this);
 			}
 
@@ -308,7 +308,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 			public void paint(Graphics g) {
 				Toolkit kit = getToolkit();
-				Image img = kit.getImage("DefaultPhoto.jpg");
+				Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("DefaultPhoto.jpg"));
 
 				if (ImageDir != null) {
 					File f = new File(ImageDir, PhotoName);
@@ -364,7 +364,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 			public void paintComponent(Graphics g) {
 				Toolkit kit = getToolkit();
-				Image img = kit.getImage("BackGround16.jpg");
+				Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround16.jpg"));
 				g.drawImage(img, 0, 0, 315, 525, this);
 			}
 
@@ -591,7 +591,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 			public void paintComponent(Graphics g) {
 				Toolkit kit = getToolkit();
-				Image img = kit.getImage("BackGround15.jpg");
+				Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround15.jpg"));
 				g.drawImage(img, 0, 0, 600, 435, this);
 			}
 
@@ -943,7 +943,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 			public void paintComponent(Graphics g) {
 				Toolkit kit = getToolkit();
-				Image img = kit.getImage("tower.jpg");
+				Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("tower.jpg"));
 				g.drawImage(img, 0, 0, 560, 400, this);
 			}
 		}
@@ -968,7 +968,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 			public void paintComponent(Graphics g) {
 				Toolkit kit = getToolkit();
-				Image img = kit.getImage("About.jpg");
+				Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("About.jpg"));
 				g.drawImage(img, 0, 0, this);
 				// Image fdu=kit.getImage("Fudan.jpg");
 				// g.drawImage(fdu,395,250,90,90,this);
@@ -1020,7 +1020,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 		public void paintComponent(Graphics g) {
 			Toolkit kit = getToolkit();
-			Image img = kit.getImage("BackGround1.jpg");
+			Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround1.jpg"));
 			g.drawImage(img, 0, 0, 280, 680, this);
 		}
 
@@ -1058,7 +1058,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 		public void paintComponent(Graphics g) {
 			Toolkit kit = getToolkit();
-			Image img = kit.getImage("BackGround2.jpg");
+			Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround2.jpg"));
 			g.drawImage(img, 0, 0, 280, 680, this);
 		}
 
@@ -1293,7 +1293,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 			public void paint(Graphics g) {
 				Toolkit kit = getToolkit();
-				Image img = kit.getImage("DefaultPhoto.jpg");
+				Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("DefaultPhoto.jpg"));
 				if ((ImageDir != null) && (PhotoName != null)) {
 					System.out.println(ImageDir.toString() + "/" + PhotoName);
 					File f = new File(ImageDir, PhotoName);
@@ -1316,7 +1316,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 		public void paintComponent(Graphics g) {
 			Toolkit kit = getToolkit();
-			Image img = kit.getImage("BackGround5.jpg");
+			Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround5.jpg"));
 			g.drawImage(img, 0, 0, 280, 680, this);
 		}
 
@@ -1456,7 +1456,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		// 负责实现出租车查询工具栏的有关功能，为用户追踪多辆出租车
 		public void paintComponent(Graphics g) {
 			Toolkit kit = getToolkit();
-			Image img = kit.getImage("sky.jpg");
+			Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("sky.jpg"));
 			g.drawImage(img, 0, 0, 280, 680, this);
 		}
 
@@ -1767,7 +1767,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 		public void paintComponent(Graphics g) {
 			Toolkit kit = getToolkit();
-			Image img = kit.getImage("BackGround8.jpg");
+			Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround8.jpg"));
 			g.drawImage(img, 0, 0, 280, 680, this);
 		}
 
@@ -2024,7 +2024,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 		public void paintComponent(Graphics g) {
 			Toolkit kit = getToolkit();
-			Image img = kit.getImage("BackGround10.jpg");
+			Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround10.jpg"));
 			g.drawImage(img, 0, 0, 280, 680, this);
 		}
 
@@ -2381,7 +2381,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 		public void paintComponent(Graphics g) {
 			Toolkit kit = getToolkit();
-			Image img = kit.getImage("BackGround3.jpg");
+			Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround3.jpg"));
 			g.drawImage(img, 0, 0, 280, 680, this);
 		}
 
@@ -2535,8 +2535,31 @@ public class MapWizard extends JFrame implements ActionListener {
 			}
 		}
 	}
-
-	// --------------------------------------
+	//---------------------------------------
+	//DB_Lock---------------------------------
+	int DB_Reader_Number=0;
+	boolean DB_Writing=false;
+	public synchronized boolean Set_DB_Read_Write_Lock(boolean Writing,boolean ToLock){
+		if(ToLock){
+			if(DB_Writing) return false;
+			if(Writing){
+				if(DB_Reader_Number>0) return false;
+				DB_Writing=true;
+				return true;
+			}else{
+				DB_Reader_Number++;
+				return true;
+			}
+		}else{
+			if(Writing){
+				DB_Writing=false;
+			}else{
+				DB_Reader_Number--;
+			}
+			return true;
+		}
+	}
+	//---------------------------------------
 	public class ScreenCanvas extends Canvas implements MouseListener,
 			MouseWheelListener, MouseMotionListener {
 		// 将卫星图和种种地图元素显示在屏幕上，并且解读和处理用户的鼠标操作
@@ -2629,9 +2652,11 @@ public class MapWizard extends JFrame implements ActionListener {
 
 		// Extended Component
 		// Definition--------------------------------------------------
-		boolean IsTextArea1Visible = false, IsTextArea2Visible = false;
-		String TextArea1Content = null, TextArea2Content = null;
-		boolean IsTextArea1BackGround = false, IsTextArea2BackGround = false;
+		public boolean IsTextArea1Visible = false, IsTextArea2Visible = false;
+		public String TextArea1Content = null;
+		public String TextArea2Content = null;
+		public boolean IsTextArea1BackGround = false;
+		boolean IsTextArea2BackGround = false;
 
 		boolean IsExtendedPointVisible = false;
 		double[] ExtendedPointX = new double[10000];
@@ -3036,7 +3061,7 @@ public class MapWizard extends JFrame implements ActionListener {
 							BasicStroke.JOIN_MITER, 10.0f,
 							new float[] { 5, 5 }, 0);
 				else
-					return new BasicStroke(1, BasicStroke.CAP_ROUND,
+					return new BasicStroke(width, BasicStroke.CAP_ROUND,
 							BasicStroke.JOIN_ROUND);
 			} catch (Exception ex) {
 				System.err.println("GetVisualLineStroke_Err");
@@ -3359,7 +3384,6 @@ public class MapWizard extends JFrame implements ActionListener {
 					BasicStroke.JOIN_ROUND);
 			g_2d.setStroke(bs);
 			if ((IsExtendedPointVisible) && (ExtendedPointCount > 0)) {
-
 				g_2d.setFont(new Font("黑体", 0, (int) (90 * tempsize)));
 				for (int i = 0; i < ExtendedPointCount; i++) {
 					int xx = (int) ((ExtendedPointX[i] - ScreenLongitude)
@@ -3445,11 +3469,16 @@ public class MapWizard extends JFrame implements ActionListener {
 			// Draw for Extended Database--------------------------
 			SetAREA(ScreenLongitude, ScreenLongitude + LongitudeScale,
 					ScreenLatitude - LatitudeScale, ScreenLatitude);
-			boolean ScriptLineVisible=false;
-			boolean ScriptPointVisible=false;
-			boolean ScriptFontVisible=false;
-			boolean ScriptPolygonVisible=false;
-			
+			//----------------------------------------------------------------------
+			//DBLock---------------------------------------------
+			while(!Set_DB_Read_Write_Lock(false,true)){
+				try{
+					Thread.sleep(10);
+				}catch(Exception ex){
+					ex.printStackTrace();
+				}
+			}
+			//-----------------------------------------------------------------------
 			if (!IsAllLineInvisible)
 				if (LineDatabaseFile != null) {
 					int binary, choose, now, p1, p2;
@@ -3574,8 +3603,9 @@ public class MapWizard extends JFrame implements ActionListener {
 										g_2d.setColor(GetVisualColor(
 												LineDatabase.LineHint[i],
 												"Point"));
+										PointSize = GetVisualPointSize(LineDatabase.LineHint[i]);
 									}
-
+										
 									now = LineDatabase.LineHead[i];
 									while (now != -1) {
 										if (!CheckInAREA(
@@ -3591,10 +3621,6 @@ public class MapWizard extends JFrame implements ActionListener {
 										xx += ScreenDeltaX;
 										yy += ScreenDeltaY;
 										if (CheckInScreen(xx, yy, ScreenWidth, ScreenHeight)) {
-											if (ShowVisualFeature)
-												PointSize = GetVisualPointSize(LineDatabase.LineHint[i]);
-											else
-												PointSize = 6;
 											g_2d.fillOval(xx - PointSize / 2,
 													yy - PointSize / 2,
 													PointSize, PointSize);
@@ -3604,7 +3630,7 @@ public class MapWizard extends JFrame implements ActionListener {
 									}
 
 								}
-								if(!IsAllLineInvisible)
+								if(!IsAllFontInvisible)
 								if (
 										((!ShowVisualFeature)&&((binary & Ox("10")) != 0))
 										||
@@ -4163,6 +4189,13 @@ public class MapWizard extends JFrame implements ActionListener {
 				g_2d.setColor(Color.green);
 			}
 			// ----------------------------------------------------
+			while(!Set_DB_Read_Write_Lock(false, false)){
+				try{
+					Thread.sleep(10);
+				}catch(Exception ex){
+					ex.printStackTrace();
+				}
+			};
 		}
 		public void paint(Graphics g) {
 			if (DIR == null) {// 没打开文件，不显示
@@ -4731,7 +4764,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	public FreeWizard.PolygonDatabaseWizard PolygonDatabaseView;
 	JMenuItem ShowPolygonDatabaseView;
 	public FreeWizard.PolygonPreferenceWizard PolygonPreferenceView;
-	File PolygonDatabaseFile;
+	public File PolygonDatabaseFile;
 	public FreeWizard.PolygonHintReLocationWizard PolygonHintReLocationView;
 
 	LineAddPaneClass LineAddPane;
@@ -4740,7 +4773,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	public FreeWizard.LineDatabaseWizard LineDatabaseView;
 	JMenuItem ShowLineDatabaseView;
 	public FreeWizard.LinePreferenceWizard LinePreferenceView;
-	File LineDatabaseFile;
+	public File LineDatabaseFile;
 	public FreeWizard.LineHintReLocationWizard LineHintReLocationView;
 
 	PointAddPaneClass PointAddPane;
@@ -4749,7 +4782,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	public FreeWizard.PointDatabaseWizard PointDatabaseView;
 	JMenuItem ShowPointDatabaseView;
 	public FreeWizard.PointPreferenceWizard PointPreferenceView;
-	File PointDatabaseFile;
+	public File PointDatabaseFile;
 
 	AutoCrossLinkPaneClass AutoCrossLinkPane;
 	JMenuItem ShowAutoCrossLinkPane;
@@ -4856,7 +4889,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		Database.PolygonDataSet.PolygonMaxNum = -1;
 		try {
 			BufferedReader Configfin = new BufferedReader(new FileReader(
-					new File("DB.config")));
+					new File(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("DB.config"))));
 			String buf;
 			while ((buf = Configfin.readLine()) != null) {
 				String[] pair = buf.split("=");
@@ -4942,20 +4975,19 @@ public class MapWizard extends JFrame implements ActionListener {
 			AllLineInvisible, AllPolygonInvisible, AllFontInvisible, AllPolygonColorInvisible;
 	JMenuItem EngravePointShape, ClearLineDBItem, ClearPolygonDBItem,
 			VisualFeatureSwitchItem,AlphaFeatureSwitchItem;
-	JMenuItem SplitJPGItem,OpenSecondaryScreenItem;
+	JMenuItem SplitJPGItem,OpenSecondaryScreenItem,OpenOpenGLScreenItem,SettingOpenGLMicroscope;
 
-	boolean IsEngravePointShape = false;
-	boolean IsAllElementInvisible = false;
-	boolean IsAllPointInvisible = false;
-	boolean IsAllLineInvisible = false;
-	boolean IsAllPolygonInvisible = false;
-	boolean IsAllFontInvisible = false;
-	boolean IsAllPolygonColorInvisible = false;
+	public boolean IsEngravePointShape = false;
+	public boolean IsAllElementInvisible = false;
+	public boolean IsAllPointInvisible = false;
+	public boolean IsAllLineInvisible = false;
+	public boolean IsAllPolygonInvisible = false;
+	public boolean IsAllFontInvisible = false;
+	public boolean IsAllPolygonColorInvisible = false;
 
 	void ForbidenOperationSwitch() {
 		this.Screen.setVisible(!this.Screen.isVisible());
-		this.getContentPane().setVisible(this.Screen.isVisible());
-		
+		//this.getContentPane().setVisible(this.Screen.isVisible());
 	}
 	void OperationSwitch(boolean status){
 		this.getContentPane().setVisible(status);
@@ -5771,6 +5803,42 @@ public class MapWizard extends JFrame implements ActionListener {
 			}
 		});
 		
+		OpenOpenGLScreenItem=new JMenuItem(LanguageDic.GetWords("打开OpenGL第二屏幕"));
+		OpenOpenGLScreenItem.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				OpenGLPackage.OpenGL_Basic_Screen.OpenGL_Async_main(null);
+			}
+		});
+		
+		SettingOpenGLMicroscope=new JMenuItem(LanguageDic.GetWords("OpenGL第二屏幕放大镜参数设定"));
+		SettingOpenGLMicroscope.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				String str=JOptionPane.showInputDialog("Input x0,y0,x1,y1");
+				if((str==null)||(str.equals(""))){
+					JOptionPane.showMessageDialog(null,"Setting Error");
+					return;
+				}else{
+					try{
+						String[] Parameter=str.split(",");
+						double x0=java.lang.Double.parseDouble(Parameter[0]);
+						double y0=java.lang.Double.parseDouble(Parameter[1]);
+						double x1=java.lang.Double.parseDouble(Parameter[2]);
+						double y1=java.lang.Double.parseDouble(Parameter[3]);
+						OpenGLPackage.OpenGL_Basic_Screen.Screen_X0=Math.min(x0,x1);
+						OpenGLPackage.OpenGL_Basic_Screen.Screen_Y0=Math.min(y0,y1);
+						OpenGLPackage.OpenGL_Basic_Screen.Screen_X1=Math.max(x0,x1);
+						OpenGLPackage.OpenGL_Basic_Screen.Screen_Y1=Math.max(y0,y1);
+						OpenGLPackage.OpenGL_Basic_Screen.Screen_Zoom=(org.lwjgl.opengl.Display.getHeight()+1)/Math.abs(y1-y0);
+					}catch(Exception ex){
+						JOptionPane.showMessageDialog(null,"Setting Error");
+					}
+				}
+			}
+		});
+		
+		
 		YangshanPortASCPaneItem=new JMenuItem(LanguageDic.GetWords("YangshanPortASCPane"));
 		YangshanPortASCPaneItem.addActionListener(new ActionListener(){
 			@Override
@@ -5826,6 +5894,8 @@ public class MapWizard extends JFrame implements ActionListener {
 		EditMenu.add(ClientSocketPaneItem);
 		EditMenu.add(HtmlMapOutputPaneItem);
 		EditMenu.add(OpenSecondaryScreenItem);
+		EditMenu.add(OpenOpenGLScreenItem);
+		EditMenu.add(SettingOpenGLMicroscope);
 		//----------------------------------
 		MapControlMenu.add(TwoPointItem);
 		MapControlMenu.add(CalibrateItem);
@@ -6818,7 +6888,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 		public void paint(Graphics g) {
 			Toolkit kit = getToolkit();
-			Image img = kit.getImage("time.jpg");
+			Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("time.jpg"));
 			g.drawImage(img, 0, 0, 325, 400, this);
 			for (int i = 0; i < 60; i++) {
 				int m = (int) pointSX[i];
@@ -6874,10 +6944,13 @@ public class MapWizard extends JFrame implements ActionListener {
 		public int getSecond() {
 			return second;
 		}
-
+		int spur_count=0;
 		public void spur() {
 			if (lock)
 				return;
+			spur_count++;
+			spur_count%=20;
+			if(spur_count>0) return;
 			second++;
 			if (second == 60) {
 				second = 0;
@@ -8093,6 +8166,10 @@ public class MapWizard extends JFrame implements ActionListener {
 					+ ClockWizard.pic.getMinute() * 60
 					+ ClockWizard.pic.getSecond();
 		}
+		
+		public long getMilliSecond(){
+			return Calendar.getInstance().getTimeInMillis();
+		}
 
 		public double AccurateMeterDistance(double x0, double y0, double x1,
 				double y1) {
@@ -9214,7 +9291,7 @@ public class MapWizard extends JFrame implements ActionListener {
 				MouseMotionListener {
 			public void paint(Graphics g) {
 				Toolkit kit = getToolkit();
-				Image img = kit.getImage("BackGround30.jpg");
+				Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround30.jpg"));
 				g.drawImage(img, 0, 0, this);
 			}
 
@@ -9278,7 +9355,7 @@ public class MapWizard extends JFrame implements ActionListener {
 
 			public void paintComponent(Graphics g) {
 				Toolkit kit = getToolkit();
-				Image img = kit.getImage("Gear.jpg");
+				Image img = kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("Gear.jpg"));
 				g.drawImage(img, 0, 0, 330, 360, this);
 			}
 

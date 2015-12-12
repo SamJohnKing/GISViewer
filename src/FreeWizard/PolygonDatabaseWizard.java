@@ -109,7 +109,7 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 		}
 		public void paintComponent(Graphics g){
 			Toolkit kit=getToolkit();
-			Image img=kit.getImage("Metal.jpg");
+			Image img=kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("Metal.jpg"));
 			g.drawImage(img,0,0,600,435,this);
 		}
 		public void ProcessQuery(){

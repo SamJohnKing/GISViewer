@@ -39,7 +39,7 @@ public class LineHintReLocationWizard extends JFrame implements FreeWizardInterf
 	class MovePane extends Canvas implements MouseListener,MouseMotionListener{
 		public void paint(Graphics g){
 			Toolkit kit=getToolkit();
-			Image img=kit.getImage("BackGround30.jpg");
+			Image img=kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("BackGround30.jpg"));
 			g.drawImage(img,0,0,this);
 		}
 		public MovePane(){
@@ -123,7 +123,7 @@ public class LineHintReLocationWizard extends JFrame implements FreeWizardInterf
 	}
 	public void paintComponent(Graphics g){
 		Toolkit kit=getToolkit();
-		Image img=kit.getImage("Gear.jpg");
+		Image img=kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("Gear.jpg"));
 		g.drawImage(img,0,0,330,360,this);
 	}
 	public void actionPerformed(ActionEvent e){

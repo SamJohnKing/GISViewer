@@ -32,7 +32,7 @@ public class SimpleGame extends Game {
 	protected void create() throws LWJGLException {
 		// 2D games generally won't require depth testing 
 		glDisable(GL_DEPTH_TEST);
-		
+
 		// Enable blending
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
