@@ -198,7 +198,7 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 		AllowPreciseLinkRegion.setSelected(true);
 		AllowPreciseLinkRegion.setOpaque(false);
 		add(new JLabel("The Bulletin below Show Some Useful Information"));
-		bulletin=new JTextArea(6,60);
+		bulletin=new JTextArea(4,60);
 		bulletin.setLineWrap(true);
 		add(bulletin);
 		add(AllowPreciseLinkRegion);

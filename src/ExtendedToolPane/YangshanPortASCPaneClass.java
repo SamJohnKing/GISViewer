@@ -66,10 +66,10 @@ public class YangshanPortASCPaneClass extends ToolPanel implements ExtendedToolP
 		if(YBY==0) return;
 		if(YBY==SlotRow*2) return;
 		if(YBY%2==0){
-			SlotMatrix[YBY/2][Col-1].layer--;
-			SlotMatrix[YBY/2-1][Col-1].layer--;
+			SlotMatrix[YBY/2][Col].layer--;
+			SlotMatrix[YBY/2-1][Col].layer--;
 		}else{
-			SlotMatrix[YBY/2][Col-1].layer--;
+			SlotMatrix[YBY/2][Col].layer--;
 		}
 	}
 	public void Container_Down(int YBY,int Col){
@@ -77,10 +77,10 @@ public class YangshanPortASCPaneClass extends ToolPanel implements ExtendedToolP
 		if(YBY==0) return;
 		if(YBY==SlotRow*2) return;
 		if(YBY%2==0){
-			SlotMatrix[YBY/2][Col-1].layer++;
-			SlotMatrix[YBY/2-1][Col-1].layer++;
+			SlotMatrix[YBY/2][Col].layer++;
+			SlotMatrix[YBY/2-1][Col].layer++;
 		}else{
-			SlotMatrix[YBY/2][Col-1].layer++;
+			SlotMatrix[YBY/2][Col].layer++;
 		}
 	}
 	public void ClockImpulse(){
@@ -457,10 +457,10 @@ public class YangshanPortASCPaneClass extends ToolPanel implements ExtendedToolP
 							}
 						}
 						if(container_length>20){
-							SlotMatrix[BayID/2-1][col_ID-1].layer++;
-							SlotMatrix[BayID/2][col_ID-1].layer++;
+							SlotMatrix[BayID/2-1][col_ID].layer++;
+							SlotMatrix[BayID/2][col_ID].layer++;
 						}else{
-							SlotMatrix[BayID/2][col_ID-1].layer++;
+							SlotMatrix[BayID/2][col_ID].layer++;
 						}
 					}
 					fin.close();
