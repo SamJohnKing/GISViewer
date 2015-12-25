@@ -839,6 +839,8 @@ public class OpenGL_Basic_Screen extends SimpleGame implements Runnable {
 	public final double OriginalScreenY=500;
 	public double ScreenX=OriginalScreenX;
 	public double ScreenY=OriginalScreenY;
+	private int LastPressedLogicalX=(int)1e9;
+	private int LastPressedLogicalY=(int)1e9;
 	protected void render() throws LWJGLException {
 		super.render();		
 		
@@ -903,7 +905,13 @@ public class OpenGL_Basic_Screen extends SimpleGame implements Runnable {
 		zoom = Math.max(0.01f, zoom);
 		
 		if(org.lwjgl.input.Mouse.getEventButton()>0){
-			Display.setTitle(GetLogicalX()+"/"+GetLogicalY());
+			int NowLogicalX=GetLogicalX();
+			int NowLogicalY=GetLogicalY();
+			Display.setTitle(NowLogicalX+"/"+NowLogicalY);
+			if(MapKernel.MapWizard.SingleItem.BehaviorListener!=null){
+				if(Math.abs(NowLogicalX-LastPressedLogicalX)+Math.abs(NowLogicalY-LastPressedLogicalY)!=0)
+				MapKernel.MapWizard.SingleItem.BehaviorListener.MousePressedListener(NowLogicalX,NowLogicalY);
+			}
 		}
 		
 		/*

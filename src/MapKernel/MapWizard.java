@@ -39,6 +39,8 @@ import java.io.*;
 import com.sun.image.codec.jpeg.*;
 
 public class MapWizard extends JFrame implements ActionListener {
+	// Default External Interface Definition
+	public ExternalListener BehaviorListener=null;
 	// Default Initiate Elements------------
 	public void DefualtInitiateOpenItem(String DIRPath){
 		if(DIRPath.isEmpty()) DIR=new File("D:\\DefaultDataSource");
@@ -4306,6 +4308,9 @@ public class MapWizard extends JFrame implements ActionListener {
 					/ ScreenWidth;
 			PressedLatitude = ScreenLatitude - (PressedY * LatitudeScale)
 					/ ScreenHeight;
+			if(((e.getModifiers() & InputEvent.BUTTON3_MASK)!=0)&&(BehaviorListener!=null)){
+				BehaviorListener.MousePressedListener(PressedLongitude, PressedLatitude);
+			}
 			if (lock)
 				return;
 		}
