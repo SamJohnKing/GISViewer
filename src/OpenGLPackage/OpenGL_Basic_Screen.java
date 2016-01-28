@@ -909,8 +909,11 @@ public class OpenGL_Basic_Screen extends SimpleGame implements Runnable {
 			int NowLogicalY=GetLogicalY();
 			Display.setTitle(NowLogicalX+"/"+NowLogicalY);
 			if(MapKernel.MapWizard.SingleItem.BehaviorListener!=null){
-				if(Math.abs(NowLogicalX-LastPressedLogicalX)+Math.abs(NowLogicalY-LastPressedLogicalY)!=0)
-				MapKernel.MapWizard.SingleItem.BehaviorListener.MousePressedListener(NowLogicalX,NowLogicalY);
+				if(Math.abs(NowLogicalX-LastPressedLogicalX)+Math.abs(NowLogicalY-LastPressedLogicalY)>1){
+					LastPressedLogicalX=NowLogicalX;
+					LastPressedLogicalY=NowLogicalY;
+					MapKernel.MapWizard.SingleItem.BehaviorListener.MousePressedListener(NowLogicalX,NowLogicalY);
+				}
 			}
 		}
 		
