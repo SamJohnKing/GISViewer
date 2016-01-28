@@ -26,8 +26,8 @@
       <file leaf-file-name="MapWizard.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/MapKernel/MapWizard.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.2681388">
-              <caret line="197" column="25" selection-start-line="197" selection-start-column="25" selection-end-line="197" selection-end-column="25" />
+            <state vertical-scroll-proportion="0.18769716">
+              <caret line="194" column="73" selection-start-line="194" selection-start-column="73" selection-end-line="194" selection-end-column="73" />
               <folding />
             </state>
           </provider>
@@ -438,12 +438,12 @@
       <workItem from="1453981177309" duration="55000" />
       <workItem from="1453986222564" duration="78000" />
       <workItem from="1453993851472" duration="535000" />
-      <workItem from="1453994802203" duration="1138000" />
+      <workItem from="1453994802203" duration="1212000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="3312000" />
+    <option name="totallyTimeSpent" value="3386000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1874" height="1096" extended-state="6" />
@@ -539,8 +539,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/MapKernel/MapWizard.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2681388">
-          <caret line="197" column="25" selection-start-line="197" selection-start-column="25" selection-end-line="197" selection-end-column="25" />
+        <state vertical-scroll-proportion="0.18769716">
+          <caret line="194" column="73" selection-start-line="194" selection-start-column="73" selection-end-line="194" selection-end-column="73" />
           <folding />
         </state>
       </provider>
