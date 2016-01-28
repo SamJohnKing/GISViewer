@@ -1,6 +1,4 @@
-/[2015-03-27][2015-04-02-14-25-02].png
 /About.jpg
-/ATC1.exe
 /BackGround.jpg
 /BackGround1.jpg
 /BackGround10.jpg
@@ -60,3 +58,6 @@
 /.classpath
 /.project
 Thumbs.db
+/.idea/
+/DefaultDataSouce
+/GIS.iml
