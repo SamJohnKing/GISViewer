@@ -5812,7 +5812,8 @@ public class MapWizard extends JFrame implements ActionListener {
 		OpenOpenGLScreenItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				OpenGLPackage.OpenGL_Basic_Screen.OpenGL_Async_main(null);
+				//OpenGLPackage.OpenGL_Basic_Screen.OpenGL_Async_main(null);
+				LWJGLPackage.OriginalOpenGLWizard.main_sample();
 			}
 		});
 		
