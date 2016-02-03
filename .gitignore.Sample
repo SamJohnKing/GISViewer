@@ -1,0 +1,11 @@
+/bin/
+Thumbs.db
+/DefaultDataSouce/
+/.gitignore
+/.settings/
+/.classpath
+/.project
+/GIS.iml
+/.idea/
+/DB.config
+.gitignore
