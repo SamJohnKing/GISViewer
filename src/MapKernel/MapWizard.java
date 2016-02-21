@@ -3,7 +3,6 @@ package MapKernel;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.awt.geom.Ellipse2D.Double;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -11,7 +10,6 @@ import javax.swing.table.*;
 
 import Database.LineDataSet;
 import Database.PointDataSet;
-import Database.PointStructure;
 import ExtendedToolPane.ExtendedToolPaneInterface;
 import ExtendedToolPane.MapElementsEditorPaneClass;
 import ExtendedToolPane.PolygonAddPaneClass;
@@ -20,7 +18,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.logging.Handler;
 
 import ExtendedToolPane.*;
 
@@ -33,8 +30,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.*;
-import java.awt.geom.*;
-import java.io.*;
 
 import com.sun.image.codec.jpeg.*;
 
@@ -4881,7 +4876,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	JMenuItem ShowPreferenceWizard;
 
 	// ---------------------------------------------------------------
-	public MapWizard() {
+	public MapWizard(boolean OpenGLInitiate) {
 		SingleItem=this;
 		Face SoftFace = new Face();
 		Idle(3000);
@@ -4972,6 +4967,10 @@ public class MapWizard extends JFrame implements ActionListener {
 		ClockWizard = new ClockWizardClass();
 		myTimer.start();
 		setLocationRelativeTo(null);
+		if (OpenGLInitiate){
+			this.setVisible(false);
+			LWJGLPackage.OriginalOpenGLWizard.GetInstance();
+		}
 	}
 
 	JMenuItem ChangeMapBackground, setDefaultMapBackground,
@@ -5813,7 +5812,7 @@ public class MapWizard extends JFrame implements ActionListener {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				//OpenGLPackage.OpenGL_Basic_Screen.OpenGL_Async_main(null);
-				LWJGLPackage.OriginalOpenGLWizard.main_sample();
+				LWJGLPackage.OriginalOpenGLWizard.GetInstance();
 			}
 		});
 		

@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
+import MapKernel.MapWizard;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
@@ -14,7 +15,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
-public class OriginalOpenGLWizard {
+public class OriginalOpenGLWizard{
 
     static OriginalOpenGLWizard SingleItem = null;
     /**
@@ -46,9 +47,14 @@ public class OriginalOpenGLWizard {
      */
     boolean vsync;
 
-    public static void main_sample(){
-        OriginalOpenGLWizard displayExample = new OriginalOpenGLWizard();
-        displayExample.start(1366,768);
+    public static void GetInstance(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OriginalOpenGLWizard displayExample = new OriginalOpenGLWizard();
+                displayExample.start(1366, 768);
+            }
+        }).start();
     }
 
     public void start(int Width, int Height) {
@@ -75,6 +81,10 @@ public class OriginalOpenGLWizard {
         }
 
         Display.destroy();
+
+        if(MapWizard.SingleItem != null)
+            if(!MapWizard.SingleItem.isVisible())
+                System.exit(0);
     }
 
     public void update(int delta) {
@@ -214,12 +224,12 @@ public class OriginalOpenGLWizard {
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
     }
 
-    public static void drawString(String s, int x, int y, float r, float g, float b) {
-        GL11.glColor3f(r,g,b);
+    public static void drawString(String s, int x, int y, float r, float g, float b, float a) {
+        GL11.glColor4f(r, g, b, a);
         int startX = x;
         GL11.glBegin(GL11.GL_POINTS);
-        for (char c : s.toLowerCase().toCharArray()) {
-            if (c == 'a') {
+        for (char c : s.toCharArray()) {
+            if (c == 'A') {
                 for (int i = 0; i < 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                     GL11.glVertex2f(x + 7, y + i);
@@ -229,7 +239,22 @@ public class OriginalOpenGLWizard {
                     GL11.glVertex2f(x + i, y + 4);
                 }
                 x += 8;
-            } else if (c == 'b') {
+            } else if (c == 'a'){
+                for (int i = 2; i <= 5; i++) {
+                    GL11.glVertex2f(x + i, y + 0);
+                    GL11.glVertex2f(x + i, y + 3);
+                    GL11.glVertex2f(x + i, y + 6);
+                }
+                GL11.glVertex2f(x + 1, y + 1);
+                GL11.glVertex2f(x + 1, y + 2);
+                GL11.glVertex2f(x + 6, y + 0);
+                GL11.glVertex2f(x + 6, y + 1);
+                GL11.glVertex2f(x + 6, y + 2);
+                GL11.glVertex2f(x + 6, y + 3);
+                GL11.glVertex2f(x + 6, y + 4);
+                GL11.glVertex2f(x + 6, y + 5);
+                x += 7;
+            } else if (c == 'B') {
                 for (int i = 0; i < 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                 }
@@ -245,7 +270,24 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 7, y + 2);
                 GL11.glVertex2f(x + 7, y + 3);
                 x += 8;
-            } else if (c == 'c') {
+            } else if (c == 'b'){
+              for (int i = 0; i <= 8; i++) {
+                  GL11.glVertex2f(x + 1, y + i);
+              }
+                GL11.glVertex2f(x + 2, y + 1);
+                GL11.glVertex2f(x + 2, y + 4);
+                GL11.glVertex2f(x + 3, y);
+                GL11.glVertex2f(x + 3, y + 5);
+                GL11.glVertex2f(x + 4, y);
+                GL11.glVertex2f(x + 4, y + 5);
+                GL11.glVertex2f(x + 5, y);
+                GL11.glVertex2f(x + 5, y + 5);
+                GL11.glVertex2f(x + 6, y + 1);
+                GL11.glVertex2f(x + 6, y + 2);
+                GL11.glVertex2f(x + 6, y + 3);
+                GL11.glVertex2f(x + 6, y + 4);
+                x += 7;
+            } else if (c == 'C') {
                 for (int i = 1; i <= 7; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                 }
@@ -260,7 +302,17 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 6, y + 7);
 
                 x += 8;
-            } else if (c == 'd') {
+            } else if (c == 'c') {
+                for (int i = 1; i < 5; i++){
+                    GL11.glVertex2f(x + 1, y + i);
+                }
+                for (int i = 2; i < 6; i++){
+                    GL11.glVertex2f(x + i, y);
+                    GL11.glVertex2f(x + i, y + 5);
+                }
+                GL11.glVertex2f(x + 6, y + 1);
+                x += 7;
+            } else if (c == 'D') {
                 for (int i = 0; i <= 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                 }
@@ -275,9 +327,22 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 6, y + 5);
                 GL11.glVertex2f(x + 6, y + 6);
                 GL11.glVertex2f(x + 6, y + 7);
-
                 x += 8;
-            } else if (c == 'e') {
+            } else if (c == 'd') {
+                for(int dy = 1; dy <= 4; dy++){
+                   GL11.glVertex2f(x + 1, y + dy);
+                }
+                for(int dx = 2; dx <= 4; dx++){
+                    GL11.glVertex2f(x + dx, y);
+                    GL11.glVertex2f(x + dx, y + 5);
+                }
+                GL11.glVertex2f(x + 5, y + 1);
+                GL11.glVertex2f(x + 5, y + 4);
+                for(int dy = 0; dy <= 8; dy++){
+                    GL11.glVertex2f(x + 6, y + dy);
+                }
+                x += 7;
+            } else if (c == 'E') {
                 for (int i = 0; i <= 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                 }
@@ -289,7 +354,20 @@ public class OriginalOpenGLWizard {
                     GL11.glVertex2f(x + i, y + 4);
                 }
                 x += 8;
-            } else if (c == 'f') {
+            } else if (c == 'e'){
+                for (int dy = 1; dy <= 5; dy++){
+                    GL11.glVertex2f(x + 1, y + dy);
+                }
+                for (int dx = 2; dx <= 5; dx++){
+                    GL11.glVertex2f(x + dx, y);
+                    GL11.glVertex2f(x + dx, y + 3);
+                    GL11.glVertex2f(x + dx, y + 6);
+                }
+                GL11.glVertex2f(x + 6, y + 4);
+                GL11.glVertex2f(x + 6, y + 5);
+                GL11.glVertex2f(x + 6, y + 1);
+                x += 7;
+            } else if (c == 'F') {
                 for (int i = 0; i <= 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                 }
@@ -300,7 +378,19 @@ public class OriginalOpenGLWizard {
                     GL11.glVertex2f(x + i, y + 4);
                 }
                 x += 8;
-            } else if (c == 'g') {
+            } else if(c == 'f'){
+                GL11.glVertex2f(x + 1, y + 5);
+                GL11.glVertex2f(x + 2, y + 5);
+                for (int dy = 0; dy <= 7; dy++){
+                    GL11.glVertex2f(x + 3, y + dy);
+                }
+                GL11.glVertex2f(x + 4, y + 5);
+                GL11.glVertex2f(x + 5, y + 5);
+                GL11.glVertex2f(x + 4, y + 8);
+                GL11.glVertex2f(x + 5, y + 8);
+                GL11.glVertex2f(x + 6, y + 7);
+                x += 7;
+            } else if (c == 'G') {
                 for (int i = 1; i <= 7; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                 }
@@ -318,7 +408,19 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 6, y + 7);
 
                 x += 8;
-            } else if (c == 'h') {
+            } else if (c == 'g') {
+                GL11.glVertex2f(x + 1, y + 4);
+                GL11.glVertex2f(x + 1, y + 5);
+                for (int dx = 2; dx <= 5; dx++){
+                    GL11.glVertex2f(x + dx, y);
+                    GL11.glVertex2f(x + dx, y + 3);
+                    GL11.glVertex2f(x + dx, y + 6);
+                }
+                for (int dy =1; dy <= 6; dy++){
+                    GL11.glVertex2f(x + 6, y + dy);
+                }
+                x += 7;
+            } else if (c == 'H') {
                 for (int i = 0; i <= 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                     GL11.glVertex2f(x + 7, y + i);
@@ -327,7 +429,19 @@ public class OriginalOpenGLWizard {
                     GL11.glVertex2f(x + i, y + 4);
                 }
                 x += 8;
-            } else if (c == 'i') {
+            } else if (c == 'h'){
+                for (int dy = 0; dy <= 8; dy++){
+                    GL11.glVertex2f(x + 1, y + dy);
+                }
+                GL11.glVertex2f(x + 2, y + 4);
+                GL11.glVertex2f(x + 3, y + 5);
+                GL11.glVertex2f(x + 4, y + 5);
+                GL11.glVertex2f(x + 5, y + 5);
+                for (int dy =0; dy <= 4; dy++){
+                    GL11.glVertex2f(x + 6, y + dy);
+                }
+                x += 7;
+            } else if (c == 'I') {
                 for (int i = 0; i <= 8; i++) {
                     GL11.glVertex2f(x + 3, y + i);
                 }
@@ -336,7 +450,16 @@ public class OriginalOpenGLWizard {
                     GL11.glVertex2f(x + i, y + 8);
                 }
                 x += 7;
-            } else if (c == 'j') {
+            } else if (c == 'i'){
+                GL11.glVertex2f(x + 2, y);
+                GL11.glVertex2f(x + 2, y + 5);
+                GL11.glVertex2f(x + 3, y + 7);
+                for (int dy = 0; dy <= 5; dy++){
+                    GL11.glVertex2f(x + 3, y + dy);
+                }
+                GL11.glVertex2f(x + 4, y);
+                x += 6;
+            } else if (c == 'J') {
                 for (int i = 1; i <= 8; i++) {
                     GL11.glVertex2f(x + 6, y + i);
                 }
@@ -347,7 +470,18 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 1, y + 2);
                 GL11.glVertex2f(x + 1, y + 1);
                 x += 8;
-            } else if (c == 'k') {
+            } else if (c == 'j'){
+                GL11.glVertex2f(x + 2, y + 1);
+                GL11.glVertex2f(x + 3, y);
+                GL11.glVertex2f(x + 4, y);
+                GL11.glVertex2f(x + 4, y + 6);
+                GL11.glVertex2f(x + 3, y + 6);
+                GL11.glVertex2f(x + 5, y + 8);
+                for (int dy = 1; dy <= 6; dy++){
+                    GL11.glVertex2f(x + 5, y + dy);
+                }
+                x += 7;
+            } else if (c == 'K') {
                 for (int i = 0; i <= 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                 }
@@ -363,7 +497,19 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 6, y + 1);
                 GL11.glVertex2f(x + 7, y);
                 x += 8;
-            } else if (c == 'l') {
+            } else if (c == 'k') {
+                for (int dy = 0; dy <= 8; dy++){
+                    GL11.glVertex2f(x + 1, y + dy);
+                }
+                GL11.glVertex2f(x + 2, y + 3);
+                GL11.glVertex2f(x + 3, y + 2);
+                GL11.glVertex2f(x + 3, y + 4);
+                GL11.glVertex2f(x + 4, y + 1);
+                GL11.glVertex2f(x + 4, y + 5);
+                GL11.glVertex2f(x + 5, y);
+                GL11.glVertex2f(x + 5, y + 6);
+                x += 6;
+            } else if (c == 'L') {
                 for (int i = 0; i <= 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                 }
@@ -371,7 +517,19 @@ public class OriginalOpenGLWizard {
                     GL11.glVertex2f(x + i, y);
                 }
                 x += 7;
-            } else if (c == 'm') {
+            } else if (c == 'l') {
+                GL11.glVertex2f(x + 1, y);
+                GL11.glVertex2f(x + 1, y + 8);
+                for (int dy = 0; dy <= 8; dy++){
+                    GL11.glVertex2f(x + 2, y + dy);
+                }
+                GL11.glVertex2f(x + 3, y);
+                GL11.glVertex2f(x + 4, y);
+                GL11.glVertex2f(x + 5, y);
+                GL11.glVertex2f(x + 5, y + 1);
+                GL11.glVertex2f(x + 5, y + 2);
+                x += 6;
+            } else if (c == 'M') {
                 for (int i = 0; i <= 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                     GL11.glVertex2f(x + 7, y + i);
@@ -384,7 +542,22 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 6, y + 7);
                 GL11.glVertex2f(x + 4, y + 5);
                 x += 8;
-            } else if (c == 'n') {
+            } else if (c == 'm') {
+                for (int dy = 0; dy <= 6; dy++){
+                    GL11.glVertex2f(x + 1, y + dy);
+                }
+                GL11.glVertex2f(x + 2, y + 6);
+                GL11.glVertex2f(x + 3, y + 6);
+                for (int dy = 2; dy <= 5; dy++){
+                    GL11.glVertex2f(x + 4, y + dy );
+                }
+                GL11.glVertex2f(x + 5, y + 6);
+                GL11.glVertex2f(x + 6, y + 6);
+                for (int dy =0; dy <= 5; dy++){
+                    GL11.glVertex2f(x + 7, y + dy);
+                }
+                x += 8;
+            } else if (c == 'N') {
                 for (int i = 0; i <= 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                     GL11.glVertex2f(x + 7, y + i);
@@ -397,7 +570,20 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 6, y + 2);
                 GL11.glVertex2f(x + 6, y + 1);
                 x += 8;
-            } else if (c == 'o' || c == '0') {
+            } else if (c == 'n') {
+                for (int dy = 0; dy <= 6; dy++){
+                    GL11.glVertex2f(x + 1, y + dy);
+                }
+                GL11.glVertex2f(x + 2, y + 5);
+                GL11.glVertex2f(x + 3, y + 6);
+                GL11.glVertex2f(x + 4, y + 6);
+                GL11.glVertex2f(x + 5, y + 6);
+                GL11.glVertex2f(x + 6, y + 6);
+                for (int dy = 0; dy <= 5; dy++){
+                    GL11.glVertex2f(x + 7, y + dy);
+                }
+                x += 8;
+            } else if (c == 'O') {
                 for (int i = 1; i <= 7; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                     GL11.glVertex2f(x + 7, y + i);
@@ -407,7 +593,17 @@ public class OriginalOpenGLWizard {
                     GL11.glVertex2f(x + i, y + 0);
                 }
                 x += 8;
-            } else if (c == 'p') {
+            } else if (c == 'o') {
+                for (int dx = 2; dx <= 5; dx++){
+                    GL11.glVertex2f(x + dx, y);
+                    GL11.glVertex2f(x + dx, y + 5);
+                }
+                for (int dy = 1; dy <= 4; dy++){
+                    GL11.glVertex2f(x + 1, y + dy);
+                    GL11.glVertex2f(x + 6, y + dy);
+                }
+                x += 7;
+            } else if (c == 'P') {
                 for (int i = 0; i <= 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                 }
@@ -419,7 +615,18 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 6, y + 5);
                 GL11.glVertex2f(x + 6, y + 6);
                 x += 8;
-            } else if (c == 'q') {
+            } else if (c == 'p') {
+                for (int dy = 0; dy <= 6; dy++){
+                    GL11.glVertex2f(x + 1, y + dy);
+                }
+                for (int dx = 2; dx <= 5; dx++){
+                    GL11.glVertex2f(x + dx, y + 3);
+                    GL11.glVertex2f(x + dx, y + 6);
+                }
+                GL11.glVertex2f(x + 6, y + 4);
+                GL11.glVertex2f(x + 6, y + 5);
+                x += 7;
+            } else if (c == 'Q') {
                 for (int i = 1; i <= 7; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                     if (i != 1)
@@ -435,7 +642,18 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 6, y + 1);
                 GL11.glVertex2f(x + 7, y);
                 x += 8;
-            } else if (c == 'r') {
+            } else if (c == 'q') {
+                GL11.glVertex2f(x + 1, y + 4);
+                GL11.glVertex2f(x + 1, y + 5);
+                for (int dx = 2; dx <= 5; dx++){
+                    GL11.glVertex2f(x + dx, y + 3);
+                    GL11.glVertex2f(x + dx, y + 6);
+                }
+                for (int dy = 0; dy <= 6; dy++){
+                    GL11.glVertex2f(x + 6, y + dy);
+                }
+                x += 7;
+            } else if (c == 'R') {
                 for (int i = 0; i <= 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                 }
@@ -452,7 +670,17 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 6, y + 1);
                 GL11.glVertex2f(x + 7, y);
                 x += 8;
-            } else if (c == 's') {
+            } else if (c == 'r') {
+                for (int dy = 0; dy <= 6; dy++){
+                    GL11.glVertex2f(x + 1, y + dy);
+                }
+                GL11.glVertex2f(x + 2, y + 5);
+                GL11.glVertex2f(x + 3, y + 6);
+                GL11.glVertex2f(x + 4, y + 6);
+                GL11.glVertex2f(x + 5, y + 6);
+                GL11.glVertex2f(x + 6, y + 5);
+                x += 7;
+            } else if (c == 'S') {
                 for (int i = 2; i <= 7; i++) {
                     GL11.glVertex2f(x + i, y + 8);
                 }
@@ -469,7 +697,20 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 1, y + 1);
                 GL11.glVertex2f(x + 1, y + 2);
                 x += 8;
-            } else if (c == 't') {
+            } else if (c == 's') {
+                GL11.glVertex2f(x + 6, y + 1);
+                GL11.glVertex2f(x + 6, y + 2);
+                GL11.glVertex2f(x + 6, y + 5);
+                GL11.glVertex2f(x + 1, y + 4);
+                GL11.glVertex2f(x + 1, y + 5);
+                GL11.glVertex2f(x + 1, y + 1);
+                for (int dx = 2; dx <= 5; dx++){
+                    GL11.glVertex2f(x + dx, y);
+                    GL11.glVertex2f(x + dx, y + 3);
+                    GL11.glVertex2f(x + dx, y + 6);
+                }
+                x += 7;
+            } else if (c == 'T') {
                 for (int i = 0; i <= 8; i++) {
                     GL11.glVertex2f(x + 4, y + i);
                 }
@@ -477,7 +718,19 @@ public class OriginalOpenGLWizard {
                     GL11.glVertex2f(x + i, y + 8);
                 }
                 x += 7;
-            } else if (c == 'u') {
+            } else if (c == 't') {
+                GL11.glVertex2f(x + 1, y + 5);
+                GL11.glVertex2f(x + 2, y + 5);
+                for (int dy = 1; dy <= 7; dy++){
+                    GL11.glVertex2f(x + 3, y + dy);
+                }
+                GL11.glVertex2f(x + 4, y + 5);
+                GL11.glVertex2f(x + 5, y + 5);
+                GL11.glVertex2f(x + 4, y);
+                GL11.glVertex2f(x + 5, y);
+                GL11.glVertex2f(x + 6, y + 1);
+                x += 7;
+            } else if (c == 'U') {
                 for (int i = 1; i <= 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                     GL11.glVertex2f(x + 7, y + i);
@@ -486,7 +739,19 @@ public class OriginalOpenGLWizard {
                     GL11.glVertex2f(x + i, y + 0);
                 }
                 x += 8;
-            } else if (c == 'v') {
+            } else if (c == 'u') {
+                for (int dy = 1; dy <= 5; dy++){
+                    GL11.glVertex2f(x + 1, y + dy);
+                }
+                for (int dx = 2; dx <= 4; dx++){
+                    GL11.glVertex2f(x + dx, y);
+                }
+                GL11.glVertex2f(x + 5, y + 1);
+                for (int dy = 0; dy <= 5; dy++){
+                    GL11.glVertex2f(x + 6, y + dy);
+                }
+                x += 7;
+            } else if (c == 'V') {
                 for (int i = 2; i <= 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                     GL11.glVertex2f(x + 6, y + i);
@@ -496,7 +761,19 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 3, y);
                 GL11.glVertex2f(x + 4, y);
                 x += 7;
-            } else if (c == 'w') {
+            } else if (c == 'v') {
+                for (int dy =3; dy <= 5; dy ++){
+                    GL11.glVertex2f(x + 1, y + dy);
+                    GL11.glVertex2f(x + 6, y + dy);
+                }
+                GL11.glVertex2f(x + 3, y);
+                GL11.glVertex2f(x + 4, y);
+                GL11.glVertex2f(x + 2, y + 1);
+                GL11.glVertex2f(x + 2, y + 2);
+                GL11.glVertex2f(x + 5, y + 1);
+                GL11.glVertex2f(x + 5, y + 2);
+                x += 7;
+            } else if (c == 'W') {
                 for (int i = 1; i <= 8; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                     GL11.glVertex2f(x + 7, y + i);
@@ -509,13 +786,41 @@ public class OriginalOpenGLWizard {
                     GL11.glVertex2f(x + 4, y + i);
                 }
                 x += 8;
-            } else if (c == 'x') {
+            } else if (c == 'w') {
+                for (int dy = 0; dy <= 6; dy++){
+                    GL11.glVertex2f(x + 1, y + dy);
+                    GL11.glVertex2f(x + 7, y + dy);
+                }
+                GL11.glVertex2f(x + 2, y + 1);
+                GL11.glVertex2f(x + 3, y + 2);
+                GL11.glVertex2f(x + 4, y + 3);
+                GL11.glVertex2f(x + 4, y + 4);
+                GL11.glVertex2f(x + 5, y + 2);
+                GL11.glVertex2f(x + 6, y + 1);
+                x += 8;
+            } else if (c == 'X') {
                 for (int i = 1; i <= 7; i++)
                     GL11.glVertex2f(x + i, y + i);
                 for (int i = 7; i >= 1; i--)
                     GL11.glVertex2f(x + i, y + 8 - i);
+                GL11.glVertex2f(x + 1, y);
+                GL11.glVertex2f(x + 1, y + 8);
+                GL11.glVertex2f(x + 7, y);
+                GL11.glVertex2f(x + 7, y + 8);
                 x += 8;
-            } else if (c == 'y') {
+            } else if (c == 'x') {
+                for (int i = 1; i <= 5; i++){
+                    GL11.glVertex2f(x + i, y + i);
+                }
+                for (int i = 5; i >= 1; i--){
+                    GL11.glVertex2f(x + i, y + 6 - i);
+                }
+                GL11.glVertex2f(x + 1, y);
+                GL11.glVertex2f(x + 1, y + 6);
+                GL11.glVertex2f(x + 5, y);
+                GL11.glVertex2f(x + 5, y + 6);
+                x += 6;
+            } else if (c == 'Y') {
                 GL11.glVertex2f(x + 4, y);
                 GL11.glVertex2f(x + 4, y + 1);
                 GL11.glVertex2f(x + 4, y + 2);
@@ -532,12 +837,51 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 7, y + 7);
                 GL11.glVertex2f(x + 7, y + 8);
                 x += 8;
-            } else if (c == 'z') {
+            } else if (c == 'y') {
+                for (int dy = 4; dy <= 7; dy++){
+                    GL11.glVertex2f(x + 1, y + dy);
+                }
+                for (int dy = 1; dy <= 7; dy++){
+                    GL11.glVertex2f(x + 6, y + dy);
+                }
+                for (int dx = 2; dx <= 5; dx++){
+                    GL11.glVertex2f(x + dx, y);
+                    GL11.glVertex2f(x + dx, y + 3);
+                }
+                GL11.glVertex2f(x + 1, y + 1);
+                x += 7;
+            } else if (c == 'Z') {
                 for (int i = 1; i <= 6; i++) {
                     GL11.glVertex2f(x + i, y);
                     GL11.glVertex2f(x + i, y + 8);
                     GL11.glVertex2f(x + i, y + i);
                 }
+                GL11.glVertex2f(x + 6, y + 7);
+                x += 8;
+            } else if (c == 'z') {
+                for (int dx = 1; dx <= 5; dx++){
+                    GL11.glVertex2f(x + dx, y);
+                    GL11.glVertex2f(x + dx, y + 6);
+                }
+                for (int i = 1; i <= 5; i++){
+                    GL11.glVertex2f(x + i, y + i);
+                }
+                x += 6;
+            } else if (c == '0') {
+                for (int i = 1; i <= 7; i++) {
+                    GL11.glVertex2f(x + 1, y + i);
+                    GL11.glVertex2f(x + 7, y + i);
+                }
+                for (int i = 2; i <= 6; i++) {
+                    GL11.glVertex2f(x + i, y + 8);
+                    GL11.glVertex2f(x + i, y + 0);
+                }
+                GL11.glVertex2f(x + 2, y + 1);
+                GL11.glVertex2f(x + 3, y + 2);
+                GL11.glVertex2f(x + 4, y + 3);
+                GL11.glVertex2f(x + 4, y + 4);
+                GL11.glVertex2f(x + 4, y + 5);
+                GL11.glVertex2f(x + 5, y + 6);
                 GL11.glVertex2f(x + 6, y + 7);
                 x += 8;
             } else if (c == '1') {
@@ -680,7 +1024,7 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 1, y + 1);
                 x += 2;
             } else if (c == '\n') {
-                y -= 10;
+                y -= 14;
                 x = startX;
             } else if (c == ' ') {
                 x += 8;
@@ -699,6 +1043,18 @@ public class OriginalOpenGLWizard {
                 GL11.glVertex2f(x + 4, y + 6);
                 GL11.glVertex2f(x + 5, y + 2);
                 GL11.glVertex2f(x + 5, y + 6);
+                x += 8;
+            } else if (c == '\\') {
+                for (int i = 1; i <= 7; i++){
+                    GL11.glVertex2f(x + i, y + 8 - i);
+                }
+                x += 9;
+            } else if (c == '/') {
+                for (int i = 1; i <= 7; i++){
+                    GL11.glVertex2f(x + i, y + i);
+                }
+                x += 9;
+            } else {
                 x += 8;
             }
         }
@@ -736,17 +1092,28 @@ public class OriginalOpenGLWizard {
     public void renderGL() {
         // Clear The Screen And The Depth Buffer
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        //GL11.glClearColor(0.5f,0.5f,0.5f,1f);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         // draw quad
-        drawString("Hello:World", 400, 400, 1f, 1f, 1f);
-
-        GL11.glColor4f(0.2f,0.5f,0.1f,0f);
+        drawString("ABCDEFGHIJKLMNOPQRSTUVWXYZ\nAaBbCcDdEefFGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz\n01/2345\\6789\nHello World\n2015-01-01 12:22:32", 300, 400, 0.5f, 1f, 1f, 0.5f);
+        GL11.glColor4f(0.2f, 0.5f, 0.1f, 0.5f);
         // draw quad
         GL11.glBegin(GL11.GL_POLYGON);
-        GL11.glVertex2f(100,100);
-        GL11.glVertex2f(100+200,100);
-        GL11.glVertex2f(100+200,100+200);
-        GL11.glVertex2f(100,100+150);
-        GL11.glVertex2f(150,300);
+        GL11.glVertex2f(100, 100);
+        GL11.glVertex2f(100 + 200, 100);
+        GL11.glVertex2f(100 + 200, 100 + 200);
+        GL11.glVertex2f(100, 100 + 150);
+        GL11.glVertex2f(150, 300);
+        GL11.glEnd();
+        GL11.glColor4f(0.6f, 0.2f, 0.4f, 0.5f);
+        GL11.glBegin(GL11.GL_POLYGON);
+        GL11.glVertex2f(200, 200);
+        GL11.glVertex2f(200 + 200, 200);
+        GL11.glVertex2f(200 + 200, 200 + 200);
+        GL11.glVertex2f(200, 200 + 150);
+        GL11.glVertex2f(250, 400);
         GL11.glEnd();
         GL11.glPopMatrix();
 
