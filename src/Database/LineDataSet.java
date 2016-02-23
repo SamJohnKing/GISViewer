@@ -1,5 +1,6 @@
 package Database;
 
+import javax.swing.plaf.synth.Region;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -446,6 +447,17 @@ public class LineDataSet implements LineDatabaseInterface{
 			if(LineHint[i].indexOf(Info4)==-1) continue;
 			DatabaseDelete(i);
 		}
+	}
+	public boolean CheckInRegion(int ID, double RegionX1, double RegionY1, double RegionX2, double RegionY2){
+		double Left		= GetMBRX1(ID);
+		double Right 	= GetMBRX2(ID);
+		double Up		= GetMBRY2(ID);
+		double Down		= GetMBRY1(ID);
+		if(Left 	> Math.max(RegionX1, RegionX2)) return false;
+		if(Right 	< Math.min(RegionX1, RegionX2)) return false;
+		if(Down		> Math.max(RegionY1, RegionY2)) return false;
+		if(Up		< Math.min(RegionY1, RegionY2)) return false;
+		return true;
 	}
 	public double PointLineCheck(int id,double x,double y){
 		int ptr=LineHead[id];

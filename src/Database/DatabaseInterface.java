@@ -13,6 +13,7 @@ public interface DatabaseInterface {
 	abstract public double GetMBRX2(int index);
 	abstract public double GetMBRY1(int index);
 	abstract public double GetMBRY2(int index);
+	abstract public boolean CheckInRegion(int ID, double RegionX1, double RegionY1, double RegionX2, double RegionY2);
 	abstract public int GetElementNum();
 	abstract public void Clear(int index);
 	abstract public IndexInterface GetIndexPermission();

@@ -61,7 +61,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	public ScreenCanvas Screen;
 	public int VisualObjectMaxNum = 25000;
 	boolean MyTimerEnable = true;
-	File DIR = null;
+	public File DIR = null;
 	public File ImageDir = null;
 	File TrafficFile = null;
 	File TaxiDir = null;
@@ -76,7 +76,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	JFileChooser FileDialog;
 	LandMarkQueryFrameClass LandMarkQueryFrame;
 	LandMarkSpotFrameClass LandMarkSpotFrame;
-	double LongitudeStart = 1e100, LongitudeEnd = -1e100,
+	public double LongitudeStart = 1e100, LongitudeEnd = -1e100,
 			LatitudeStart = 1e100, LatitudeEnd = -1e100;
 	JFrame SubFrameClock;
 	public GPSSet GPSPoints;
@@ -2560,7 +2560,8 @@ public class MapWizard extends JFrame implements ActionListener {
 	public class ScreenCanvas extends Canvas implements MouseListener,
 			MouseWheelListener, MouseMotionListener {
 		// 将卫星图和种种地图元素显示在屏幕上，并且解读和处理用户的鼠标操作
-		Image image;
+		public Image image;
+		public String ImagePath = null;
 		Toolkit tool;
 		double rate;
 		public boolean lock;
@@ -6373,6 +6374,7 @@ public class MapWizard extends JFrame implements ActionListener {
 			if (state == JFileChooser.APPROVE_OPTION) {
 				Screen.image = this.getToolkit().createImage(
 						FileDialog.getSelectedFile().toString());
+				Screen.ImagePath = FileDialog.getSelectedFile().toString();
 				Screen.repaint();
 			}
 		} else if (e.getSource() == setDefaultMapBackground) {
@@ -6390,6 +6392,7 @@ public class MapWizard extends JFrame implements ActionListener {
 			}
 			Screen.image = this.getToolkit().createImage(
 					new File(ImageDir, "Map.jpg").toString());
+			Screen.ImagePath = new File(ImageDir, "Map.jpg").toString();
 			Screen.repaint();
 		} else if (e.getSource() == TwoPointItem) {
 			if (DIR == null) {
