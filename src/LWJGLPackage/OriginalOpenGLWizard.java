@@ -3,13 +3,16 @@ import static org.lwjgl.opengl.GL11.glViewport;
 
 import java.awt.*;
 import java.awt.Color;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.util.Calendar;
 
 import MapKernel.MapWizard;
 import OpenGLPackage.mdesl.graphics.*;
+import javafx.stage.Screen;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
@@ -84,9 +87,15 @@ public class OriginalOpenGLWizard{
         new Thread(new Runnable() {
             @Override
             public void run() {
-                OriginalOpenGLWizard displayExample = new OriginalOpenGLWizard();
-                displayExample.start(ScreenWidth, ScreenHeight, OriginLongitude, OriginLatitude, LongitudeScale, LatitudeScale);
-                LWJGLPackage.OriginalOpenGLWizard.SingleItem = null;
+                try {
+                    OriginalOpenGLWizard displayExample = new OriginalOpenGLWizard();
+                    displayExample.start(ScreenWidth, ScreenHeight, OriginLongitude, OriginLatitude, LongitudeScale, LatitudeScale);
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                }finally {
+                    Display.destroy();
+                    LWJGLPackage.OriginalOpenGLWizard.SingleItem = null;
+                }
             }
         });
 
@@ -130,34 +139,7 @@ public class OriginalOpenGLWizard{
     }
 
     public void update(int delta) {
-        // rotate quad
 
-        /*
-        rotation += 0.15f * delta;
-
-        if (Keyboard.isKeyDown(Keyboard.KEY_LEFT)) x -= 0.35f * delta;
-        if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)) x += 0.35f * delta;
-
-        if (Keyboard.isKeyDown(Keyboard.KEY_UP)) y -= 0.35f * delta;
-        if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)) y += 0.35f * delta;
-
-        while (Keyboard.next()) {
-            if (Keyboard.getEventKeyState()) {
-                if (Keyboard.getEventKey() == Keyboard.KEY_F) {
-                    setDisplayMode(1024, 768, !Display.isFullscreen());
-                } else if (Keyboard.getEventKey() == Keyboard.KEY_V) {
-                    vsync = !vsync;
-                    Display.setVSyncEnabled(vsync);
-                }
-            }
-        }
-
-        // keep quad on the screen
-        if (x < 0) x = 0;
-        if (x > 1024) x = 1024;
-        if (y < 0) y = 0;
-        if (y > 768) y = 768;
-        */
         HandleInput();
 
         updateFPS(); // update FPS Counter
@@ -1107,31 +1089,119 @@ public class OriginalOpenGLWizard{
         GL11.glPopMatrix();
     }
 
+    public long MouseLeftButtonPressedTime  = -1;
+    public long MouseLeftButtonReleasedTime = -1;
+    public long MouseRightButtonPressedTime = -1;
+    public long MouseRightButtonReleasedTime= -1;
     private void HandleInput() { /** For Processing Mouse and Keyboard */
+        /** Mouse Keyboard Controller */
+        if(Mouse.isButtonDown(0)) { /** Mouse Drag */
+            double DragX = Mouse.getDX();
+            double DragY = Mouse.getDY();
+            OriginLongitude -= DragX / ScreenWidth * LongitudeScale;
+            OriginLatitude -= DragY / ScreenHeight * LatitudeScale;
+        }
+
+        if (Math.abs(Mouse.getEventDWheel()) > 100)
+        if (Mouse.getDWheel() != 0) { /** Wheel Move */
+            double CenterX = GetLogicalX();
+            double CenterY = GetLogicalY();
+            if (Mouse.getEventDWheel() > 0) {
+                LongitudeScale /= 1.1;
+                LatitudeScale /= 1.1;
+            } else {
+                LongitudeScale *= 1.1;
+                LatitudeScale *= 1.1;
+            }
+            OriginLongitude = CenterX - Mouse.getX() * LongitudeScale / ScreenWidth;
+            OriginLatitude = CenterY - Mouse.getY() * LatitudeScale / ScreenHeight;
+        }
+
         while (Mouse.next()) {
-            if (!Mouse.getEventButtonState()) {
+
+            if (Mouse.getEventButtonState()) {
+                if (Mouse.getEventButton() == 0) {
+                    //System.out.println("Left button pressed");
+                    MouseLeftButtonPressedTime = Calendar.getInstance().getTimeInMillis();
+                } else if(Mouse.getEventButton() == 1){
+                    //System.out.println("Right button pressed");
+                    MouseRightButtonPressedTime = Calendar.getInstance().getTimeInMillis();
+                }
+            }else {
+                if (Mouse.getEventButton() == 0) {
+                    //System.out.println("Left button released");
+                    MouseLeftButtonReleasedTime = Calendar.getInstance().getTimeInMillis();;
+                }else if(Mouse.getEventButton() == 1){
+                    //System.out.println("Right button released");
+                    MouseRightButtonReleasedTime = Calendar.getInstance().getTimeInMillis();
+                }
+            }
+
+            if (Mouse.getEventButtonState()) { // Ignore the Button Pressed
                 continue;
             }
 
-            if(Mouse.getEventButton() == 0){//Left Button
-                System.out.println("0");
+            if(MouseLeftButtonReleasedTime - MouseLeftButtonPressedTime < 200) // If not Drag
+            if(Mouse.getEventButton() == 0){//Left Button Click
+                //System.out.println("Left Button Click at Logical Position "+ GetLogicalX() + " , "+ GetLogicalY());
+
+                if (MapWizard.SingleItem.BehaviorListener != null ){
+                    MapKernel.MapWizard.SingleItem.BehaviorListener.MousePressedListener(GetLogicalX(), GetLogicalY());
+                }else if (MapKernel.MapWizard.SingleItem.NowPanel.getString().equals("MapElementsEditorPane")) {
+                    ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
+                            (MapKernel.MapWizard.SingleItem.NowPanel);
+                    DBEditor.convey(GetLogicalX(), GetLogicalY());
+                }
             }
 
-            if(Mouse.getEventButton() == 1){//Right Button
-                System.out.println("1");
+            if(MouseRightButtonReleasedTime - MouseRightButtonPressedTime < 200) // If not Drag
+            if(Mouse.getEventButton() == 1){//Right Button Click
+                //System.out.println("Right Button Click");
+
+                if (MapWizard.SingleItem.BehaviorListener != null ){
+                    MapKernel.MapWizard.SingleItem.BehaviorListener.MousePressedListener(GetLogicalX(), GetLogicalY());
+                }else if (MapKernel.MapWizard.SingleItem.NowPanel.getString().equals("MapElementsEditorPane")) {
+                    ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
+                            (MapKernel.MapWizard.SingleItem.NowPanel);
+                    DBEditor.confirm();
+                }
             }
 
-            if(Mouse.getEventButton() == 2){//Middle Button
-                System.out.println("2");
+            if(Mouse.getEventButton() == 2){//Middle Button Click
+                System.out.println("Middle Button Click");
             }
+
         }
-        while (Keyboard.next()) {
 
-            // we only want key down events
+        while (Keyboard.next()) {
             if (!Keyboard.getEventKeyState()) {
                 continue;
             }
-
+            if(Keyboard.isKeyDown(Keyboard.KEY_C)||Keyboard.isKeyDown(Keyboard.KEY_V)){
+                double CenterX = GetLogicalX();
+                double CenterY = GetLogicalY();
+                if(Keyboard.isKeyDown(Keyboard.KEY_C)){
+                    LongitudeScale /= 1.1;
+                    LatitudeScale /= 1.1;
+                } else if(Keyboard.isKeyDown(Keyboard.KEY_V)){
+                    LongitudeScale *= 1.1;
+                    LatitudeScale *= 1.1;
+                };
+                OriginLongitude = CenterX - Mouse.getX() * LongitudeScale / ScreenWidth;
+                OriginLatitude = CenterY - Mouse.getY() * LatitudeScale / ScreenHeight;
+            }
+            if(Keyboard.isKeyDown(Keyboard.KEY_LEFT)){
+                OriginLongitude -= 0.1 * LongitudeScale;
+            }
+            if(Keyboard.isKeyDown(Keyboard.KEY_RIGHT)){
+                OriginLongitude += 0.1 * LongitudeScale;
+            }
+            if(Keyboard.isKeyDown(Keyboard.KEY_UP)){
+                OriginLatitude += 0.1 * LatitudeScale;
+            }
+            if(Keyboard.isKeyDown(Keyboard.KEY_DOWN)){
+                OriginLatitude -= 0.1 * LatitudeScale;
+            }
         }
     }
 
@@ -1211,6 +1281,12 @@ public class OriginalOpenGLWizard{
     }
     static BufferedImage BackgroundImage = null;
     static String        BackGroundPath  = null;
+    public double GetLogicalX(){
+        return (OriginLongitude + org.lwjgl.input.Mouse.getX() * LongitudeScale / ScreenWidth);
+    }
+    public double GetLogicalY(){
+        return (OriginLatitude + org.lwjgl.input.Mouse.getY()  * LatitudeScale / ScreenHeight);
+    }
     public void renderGL() { /** For Drawing Elements */
         // Clear The Screen And The Depth Buffer
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -1301,6 +1377,71 @@ public class OriginalOpenGLWizard{
                 GL11.glDeleteTextures(textureID);
             }
         }
+
+        // Draw for Extended Components
+        GL11.glEnable(GL11.GL_LINE_STIPPLE);
+        GL11.glLineStipple(2, (short) 0x6666);
+        if ((MapWizard.SingleItem.Screen.IsExtendedPointVisible) && (MapWizard.SingleItem.Screen.ExtendedPointCount > 0)) {
+            for (int i = 0; i < MapWizard.SingleItem.Screen.ExtendedPointCount; i++) {
+                int xx = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[i]);
+                int yy = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[i]);
+                xx += MapWizard.SingleItem.Screen.ScreenDeltaX;
+                yy += MapWizard.SingleItem.Screen.ScreenDeltaY;
+                GL11.glColor4f(1f, 1f, 0f, 1f);
+                drawPoint(xx, yy, 8);
+                if (MapWizard.SingleItem.Screen.IsExtendedPointHintVisible) {
+                    drawString(MapWizard.SingleItem.Screen.ExtendedPointHint[i], xx + 8, yy);
+                }
+            }
+            GL11.glColor4f(0f, 1f, 0f, 1f);
+            if (MapWizard.SingleItem.Screen.IsConsecutiveLink)
+                for (int i = 1; i < MapWizard.SingleItem.Screen.ExtendedPointCount; i++) {
+                    int x1 = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[i - 1]);
+                    int y1 = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[i - 1]);
+                    int x2 = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[i]);
+                    int y2 = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[i]);
+                    x1 += MapWizard.SingleItem.Screen.ScreenDeltaX;
+                    y1 += MapWizard.SingleItem.Screen.ScreenDeltaY;
+                    x2 += MapWizard.SingleItem.Screen.ScreenDeltaX;
+                    y2 += MapWizard.SingleItem.Screen.ScreenDeltaY;
+                    drawLine(x1, y1, x2, y2, 2);
+
+                    int x3 = (x1 + x2) / 2 + (y2 - y1) / 4;
+                    int y3 = (y1 + y2) / 2 - (x2 - x1) / 4;
+                    x3 = x3 + 3 * (x2 - x3) / 4;
+                    y3 = y3 + 3 * (y2 - y3) / 4;
+                    drawLine(x3, y3, x2, y2, 2);
+
+                    x3 = (x1 + x2) / 2 - (y2 - y1) / 4;
+                    y3 = (y1 + y2) / 2 + (x2 - x1) / 4;
+                    x3 = x3 + 3 * (x2 - x3) / 4;
+                    y3 = y3 + 3 * (y2 - y3) / 4;
+                    drawLine(x3, y3, x2, y2, 2);
+                }
+            if (MapWizard.SingleItem.Screen.IsHeadTailLink) {
+                GL11.glColor4f(1f, 0f, 0f, 1f);
+                int x1 = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[0]);
+                int y1 = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[0]);
+                int x2 = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[MapWizard.SingleItem.Screen.ExtendedPointCount - 1]);
+                int y2 = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[MapWizard.SingleItem.Screen.ExtendedPointCount - 1]);
+                x1 += MapWizard.SingleItem.Screen.ScreenDeltaX;
+                y1 += MapWizard.SingleItem.Screen.ScreenDeltaY;
+                x2 += MapWizard.SingleItem.Screen.ScreenDeltaX;
+                y2 += MapWizard.SingleItem.Screen.ScreenDeltaY;
+                drawLine(x1, y1, x2, y2, 2);
+            }
+            if (MapWizard.SingleItem.Screen.ExtendedPointSelectCount != 0) {
+                for (int i = 0; i < MapWizard.SingleItem.Screen.ExtendedPointSelectCount; i++) {
+                    int xx = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[MapWizard.SingleItem.Screen.ExtendedPointSelectList[i]]);
+                    int yy = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[MapWizard.SingleItem.Screen.ExtendedPointSelectList[i]]);
+                    xx += MapWizard.SingleItem.Screen.ScreenDeltaX;
+                    yy += MapWizard.SingleItem.Screen.ScreenDeltaY;
+                    GL11.glColor4f(1f, 0f, 0f, 1f);
+                    drawPoint(xx, yy, 8);
+                }
+            }
+        }
+        GL11.glDisable(GL11.GL_LINE_STIPPLE);
 
         //Draw OpenGL Elements
         if (MapWizard.SingleItem.IsAllElementInvisible) return;

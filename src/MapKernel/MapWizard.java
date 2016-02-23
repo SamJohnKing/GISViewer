@@ -2576,7 +2576,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		double LargeRegionLongitude, LargeRegionLatitude,
 				LargeRegionLongitudeScale, LargeRegionLatitudeScale;
 		String[] TempString = new String[100000];
-		int ScreenDeltaX = 0, ScreenDeltaY = 0;
+		public int ScreenDeltaX = 0, ScreenDeltaY = 0;
 
 		public void setShowLargeRegion(double x0, double y0, double w, double h) {// 允许在地图上显示矩形
 			LargeRegionLongitude = x0;
@@ -2656,16 +2656,16 @@ public class MapWizard extends JFrame implements ActionListener {
 		public boolean IsTextArea1BackGround = false;
 		boolean IsTextArea2BackGround = false;
 
-		boolean IsExtendedPointVisible = false;
-		double[] ExtendedPointX = new double[10000];
-		double[] ExtendedPointY = new double[10000];
-		String[] ExtendedPointHint = new String[10000];
-		int ExtendedPointSelectCount = 0;
-		int[] ExtendedPointSelectList = new int[10000];
-		int ExtendedPointCount = 0;
-		boolean IsConsecutiveLink = false;// 是否顺序相连
-		boolean IsHeadTailLink = false;// 是否首位相连
-		boolean IsExtendedPointHintVisible = false;
+		public boolean IsExtendedPointVisible = false;
+		public double[] ExtendedPointX = new double[10000];
+		public double[] ExtendedPointY = new double[10000];
+		public String[] ExtendedPointHint = new String[10000];
+		public int ExtendedPointSelectCount = 0;
+		public int[] ExtendedPointSelectList = new int[10000];
+		public int ExtendedPointCount = 0;
+		public boolean IsConsecutiveLink = false;// 是否顺序相连
+		public boolean IsHeadTailLink = false;// 是否首位相连
+		public boolean IsExtendedPointHintVisible = false;
 
 		public void ExtendedPointPush(double x, double y) {
 			ExtendedPointX[ExtendedPointCount] = x;
