@@ -549,6 +549,17 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 		}
 		return y2;
 	}
+	public boolean CheckInRegion(int ID, double RegionX1, double RegionY1, double RegionX2, double RegionY2){
+		double Left		= GetMBRX1(ID);
+		double Right 	= GetMBRX2(ID);
+		double Up		= GetMBRY2(ID);
+		double Down		= GetMBRY1(ID);
+		if(Left 	> Math.max(RegionX1, RegionX2)) return false;
+		if(Right 	< Math.min(RegionX1, RegionX2)) return false;
+		if(Down		> Math.max(RegionY1, RegionY2)) return false;
+		if(Up		< Math.min(RegionY1, RegionY2)) return false;
+		return true;
+	}
 	@Override
 	public int GetElementNum() {
 		// TODO Auto-generated method stub
