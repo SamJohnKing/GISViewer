@@ -8,6 +8,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import MapKernel.MapWizard;
@@ -23,6 +24,7 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.glu.GLUtessellator;
+import org.lwjgl.util.glu.tessellation.GLUtessellatorImpl;
 import sun.java2d.loops.DrawPolygons;
 
 import javax.swing.*;
@@ -1269,15 +1271,31 @@ public class OriginalOpenGLWizard{
         GL11.glEnd();
         GL11.glPopMatrix();
     }
+    double[] Coor = new double[300000];
+    public void drawPolygon(int counter, double[] Coor) {
+        Tessellator tess = new Tessellator();
 
-    public void drawPolygon(int counter, int[] X, int[] Y) {
-        GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
-        GL11.glBegin(GL11.GL_POLYGON);
-        for(int Ptr = 0; Ptr < counter; Ptr++){
-            GL11.glVertex2f(X[Ptr], Y[Ptr]);
+        tess.gluBeginPolygon();
+
+        tess.gluTessBeginContour();
+        for(int Ptr = 0; Ptr < counter / 3; Ptr++){
+            tess.gluTessVertex(Coor, Ptr * 3, Ptr);
         }
-        GL11.glEnd();
-        GL11.glPopMatrix();
+        tess.gluTessEndContour();
+
+        tess.gluEndPolygon();
+        tess.gluDeleteTess();
+
+        for(int i = 0; i < tess.primitives.size(); i++) {
+            Primitive Triangle = tess.primitives.get(i);
+            GL11.glBegin(Triangle.type);
+            for(int j = 0; j < Triangle.vertices.size(); j++){
+                int Ptr = Triangle.vertices.get(j);
+                GL11.glVertex2f((float) Coor[3 * Ptr], (float) Coor[3 * Ptr + 1]);
+            }
+            GL11.glEnd();
+            GL11.glPopMatrix();
+        }
     }
     static BufferedImage BackgroundImage = null;
     static String        BackGroundPath  = null;
@@ -1356,7 +1374,7 @@ public class OriginalOpenGLWizard{
             double Ylen = (LatitudeScale)
                     / (MapWizard.SingleItem.LatitudeEnd - MapWizard.SingleItem.LatitudeStart) * MapWizard.SingleItem.Screen.image.getHeight(null);
             // 将需要显示的经纬度范围转化为窗口界面中像素值
-            if(Xlen + Ylen < 6400){
+            if(Xlen + Ylen < (ScreenWidth + ScreenHeight) * 1.5){
                 if((BackgroundImage == null) || (!MapWizard.SingleItem.Screen.ImagePath.equals(BackGroundPath))){
                     BackgroundImage = TextureLoader.loadImage(MapWizard.SingleItem.Screen.ImagePath);
                     BackGroundPath = MapWizard.SingleItem.Screen.ImagePath;
@@ -1379,7 +1397,6 @@ public class OriginalOpenGLWizard{
         }
 
         // Draw for Extended Components
-        GL11.glEnable(GL11.GL_LINE_STIPPLE);
         GL11.glLineStipple(2, (short) 0x6666);
         if ((MapWizard.SingleItem.Screen.IsExtendedPointVisible) && (MapWizard.SingleItem.Screen.ExtendedPointCount > 0)) {
             for (int i = 0; i < MapWizard.SingleItem.Screen.ExtendedPointCount; i++) {
@@ -1404,7 +1421,9 @@ public class OriginalOpenGLWizard{
                     y1 += MapWizard.SingleItem.Screen.ScreenDeltaY;
                     x2 += MapWizard.SingleItem.Screen.ScreenDeltaX;
                     y2 += MapWizard.SingleItem.Screen.ScreenDeltaY;
+                    GL11.glEnable(GL11.GL_LINE_STIPPLE);
                     drawLine(x1, y1, x2, y2, 2);
+                    GL11.glDisable(GL11.GL_LINE_STIPPLE);
 
                     int x3 = (x1 + x2) / 2 + (y2 - y1) / 4;
                     int y3 = (y1 + y2) / 2 - (x2 - x1) / 4;
@@ -1422,12 +1441,15 @@ public class OriginalOpenGLWizard{
                 GL11.glColor4f(1f, 0f, 0f, 1f);
                 int x1 = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[0]);
                 int y1 = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[0]);
-                int x2 = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[MapWizard.SingleItem.Screen.ExtendedPointCount - 1]);
-                int y2 = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[MapWizard.SingleItem.Screen.ExtendedPointCount - 1]);
+                int Ptr = MapWizard.SingleItem.Screen.ExtendedPointCount - 1;
+                if(Ptr < 0) Ptr = 0;
+                int x2 = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[Ptr]);
+                int y2 = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[Ptr]);
                 x1 += MapWizard.SingleItem.Screen.ScreenDeltaX;
                 y1 += MapWizard.SingleItem.Screen.ScreenDeltaY;
                 x2 += MapWizard.SingleItem.Screen.ScreenDeltaX;
                 y2 += MapWizard.SingleItem.Screen.ScreenDeltaY;
+                GL11.glEnable(GL11.GL_LINE_STIPPLE);
                 drawLine(x1, y1, x2, y2, 2);
             }
             if (MapWizard.SingleItem.Screen.ExtendedPointSelectCount != 0) {
@@ -1498,6 +1520,7 @@ public class OriginalOpenGLWizard{
 
                                     if ((MapWizard.SingleItem.ShowVisualFeature)
                                             && (MapWizard.SingleItem.Screen.GetVisualArrow(MapWizard.SingleItem.LineDatabase.LineHint[i]))) {
+                                        GL11.glLineStipple(2, (short) 0xFFFF);
                                         drawLine(x2,y2,
                                                 (float) (x2
                                                         + 0.2
@@ -1512,6 +1535,7 @@ public class OriginalOpenGLWizard{
                                                 (float) (y2
                                                         + 0.2
                                                         * ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))),thickness);
+                                        GL11.glLineStipple(2, (short) 0x6666);
                                     }
                                     DrawCount++;
                                     p1 = p2;
@@ -1597,13 +1621,14 @@ public class OriginalOpenGLWizard{
                                     drawLine(x1, y1, x2, y2, thickness);
                                     if ((MapWizard.SingleItem.ShowVisualFeature)
                                             && (MapWizard.SingleItem.Screen.GetVisualArrow(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i]))) {
-                                        drawLine(x2,y2,
-                                                (float)(x2
+                                        GL11.glLineStipple(2, (short) 0xFFFF);
+                                        drawLine(x2, y2,
+                                                (float) (x2
                                                         + 0.2
                                                         * (0.87 * (x1 - x2) - (y1 - y2) * 0.34)),
-                                                (float)(y2
+                                                (float) (y2
                                                         + 0.2
-                                                        * ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))),thickness);
+                                                        * ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))), thickness);
                                         drawLine(x2,y2,
                                                 (float)(x2
                                                         + 0.2
@@ -1611,6 +1636,7 @@ public class OriginalOpenGLWizard{
                                                 (float)(y2
                                                         + 0.2
                                                         * ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))),thickness);
+                                        GL11.glLineStipple(2, (short) 0x6666);
                                     }
                                     DrawCount++;
                                     p1 = p2;
@@ -1625,20 +1651,21 @@ public class OriginalOpenGLWizard{
                                         GL11.glColor4f(Origin.getRed()/255f,Origin.getGreen()/255f,Origin.getBlue()/255f,Origin.getAlpha()/255f);
                                         now = MapWizard.SingleItem.PolygonDatabase.PolygonHead[i];
                                         p1 = now;
-                                        int[] PolygonX = new int[1000];
-                                        int[] PolygonY = new int[1000];
                                         int counter = 0;
                                         while (true) {
                                             p2 = MapWizard.SingleItem.PolygonDatabase.AllPointNext[p1];
                                             if (p2 == -1) p2 = now;
-                                            PolygonX[counter] = (int) GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[p1]);
-                                            PolygonY[counter] = (int) GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[p1]);
+                                            Coor[counter] = (int) GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[p1]);
+                                            counter++;
+                                            Coor[counter] = (int) GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[p1]);
+                                            counter++;
+                                            Coor[counter] = 0;
                                             counter++;
                                             p1 = p2;
                                             if (p1 == now) break;
                                         }
                                         /** DrawPolygon */
-                                        drawPolygon(counter, PolygonX, PolygonY);
+                                        drawPolygon(counter, Coor);
                                     }
                             if (
                                     ((!MapWizard.SingleItem.ShowVisualFeature)&&((binary & MapWizard.SingleItem.Ox("100")) != 0))
@@ -1745,5 +1772,87 @@ public class OriginalOpenGLWizard{
         if (MapWizard.SingleItem.Screen.IsTextArea2Visible) {
             drawString(MapWizard.SingleItem.Screen.TextArea2Content, Display.getWidth()/2+10, 5);
         }
+    }
+    public static void Sample(){
+        Tessellator tess = new Tessellator();
+
+        double[] verticesC1 = new double[]{
+                0, 0, 0, //0
+                100, 0, 0, //1
+                100, 100, 0, //2
+                0, 100, 0 //3
+        };
+
+        tess.gluBeginPolygon();
+
+        tess.gluTessBeginContour();
+        tess.gluTessVertex(verticesC1, 0, 0);
+        tess.gluTessVertex(verticesC1, 3, 1);
+        tess.gluTessVertex(verticesC1, 6, 2);
+        tess.gluTessVertex(verticesC1, 9, 3);
+        tess.gluTessEndContour();
+
+        tess.gluEndPolygon();
+        tess.gluDeleteTess();
+
+        for(int i = 0; i < tess.primitives.size(); i++) {
+            System.out.println(tess.primitives.get(i).toString());
+        }
+    }
+}
+class Primitive {
+    public final int type;
+    public final ArrayList<Integer> vertices = new ArrayList<>();
+
+    public Primitive(int type) {
+        this.type = type;
+    }
+
+    private String getTypeString() {
+        switch(type) {
+            case GL11.GL_TRIANGLES: return "GL_TRIANGLES";
+            case GL11.GL_TRIANGLE_STRIP: return "GL_TRIANGLE_STRIP";
+            case GL11.GL_TRIANGLE_FAN: return "GL_TRIANGLE_FAN";
+            default: return Integer.toString(type);
+        }
+    }
+
+    @Override
+    public String toString() {
+        String s = "New Primitive " + getTypeString();
+        for(int i = 0; i < vertices.size(); i++) {
+            s += "\nIndex: " + vertices.get(i);
+        }
+        return s;
+    }
+}
+class Tessellator extends GLUtessellatorImpl {
+    public ArrayList<Primitive> primitives = new ArrayList<Primitive>();
+
+    public Tessellator() {
+        org.lwjgl.util.glu.GLUtessellatorCallbackAdapter callback = new org.lwjgl.util.glu.GLUtessellatorCallbackAdapter() {
+            @Override
+            public void begin(int type) {
+                Tessellator.this.primitives.add(new Primitive(type));
+            }
+
+            @Override
+            public void vertex(Object vertexData) {
+                Integer coords = (Integer) vertexData;
+                Tessellator.this.getLastPrimitive().vertices.add(coords);
+            }
+
+            @Override
+            public void error(int errnum) {
+                throw new RuntimeException("GLU Error " + GLU.gluErrorString(errnum));
+            }
+
+        };
+        this.gluTessCallback(GLU.GLU_TESS_BEGIN, callback);
+        this.gluTessCallback(GLU.GLU_VERTEX, callback);
+    }
+
+    private Primitive getLastPrimitive() {
+        return primitives.get(primitives.size() - 1);
     }
 }

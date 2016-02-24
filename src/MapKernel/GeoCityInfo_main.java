@@ -1,5 +1,7 @@
 package MapKernel;
 
+import LWJGLPackage.OriginalOpenGLWizard;
+
 public class GeoCityInfo_main {
 	public static String Folder_Prefix=null;
 	public static void main(String args[]){
