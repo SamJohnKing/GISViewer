@@ -1769,8 +1769,9 @@ public class OriginalOpenGLWizard{
         if (MapWizard.SingleItem.Screen.IsTextArea1Visible) {
             drawString(MapWizard.SingleItem.Screen.TextArea1Content, 10, 5);
         }
+        GL11.glColor4f(1f, 1f, 1f, 0.2f);
         if (MapWizard.SingleItem.Screen.IsTextArea2Visible) {
-            drawString(MapWizard.SingleItem.Screen.TextArea2Content, Display.getWidth()/2+10, 5);
+            drawString(MapWizard.SingleItem.Screen.TextArea2Content, 10, Display.getHeight() - 15);
         }
     }
     public static void Sample(){
