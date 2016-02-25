@@ -35,12 +35,12 @@ public class OriginalOpenGLWizard{
      * position of quad
      */
     float x = 512, y = 384;
-    int ScreenWidth = -1;
-    int ScreenHeight = -1;
-    double OriginLongitude  = -1; /** Left Down */
-    double OriginLatitude   = -1; /** Left Down */
-    double LongitudeScale   = -1; /** Left Down */
-    double LatitudeScale    = -1; /** Left Down */
+    public int ScreenWidth = -1;
+    public int ScreenHeight = -1;
+    public double OriginLongitude  = -1; /** Left Down */
+    public double OriginLatitude   = -1; /** Left Down */
+    public double LongitudeScale   = -1; /** Left Down */
+    public double LatitudeScale    = -1; /** Left Down */
     /**
      * angle of quad rotation
      */
@@ -64,8 +64,13 @@ public class OriginalOpenGLWizard{
      */
     boolean vsync;
 
-    public static Thread SingleItem = null;
+    public static OriginalOpenGLWizard SingleItem = null;
     public static void GetInstance(){
+        if(SingleItem != null){
+            javax.swing.JOptionPane.showMessageDialog(null,"Another Instance is Running");
+            return;
+        }
+
         String str_width= JOptionPane.showInputDialog(null, "Screen Width");
         String str_height=JOptionPane.showInputDialog(null,"Screnn Height");
         try{
@@ -85,13 +90,12 @@ public class OriginalOpenGLWizard{
             return;
         }
 
-        SingleItem =
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    OriginalOpenGLWizard displayExample = new OriginalOpenGLWizard();
-                    displayExample.start(ScreenWidth, ScreenHeight, OriginLongitude, OriginLatitude, LongitudeScale, LatitudeScale);
+                    LWJGLPackage.OriginalOpenGLWizard.SingleItem = new OriginalOpenGLWizard();
+                    LWJGLPackage.OriginalOpenGLWizard.SingleItem.start(ScreenWidth, ScreenHeight, OriginLongitude, OriginLatitude, LongitudeScale, LatitudeScale);
                 }catch(Exception ex){
                     ex.printStackTrace();
                 }finally {
@@ -99,9 +103,7 @@ public class OriginalOpenGLWizard{
                     LWJGLPackage.OriginalOpenGLWizard.SingleItem = null;
                 }
             }
-        });
-
-        SingleItem.start();
+        }).start();
     }
 
     public void start(int ScreenWidth, int ScreenHeight, double OriginLongitude, double OriginLatitude, double LongitudeScale, double LatitudeScale) {
@@ -1053,6 +1055,10 @@ public class OriginalOpenGLWizard{
             } else if (c == '\n') {
                 y -= 14;
                 x = startX;
+                continue;
+            } else if (c == '\t') {
+                x = (x / 32 + 1) * 32;
+                continue;
             } else if (c == ' ') {
                 x += 8;
             } else if (c == '_') {
@@ -1246,11 +1252,11 @@ public class OriginalOpenGLWizard{
     }
 
     public int GetScreenX(double LogicalX){
-        return (int) ((LogicalX - OriginLongitude) / LongitudeScale * ScreenWidth);
+        return (int) ((LogicalX - OriginLongitude) / LongitudeScale * ScreenWidth + 0.5);
     }
 
     public int GetScreenY(double LogicalY){
-        return (int) ((LogicalY - OriginLatitude) / LatitudeScale * ScreenHeight);
+        return (int) ((LogicalY - OriginLatitude) / LatitudeScale * ScreenHeight + 0.5);
     }
 
     public void drawLine(float x1, float y1, float x2, float y2, float thickness){
@@ -1379,7 +1385,7 @@ public class OriginalOpenGLWizard{
                     BackgroundImage = TextureLoader.loadImage(MapWizard.SingleItem.Screen.ImagePath);
                     BackGroundPath = MapWizard.SingleItem.Screen.ImagePath;
                 }
-                int textureID = TextureLoader.loadTexture(BackgroundImage, (int) Xst, (int) Yst, (int) (Xst + Xlen), (int) (Yst + Ylen));
+                int textureID = TextureLoader.loadTexture(BackgroundImage, (int) (Xst + 0.5), (int) (Yst + 0.5), (int) (Xst + Xlen + 0.5), (int) (Yst + Ylen + 0.5));
                 GL11.glColor4f(1f, 1f, 1f, 1f);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID);
                 GL11.glBegin(GL11.GL_QUADS);
@@ -1573,10 +1579,10 @@ public class OriginalOpenGLWizard{
                                     java.awt.Color Origin=MapWizard.SingleItem.getChooseColor(choose);
                                     GL11.glColor4f(Origin.getRed()/255f,Origin.getGreen()/255f,Origin.getBlue()/255f, 1f);
                                     now = MapWizard.SingleItem.LineDatabase.LineHead[i];
-                                    float xx = GetScreenX(MapWizard.SingleItem.LineDatabase.AllPointX[now]);
-                                    float yy = GetScreenY(MapWizard.SingleItem.LineDatabase.AllPointY[now]);
+                                    int xx = GetScreenX(MapWizard.SingleItem.LineDatabase.AllPointX[now]);
+                                    int yy = GetScreenY(MapWizard.SingleItem.LineDatabase.AllPointY[now]);
                                     DrawCount++;
-                                    drawString(MapWizard.SingleItem.LineDatabase.getTitle(i), (int) xx, (int) yy);
+                                    drawString(MapWizard.SingleItem.LineDatabase.getTitle(i),  xx,  yy);
                                 }
                         }
                 }
@@ -1655,9 +1661,9 @@ public class OriginalOpenGLWizard{
                                         while (true) {
                                             p2 = MapWizard.SingleItem.PolygonDatabase.AllPointNext[p1];
                                             if (p2 == -1) p2 = now;
-                                            Coor[counter] = (int) GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[p1]);
+                                            Coor[counter] = GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[p1]);
                                             counter++;
-                                            Coor[counter] = (int) GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[p1]);
+                                            Coor[counter] = GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[p1]);
                                             counter++;
                                             Coor[counter] = 0;
                                             counter++;
@@ -1701,10 +1707,10 @@ public class OriginalOpenGLWizard{
                                     java.awt.Color Origin=MapWizard.SingleItem.getChooseColor(choose);
                                     GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, 1f);
                                     now = MapWizard.SingleItem.PolygonDatabase.PolygonHead[i];
-                                    float xx =GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[now]);
-                                    float yy =GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[now]);
+                                    int xx =GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[now]);
+                                    int yy =GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[now]);
                                     DrawCount++;
-                                    drawString(MapWizard.SingleItem.PolygonDatabase.getTitle(i), (int) xx, (int) yy);
+                                    drawString(MapWizard.SingleItem.PolygonDatabase.getTitle(i), xx, yy);
                                 }
                         }
                 }
@@ -1749,9 +1755,9 @@ public class OriginalOpenGLWizard{
                                 choose = (binary >> 4) & MapWizard.SingleItem.Ox("111");
                                 java.awt.Color Origin=MapWizard.SingleItem.getChooseColor(choose);
                                 GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, 1f);
-                                float xx = GetScreenX(MapWizard.SingleItem.PointDatabase.AllPointX[i]);
-                                float yy = GetScreenY(MapWizard.SingleItem.PointDatabase.AllPointY[i]);
-                                drawString(MapWizard.SingleItem.PointDatabase.getTitle(i), (int) xx, (int) yy);
+                                int xx = GetScreenX(MapWizard.SingleItem.PointDatabase.AllPointX[i]);
+                                int yy = GetScreenY(MapWizard.SingleItem.PointDatabase.AllPointY[i]);
+                                drawString(MapWizard.SingleItem.PointDatabase.getTitle(i), xx, yy);
                             }
                     }
                 }
@@ -1764,14 +1770,21 @@ public class OriginalOpenGLWizard{
                 ex.printStackTrace();
             }
         };
-
+        GL11.glColor4f(0f, 1f, 0f, 0.33f);
+        if (MapWizard.SingleItem.Screen.IsTextArea2Visible) {
+            drawString(MapWizard.SingleItem.Screen.TextArea2Content, 10, Display.getHeight() - 15);
+        }
+        GL11.glColor4f(0f, 0f, 0f, 1f);
+        GL11.glBegin(GL11.GL_POLYGON);
+        GL11.glVertex2f(0, 0);
+        GL11.glVertex2f(ScreenWidth, 0);
+        GL11.glVertex2f(ScreenWidth, 20);
+        GL11.glVertex2f(0, 20);
+        GL11.glEnd();
+        GL11.glPopMatrix();
         GL11.glColor4f(1f, 0f, 0f, 1f);
         if (MapWizard.SingleItem.Screen.IsTextArea1Visible) {
             drawString(MapWizard.SingleItem.Screen.TextArea1Content, 10, 5);
-        }
-        GL11.glColor4f(1f, 1f, 1f, 0.2f);
-        if (MapWizard.SingleItem.Screen.IsTextArea2Visible) {
-            drawString(MapWizard.SingleItem.Screen.TextArea2Content, 10, Display.getHeight() - 15);
         }
     }
     public static void Sample(){
