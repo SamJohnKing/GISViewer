@@ -1,8 +1,10 @@
 package LWJGLPackage;
+
 import static org.lwjgl.opengl.GL11.glViewport;
 
 import java.awt.*;
 import java.awt.Color;
+import java.awt.color.ColorSpace;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -10,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Vector;
 
 import MapKernel.MapWizard;
 import OpenGLPackage.mdesl.graphics.*;
@@ -29,7 +32,7 @@ import sun.java2d.loops.DrawPolygons;
 
 import javax.swing.*;
 
-public class OriginalOpenGLWizard{
+public class OriginalOpenGLWizard {
 
     /**
      * position of quad
@@ -37,10 +40,19 @@ public class OriginalOpenGLWizard{
     float x = 512, y = 384;
     public int ScreenWidth = -1;
     public int ScreenHeight = -1;
-    public double OriginLongitude  = -1; /** Left Down */
-    public double OriginLatitude   = -1; /** Left Down */
-    public double LongitudeScale   = -1; /** Left Down */
-    public double LatitudeScale    = -1; /** Left Down */
+    public double OriginLongitude = -1;
+    /**
+     * Left Down
+     */
+    public double OriginLatitude = -1;
+    /**
+     * Left Down
+     */
+    public double LongitudeScale = -1;
+    /**
+     * Left Down
+     */
+    public double LatitudeScale = -1; /** Left Down */
     /**
      * angle of quad rotation
      */
@@ -65,28 +77,30 @@ public class OriginalOpenGLWizard{
     boolean vsync;
 
     public static OriginalOpenGLWizard SingleItem = null;
-    public static void GetInstance(){
-        if(SingleItem != null){
-            javax.swing.JOptionPane.showMessageDialog(null,"Another Instance is Running");
+
+    public static void GetInstance() {
+        if (SingleItem != null) {
+            javax.swing.JOptionPane.showMessageDialog(null, "Another Instance is Running");
             return;
         }
 
-        String str_width= JOptionPane.showInputDialog(null, "Screen Width");
-        String str_height=JOptionPane.showInputDialog(null,"Screnn Height");
-        try{
+        String str_width = JOptionPane.showInputDialog(null, "Screen Width");
+        String str_height = JOptionPane.showInputDialog(null, "Screnn Height");
+        try {
             double width = Integer.parseInt(str_width);
             double height = Integer.parseInt(str_height);
             GetInstance((int) width, (int) height, MapWizard.SingleItem.Screen.ScreenLongitude,
                     MapWizard.SingleItem.Screen.ScreenLatitude - MapWizard.SingleItem.Screen.LatitudeScale,
-                    MapWizard.SingleItem.Screen.LongitudeScale / 600 * width , MapWizard.SingleItem.Screen.LatitudeScale / 600 * height);
-        }catch(Exception ex){
+                    MapWizard.SingleItem.Screen.LongitudeScale / 600 * width, MapWizard.SingleItem.Screen.LatitudeScale / 600 * height);
+        } catch (Exception ex) {
             ex.printStackTrace();
             return;
         }
     }
-    public static void GetInstance(final int ScreenWidth,final int ScreenHeight,final double OriginLongitude,final double OriginLatitude,final double LongitudeScale,final double LatitudeScale){
-        if(SingleItem != null){
-            javax.swing.JOptionPane.showMessageDialog(null,"Another Instance is Running");
+
+    public static void GetInstance(final int ScreenWidth, final int ScreenHeight, final double OriginLongitude, final double OriginLatitude, final double LongitudeScale, final double LatitudeScale) {
+        if (SingleItem != null) {
+            javax.swing.JOptionPane.showMessageDialog(null, "Another Instance is Running");
             return;
         }
 
@@ -96,9 +110,9 @@ public class OriginalOpenGLWizard{
                 try {
                     LWJGLPackage.OriginalOpenGLWizard.SingleItem = new OriginalOpenGLWizard();
                     LWJGLPackage.OriginalOpenGLWizard.SingleItem.start(ScreenWidth, ScreenHeight, OriginLongitude, OriginLatitude, LongitudeScale, LatitudeScale);
-                }catch(Exception ex){
+                } catch (Exception ex) {
                     ex.printStackTrace();
-                }finally {
+                } finally {
                     Display.destroy();
                     LWJGLPackage.OriginalOpenGLWizard.SingleItem = null;
                 }
@@ -107,12 +121,12 @@ public class OriginalOpenGLWizard{
     }
 
     public void start(int ScreenWidth, int ScreenHeight, double OriginLongitude, double OriginLatitude, double LongitudeScale, double LatitudeScale) {
-        this.ScreenWidth        = ScreenWidth;
-        this.ScreenHeight       = ScreenHeight;
-        this.OriginLongitude    = OriginLongitude;
-        this.OriginLatitude     = OriginLatitude;
-        this.LongitudeScale     = LongitudeScale;
-        this.LatitudeScale      = LatitudeScale;
+        this.ScreenWidth = ScreenWidth;
+        this.ScreenHeight = ScreenHeight;
+        this.OriginLongitude = OriginLongitude;
+        this.OriginLatitude = OriginLatitude;
+        this.LongitudeScale = LongitudeScale;
+        this.LatitudeScale = LatitudeScale;
         try {
             Display.setDisplayMode(new DisplayMode(this.ScreenWidth, this.ScreenHeight));
             Display.create();
@@ -137,8 +151,8 @@ public class OriginalOpenGLWizard{
 
         Display.destroy();
 
-        if(MapWizard.SingleItem != null)
-            if(!MapWizard.SingleItem.isVisible())
+        if (MapWizard.SingleItem != null)
+            if (!MapWizard.SingleItem.isVisible())
                 System.exit(0);
     }
 
@@ -268,7 +282,7 @@ public class OriginalOpenGLWizard{
                     GL11.glVertex2f(x + i, y + 4);
                 }
                 x += 8;
-            } else if (c == 'a'){
+            } else if (c == 'a') {
                 for (int i = 2; i <= 5; i++) {
                     GL11.glVertex2f(x + i, y + 0);
                     GL11.glVertex2f(x + i, y + 3);
@@ -299,10 +313,10 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 7, y + 2);
                 GL11.glVertex2f(x + 7, y + 3);
                 x += 8;
-            } else if (c == 'b'){
-              for (int i = 0; i <= 8; i++) {
-                  GL11.glVertex2f(x + 1, y + i);
-              }
+            } else if (c == 'b') {
+                for (int i = 0; i <= 8; i++) {
+                    GL11.glVertex2f(x + 1, y + i);
+                }
                 GL11.glVertex2f(x + 2, y + 1);
                 GL11.glVertex2f(x + 2, y + 4);
                 GL11.glVertex2f(x + 3, y);
@@ -332,10 +346,10 @@ public class OriginalOpenGLWizard{
 
                 x += 8;
             } else if (c == 'c') {
-                for (int i = 1; i < 5; i++){
+                for (int i = 1; i < 5; i++) {
                     GL11.glVertex2f(x + 1, y + i);
                 }
-                for (int i = 2; i < 6; i++){
+                for (int i = 2; i < 6; i++) {
                     GL11.glVertex2f(x + i, y);
                     GL11.glVertex2f(x + i, y + 5);
                 }
@@ -358,16 +372,16 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 6, y + 7);
                 x += 8;
             } else if (c == 'd') {
-                for(int dy = 1; dy <= 4; dy++){
-                   GL11.glVertex2f(x + 1, y + dy);
+                for (int dy = 1; dy <= 4; dy++) {
+                    GL11.glVertex2f(x + 1, y + dy);
                 }
-                for(int dx = 2; dx <= 4; dx++){
+                for (int dx = 2; dx <= 4; dx++) {
                     GL11.glVertex2f(x + dx, y);
                     GL11.glVertex2f(x + dx, y + 5);
                 }
                 GL11.glVertex2f(x + 5, y + 1);
                 GL11.glVertex2f(x + 5, y + 4);
-                for(int dy = 0; dy <= 8; dy++){
+                for (int dy = 0; dy <= 8; dy++) {
                     GL11.glVertex2f(x + 6, y + dy);
                 }
                 x += 7;
@@ -383,11 +397,11 @@ public class OriginalOpenGLWizard{
                     GL11.glVertex2f(x + i, y + 4);
                 }
                 x += 8;
-            } else if (c == 'e'){
-                for (int dy = 1; dy <= 5; dy++){
+            } else if (c == 'e') {
+                for (int dy = 1; dy <= 5; dy++) {
                     GL11.glVertex2f(x + 1, y + dy);
                 }
-                for (int dx = 2; dx <= 5; dx++){
+                for (int dx = 2; dx <= 5; dx++) {
                     GL11.glVertex2f(x + dx, y);
                     GL11.glVertex2f(x + dx, y + 3);
                     GL11.glVertex2f(x + dx, y + 6);
@@ -407,10 +421,10 @@ public class OriginalOpenGLWizard{
                     GL11.glVertex2f(x + i, y + 4);
                 }
                 x += 8;
-            } else if(c == 'f'){
+            } else if (c == 'f') {
                 GL11.glVertex2f(x + 1, y + 5);
                 GL11.glVertex2f(x + 2, y + 5);
-                for (int dy = 0; dy <= 7; dy++){
+                for (int dy = 0; dy <= 7; dy++) {
                     GL11.glVertex2f(x + 3, y + dy);
                 }
                 GL11.glVertex2f(x + 4, y + 5);
@@ -440,12 +454,12 @@ public class OriginalOpenGLWizard{
             } else if (c == 'g') {
                 GL11.glVertex2f(x + 1, y + 4);
                 GL11.glVertex2f(x + 1, y + 5);
-                for (int dx = 2; dx <= 5; dx++){
+                for (int dx = 2; dx <= 5; dx++) {
                     GL11.glVertex2f(x + dx, y);
                     GL11.glVertex2f(x + dx, y + 3);
                     GL11.glVertex2f(x + dx, y + 6);
                 }
-                for (int dy =1; dy <= 6; dy++){
+                for (int dy = 1; dy <= 6; dy++) {
                     GL11.glVertex2f(x + 6, y + dy);
                 }
                 x += 7;
@@ -458,15 +472,15 @@ public class OriginalOpenGLWizard{
                     GL11.glVertex2f(x + i, y + 4);
                 }
                 x += 8;
-            } else if (c == 'h'){
-                for (int dy = 0; dy <= 8; dy++){
+            } else if (c == 'h') {
+                for (int dy = 0; dy <= 8; dy++) {
                     GL11.glVertex2f(x + 1, y + dy);
                 }
                 GL11.glVertex2f(x + 2, y + 4);
                 GL11.glVertex2f(x + 3, y + 5);
                 GL11.glVertex2f(x + 4, y + 5);
                 GL11.glVertex2f(x + 5, y + 5);
-                for (int dy =0; dy <= 4; dy++){
+                for (int dy = 0; dy <= 4; dy++) {
                     GL11.glVertex2f(x + 6, y + dy);
                 }
                 x += 7;
@@ -479,11 +493,11 @@ public class OriginalOpenGLWizard{
                     GL11.glVertex2f(x + i, y + 8);
                 }
                 x += 7;
-            } else if (c == 'i'){
+            } else if (c == 'i') {
                 GL11.glVertex2f(x + 2, y);
                 GL11.glVertex2f(x + 2, y + 5);
                 GL11.glVertex2f(x + 3, y + 7);
-                for (int dy = 0; dy <= 5; dy++){
+                for (int dy = 0; dy <= 5; dy++) {
                     GL11.glVertex2f(x + 3, y + dy);
                 }
                 GL11.glVertex2f(x + 4, y);
@@ -499,14 +513,14 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 1, y + 2);
                 GL11.glVertex2f(x + 1, y + 1);
                 x += 8;
-            } else if (c == 'j'){
+            } else if (c == 'j') {
                 GL11.glVertex2f(x + 2, y + 1);
                 GL11.glVertex2f(x + 3, y);
                 GL11.glVertex2f(x + 4, y);
                 GL11.glVertex2f(x + 4, y + 6);
                 GL11.glVertex2f(x + 3, y + 6);
                 GL11.glVertex2f(x + 5, y + 8);
-                for (int dy = 1; dy <= 6; dy++){
+                for (int dy = 1; dy <= 6; dy++) {
                     GL11.glVertex2f(x + 5, y + dy);
                 }
                 x += 7;
@@ -527,7 +541,7 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 7, y);
                 x += 8;
             } else if (c == 'k') {
-                for (int dy = 0; dy <= 8; dy++){
+                for (int dy = 0; dy <= 8; dy++) {
                     GL11.glVertex2f(x + 1, y + dy);
                 }
                 GL11.glVertex2f(x + 2, y + 3);
@@ -549,7 +563,7 @@ public class OriginalOpenGLWizard{
             } else if (c == 'l') {
                 GL11.glVertex2f(x + 1, y);
                 GL11.glVertex2f(x + 1, y + 8);
-                for (int dy = 0; dy <= 8; dy++){
+                for (int dy = 0; dy <= 8; dy++) {
                     GL11.glVertex2f(x + 2, y + dy);
                 }
                 GL11.glVertex2f(x + 3, y);
@@ -572,17 +586,17 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 4, y + 5);
                 x += 8;
             } else if (c == 'm') {
-                for (int dy = 0; dy <= 6; dy++){
+                for (int dy = 0; dy <= 6; dy++) {
                     GL11.glVertex2f(x + 1, y + dy);
                 }
                 GL11.glVertex2f(x + 2, y + 6);
                 GL11.glVertex2f(x + 3, y + 6);
-                for (int dy = 2; dy <= 5; dy++){
-                    GL11.glVertex2f(x + 4, y + dy );
+                for (int dy = 2; dy <= 5; dy++) {
+                    GL11.glVertex2f(x + 4, y + dy);
                 }
                 GL11.glVertex2f(x + 5, y + 6);
                 GL11.glVertex2f(x + 6, y + 6);
-                for (int dy =0; dy <= 5; dy++){
+                for (int dy = 0; dy <= 5; dy++) {
                     GL11.glVertex2f(x + 7, y + dy);
                 }
                 x += 8;
@@ -600,7 +614,7 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 6, y + 1);
                 x += 8;
             } else if (c == 'n') {
-                for (int dy = 0; dy <= 6; dy++){
+                for (int dy = 0; dy <= 6; dy++) {
                     GL11.glVertex2f(x + 1, y + dy);
                 }
                 GL11.glVertex2f(x + 2, y + 5);
@@ -608,7 +622,7 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 4, y + 6);
                 GL11.glVertex2f(x + 5, y + 6);
                 GL11.glVertex2f(x + 6, y + 6);
-                for (int dy = 0; dy <= 5; dy++){
+                for (int dy = 0; dy <= 5; dy++) {
                     GL11.glVertex2f(x + 7, y + dy);
                 }
                 x += 8;
@@ -623,11 +637,11 @@ public class OriginalOpenGLWizard{
                 }
                 x += 8;
             } else if (c == 'o') {
-                for (int dx = 2; dx <= 5; dx++){
+                for (int dx = 2; dx <= 5; dx++) {
                     GL11.glVertex2f(x + dx, y);
                     GL11.glVertex2f(x + dx, y + 5);
                 }
-                for (int dy = 1; dy <= 4; dy++){
+                for (int dy = 1; dy <= 4; dy++) {
                     GL11.glVertex2f(x + 1, y + dy);
                     GL11.glVertex2f(x + 6, y + dy);
                 }
@@ -645,10 +659,10 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 6, y + 6);
                 x += 8;
             } else if (c == 'p') {
-                for (int dy = 0; dy <= 6; dy++){
+                for (int dy = 0; dy <= 6; dy++) {
                     GL11.glVertex2f(x + 1, y + dy);
                 }
-                for (int dx = 2; dx <= 5; dx++){
+                for (int dx = 2; dx <= 5; dx++) {
                     GL11.glVertex2f(x + dx, y + 3);
                     GL11.glVertex2f(x + dx, y + 6);
                 }
@@ -674,11 +688,11 @@ public class OriginalOpenGLWizard{
             } else if (c == 'q') {
                 GL11.glVertex2f(x + 1, y + 4);
                 GL11.glVertex2f(x + 1, y + 5);
-                for (int dx = 2; dx <= 5; dx++){
+                for (int dx = 2; dx <= 5; dx++) {
                     GL11.glVertex2f(x + dx, y + 3);
                     GL11.glVertex2f(x + dx, y + 6);
                 }
-                for (int dy = 0; dy <= 6; dy++){
+                for (int dy = 0; dy <= 6; dy++) {
                     GL11.glVertex2f(x + 6, y + dy);
                 }
                 x += 7;
@@ -700,7 +714,7 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 7, y);
                 x += 8;
             } else if (c == 'r') {
-                for (int dy = 0; dy <= 6; dy++){
+                for (int dy = 0; dy <= 6; dy++) {
                     GL11.glVertex2f(x + 1, y + dy);
                 }
                 GL11.glVertex2f(x + 2, y + 5);
@@ -733,7 +747,7 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 1, y + 4);
                 GL11.glVertex2f(x + 1, y + 5);
                 GL11.glVertex2f(x + 1, y + 1);
-                for (int dx = 2; dx <= 5; dx++){
+                for (int dx = 2; dx <= 5; dx++) {
                     GL11.glVertex2f(x + dx, y);
                     GL11.glVertex2f(x + dx, y + 3);
                     GL11.glVertex2f(x + dx, y + 6);
@@ -750,7 +764,7 @@ public class OriginalOpenGLWizard{
             } else if (c == 't') {
                 GL11.glVertex2f(x + 1, y + 5);
                 GL11.glVertex2f(x + 2, y + 5);
-                for (int dy = 1; dy <= 7; dy++){
+                for (int dy = 1; dy <= 7; dy++) {
                     GL11.glVertex2f(x + 3, y + dy);
                 }
                 GL11.glVertex2f(x + 4, y + 5);
@@ -769,14 +783,14 @@ public class OriginalOpenGLWizard{
                 }
                 x += 8;
             } else if (c == 'u') {
-                for (int dy = 1; dy <= 5; dy++){
+                for (int dy = 1; dy <= 5; dy++) {
                     GL11.glVertex2f(x + 1, y + dy);
                 }
-                for (int dx = 2; dx <= 4; dx++){
+                for (int dx = 2; dx <= 4; dx++) {
                     GL11.glVertex2f(x + dx, y);
                 }
                 GL11.glVertex2f(x + 5, y + 1);
-                for (int dy = 0; dy <= 5; dy++){
+                for (int dy = 0; dy <= 5; dy++) {
                     GL11.glVertex2f(x + 6, y + dy);
                 }
                 x += 7;
@@ -791,7 +805,7 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 4, y);
                 x += 7;
             } else if (c == 'v') {
-                for (int dy =3; dy <= 5; dy ++){
+                for (int dy = 3; dy <= 5; dy++) {
                     GL11.glVertex2f(x + 1, y + dy);
                     GL11.glVertex2f(x + 6, y + dy);
                 }
@@ -816,7 +830,7 @@ public class OriginalOpenGLWizard{
                 }
                 x += 8;
             } else if (c == 'w') {
-                for (int dy = 0; dy <= 6; dy++){
+                for (int dy = 0; dy <= 6; dy++) {
                     GL11.glVertex2f(x + 1, y + dy);
                     GL11.glVertex2f(x + 7, y + dy);
                 }
@@ -838,10 +852,10 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 7, y + 8);
                 x += 8;
             } else if (c == 'x') {
-                for (int i = 1; i <= 5; i++){
+                for (int i = 1; i <= 5; i++) {
                     GL11.glVertex2f(x + i, y + i);
                 }
-                for (int i = 5; i >= 1; i--){
+                for (int i = 5; i >= 1; i--) {
                     GL11.glVertex2f(x + i, y + 6 - i);
                 }
                 GL11.glVertex2f(x + 1, y);
@@ -867,13 +881,13 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 7, y + 8);
                 x += 8;
             } else if (c == 'y') {
-                for (int dy = 4; dy <= 7; dy++){
+                for (int dy = 4; dy <= 7; dy++) {
                     GL11.glVertex2f(x + 1, y + dy);
                 }
-                for (int dy = 1; dy <= 7; dy++){
+                for (int dy = 1; dy <= 7; dy++) {
                     GL11.glVertex2f(x + 6, y + dy);
                 }
-                for (int dx = 2; dx <= 5; dx++){
+                for (int dx = 2; dx <= 5; dx++) {
                     GL11.glVertex2f(x + dx, y);
                     GL11.glVertex2f(x + dx, y + 3);
                 }
@@ -888,11 +902,11 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 6, y + 7);
                 x += 8;
             } else if (c == 'z') {
-                for (int dx = 1; dx <= 5; dx++){
+                for (int dx = 1; dx <= 5; dx++) {
                     GL11.glVertex2f(x + dx, y);
                     GL11.glVertex2f(x + dx, y + 6);
                 }
-                for (int i = 1; i <= 5; i++){
+                for (int i = 1; i <= 5; i++) {
                     GL11.glVertex2f(x + i, y + i);
                 }
                 x += 6;
@@ -1078,12 +1092,12 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2f(x + 5, y + 6);
                 x += 8;
             } else if (c == '\\') {
-                for (int i = 1; i <= 7; i++){
+                for (int i = 1; i <= 7; i++) {
                     GL11.glVertex2f(x + i, y + 8 - i);
                 }
                 x += 9;
             } else if (c == '/') {
-                for (int i = 1; i <= 7; i++){
+                for (int i = 1; i <= 7; i++) {
                     GL11.glVertex2f(x + i, y + i);
                 }
                 x += 9;
@@ -1097,13 +1111,14 @@ public class OriginalOpenGLWizard{
         GL11.glPopMatrix();
     }
 
-    public long MouseLeftButtonPressedTime  = -1;
+    public long MouseLeftButtonPressedTime = -1;
     public long MouseLeftButtonReleasedTime = -1;
     public long MouseRightButtonPressedTime = -1;
-    public long MouseRightButtonReleasedTime= -1;
+    public long MouseRightButtonReleasedTime = -1;
+
     private void HandleInput() { /** For Processing Mouse and Keyboard */
         /** Mouse Keyboard Controller */
-        if(Mouse.isButtonDown(0)) { /** Mouse Drag */
+        if (Mouse.isButtonDown(0)) { /** Mouse Drag */
             double DragX = Mouse.getDX();
             double DragY = Mouse.getDY();
             OriginLongitude -= DragX / ScreenWidth * LongitudeScale;
@@ -1111,19 +1126,19 @@ public class OriginalOpenGLWizard{
         }
 
         if (Math.abs(Mouse.getEventDWheel()) > 100)
-        if (Mouse.getDWheel() != 0) { /** Wheel Move */
-            double CenterX = GetLogicalX();
-            double CenterY = GetLogicalY();
-            if (Mouse.getEventDWheel() > 0) {
-                LongitudeScale /= 1.1;
-                LatitudeScale /= 1.1;
-            } else {
-                LongitudeScale *= 1.1;
-                LatitudeScale *= 1.1;
+            if (Mouse.getDWheel() != 0) { /** Wheel Move */
+                double CenterX = GetLogicalX();
+                double CenterY = GetLogicalY();
+                if (Mouse.getEventDWheel() > 0) {
+                    LongitudeScale /= 1.1;
+                    LatitudeScale /= 1.1;
+                } else {
+                    LongitudeScale *= 1.1;
+                    LatitudeScale *= 1.1;
+                }
+                OriginLongitude = CenterX - Mouse.getX() * LongitudeScale / ScreenWidth;
+                OriginLatitude = CenterY - Mouse.getY() * LatitudeScale / ScreenHeight;
             }
-            OriginLongitude = CenterX - Mouse.getX() * LongitudeScale / ScreenWidth;
-            OriginLatitude = CenterY - Mouse.getY() * LatitudeScale / ScreenHeight;
-        }
 
         while (Mouse.next()) {
 
@@ -1131,15 +1146,16 @@ public class OriginalOpenGLWizard{
                 if (Mouse.getEventButton() == 0) {
                     //System.out.println("Left button pressed");
                     MouseLeftButtonPressedTime = Calendar.getInstance().getTimeInMillis();
-                } else if(Mouse.getEventButton() == 1){
+                } else if (Mouse.getEventButton() == 1) {
                     //System.out.println("Right button pressed");
                     MouseRightButtonPressedTime = Calendar.getInstance().getTimeInMillis();
                 }
-            }else {
+            } else {
                 if (Mouse.getEventButton() == 0) {
                     //System.out.println("Left button released");
-                    MouseLeftButtonReleasedTime = Calendar.getInstance().getTimeInMillis();;
-                }else if(Mouse.getEventButton() == 1){
+                    MouseLeftButtonReleasedTime = Calendar.getInstance().getTimeInMillis();
+                    ;
+                } else if (Mouse.getEventButton() == 1) {
                     //System.out.println("Right button released");
                     MouseRightButtonReleasedTime = Calendar.getInstance().getTimeInMillis();
                 }
@@ -1149,33 +1165,33 @@ public class OriginalOpenGLWizard{
                 continue;
             }
 
-            if(MouseLeftButtonReleasedTime - MouseLeftButtonPressedTime < 200) // If not Drag
-            if(Mouse.getEventButton() == 0){//Left Button Click
-                //System.out.println("Left Button Click at Logical Position "+ GetLogicalX() + " , "+ GetLogicalY());
+            if (MouseLeftButtonReleasedTime - MouseLeftButtonPressedTime < 200) // If not Drag
+                if (Mouse.getEventButton() == 0) {//Left Button Click
+                    //System.out.println("Left Button Click at Logical Position "+ GetLogicalX() + " , "+ GetLogicalY());
 
-                if (MapWizard.SingleItem.BehaviorListener != null ){
-                    MapKernel.MapWizard.SingleItem.BehaviorListener.MousePressedListener(GetLogicalX(), GetLogicalY());
-                }else if (MapKernel.MapWizard.SingleItem.NowPanel.getString().equals("MapElementsEditorPane")) {
-                    ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
-                            (MapKernel.MapWizard.SingleItem.NowPanel);
-                    DBEditor.convey(GetLogicalX(), GetLogicalY());
+                    if (MapWizard.SingleItem.BehaviorListener != null) {
+                        MapKernel.MapWizard.SingleItem.BehaviorListener.MousePressedListener(GetLogicalX(), GetLogicalY());
+                    } else if (MapKernel.MapWizard.SingleItem.NowPanel.getString().equals("MapElementsEditorPane")) {
+                        ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
+                                (MapKernel.MapWizard.SingleItem.NowPanel);
+                        DBEditor.convey(GetLogicalX(), GetLogicalY());
+                    }
                 }
-            }
 
-            if(MouseRightButtonReleasedTime - MouseRightButtonPressedTime < 200) // If not Drag
-            if(Mouse.getEventButton() == 1){//Right Button Click
-                //System.out.println("Right Button Click");
+            if (MouseRightButtonReleasedTime - MouseRightButtonPressedTime < 200) // If not Drag
+                if (Mouse.getEventButton() == 1) {//Right Button Click
+                    //System.out.println("Right Button Click");
 
-                if (MapWizard.SingleItem.BehaviorListener != null ){
-                    MapKernel.MapWizard.SingleItem.BehaviorListener.MousePressedListener(GetLogicalX(), GetLogicalY());
-                }else if (MapKernel.MapWizard.SingleItem.NowPanel.getString().equals("MapElementsEditorPane")) {
-                    ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
-                            (MapKernel.MapWizard.SingleItem.NowPanel);
-                    DBEditor.confirm();
+                    if (MapWizard.SingleItem.BehaviorListener != null) {
+                        MapKernel.MapWizard.SingleItem.BehaviorListener.MousePressedListener(GetLogicalX(), GetLogicalY());
+                    } else if (MapKernel.MapWizard.SingleItem.NowPanel.getString().equals("MapElementsEditorPane")) {
+                        ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
+                                (MapKernel.MapWizard.SingleItem.NowPanel);
+                        DBEditor.confirm();
+                    }
                 }
-            }
 
-            if(Mouse.getEventButton() == 2){//Middle Button Click
+            if (Mouse.getEventButton() == 2) {//Middle Button Click
                 System.out.println("Middle Button Click");
             }
 
@@ -1185,48 +1201,50 @@ public class OriginalOpenGLWizard{
             if (!Keyboard.getEventKeyState()) {
                 continue;
             }
-            if(Keyboard.isKeyDown(Keyboard.KEY_C)||Keyboard.isKeyDown(Keyboard.KEY_V)){
+            if (Keyboard.isKeyDown(Keyboard.KEY_C) || Keyboard.isKeyDown(Keyboard.KEY_V)) {
                 double CenterX = GetLogicalX();
                 double CenterY = GetLogicalY();
-                if(Keyboard.isKeyDown(Keyboard.KEY_C)){
+                if (Keyboard.isKeyDown(Keyboard.KEY_C)) {
                     LongitudeScale /= 1.1;
                     LatitudeScale /= 1.1;
-                } else if(Keyboard.isKeyDown(Keyboard.KEY_V)){
+                } else if (Keyboard.isKeyDown(Keyboard.KEY_V)) {
                     LongitudeScale *= 1.1;
                     LatitudeScale *= 1.1;
-                };
+                }
+                ;
                 OriginLongitude = CenterX - Mouse.getX() * LongitudeScale / ScreenWidth;
                 OriginLatitude = CenterY - Mouse.getY() * LatitudeScale / ScreenHeight;
             }
-            if(Keyboard.isKeyDown(Keyboard.KEY_LEFT)){
+            if (Keyboard.isKeyDown(Keyboard.KEY_LEFT)) {
                 OriginLongitude -= 0.1 * LongitudeScale;
             }
-            if(Keyboard.isKeyDown(Keyboard.KEY_RIGHT)){
+            if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)) {
                 OriginLongitude += 0.1 * LongitudeScale;
             }
-            if(Keyboard.isKeyDown(Keyboard.KEY_UP)){
+            if (Keyboard.isKeyDown(Keyboard.KEY_UP)) {
                 OriginLatitude += 0.1 * LatitudeScale;
             }
-            if(Keyboard.isKeyDown(Keyboard.KEY_DOWN)){
+            if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
                 OriginLatitude -= 0.1 * LatitudeScale;
             }
         }
     }
 
-    public int GetOpenGLLineThickness(String info){
-        try{
-            if(info==null) return 1;
+    public int GetOpenGLLineThickness(String info) {
+        try {
+            if (info == null) return 1;
             int p1;
-            if((p1 = info.indexOf("[LineWidth:")) != -1)
-                return Integer.parseInt(info.substring(p1 + 11,info.indexOf(']', p1 + 11)));
+            if ((p1 = info.indexOf("[LineWidth:")) != -1)
+                return Integer.parseInt(info.substring(p1 + 11, info.indexOf(']', p1 + 11)));
             else return 1;
-        }catch(Exception ex){
+        } catch (Exception ex) {
             System.err.println("GetVisualLineStroke_Err");
             ex.printStackTrace();
             return 1;
         }
     }
-    public int GetOpenGLPointThickness(String info){
+
+    public int GetOpenGLPointThickness(String info) {
         try {
             if (info == null)
                 return 4;
@@ -1243,23 +1261,22 @@ public class OriginalOpenGLWizard{
         }
     }
 
-    public void setVisualDashLine(String info){
-        if(info.indexOf("[DashLine:") != -1){
+    public void setVisualDashLine(String info) {
+        if (info.indexOf("[DashLine:") != -1) {
             GL11.glEnable(GL11.GL_LINE_STIPPLE);
             GL11.glLineStipple(2, (short) 0x6666);
-        }
-        else GL11.glDisable(GL11.GL_LINE_STIPPLE);
+        } else GL11.glDisable(GL11.GL_LINE_STIPPLE);
     }
 
-    public int GetScreenX(double LogicalX){
+    public int GetScreenX(double LogicalX) {
         return (int) ((LogicalX - OriginLongitude) / LongitudeScale * ScreenWidth + 0.5);
     }
 
-    public int GetScreenY(double LogicalY){
+    public int GetScreenY(double LogicalY) {
         return (int) ((LogicalY - OriginLatitude) / LatitudeScale * ScreenHeight + 0.5);
     }
 
-    public void drawLine(float x1, float y1, float x2, float y2, float thickness){
+    public void drawLine(float x1, float y1, float x2, float y2, float thickness) {
         GL11.glLineWidth(thickness);
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
         GL11.glBegin(GL11.GL_LINES);
@@ -1269,7 +1286,7 @@ public class OriginalOpenGLWizard{
         GL11.glPopMatrix();
     }
 
-    public void drawPoint(float x, float y, float thickness){
+    public void drawPoint(float x, float y, float thickness) {
         GL11.glPointSize(thickness);
         GL11.glEnable(GL11.GL_POINT_SMOOTH);
         GL11.glBegin(GL11.GL_POINTS);
@@ -1277,14 +1294,43 @@ public class OriginalOpenGLWizard{
         GL11.glEnd();
         GL11.glPopMatrix();
     }
+
+    public void drawArc(float x, float y, double start_angle, double end_angle, double delta_angle, double radius, int thickness, boolean fill)
+    {
+        if(radius < 4) return;
+        if(fill) {
+            GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+        }
+        else
+        {
+            GL11.glLineWidth(thickness);
+            GL11.glEnable(GL11.GL_LINE_SMOOTH);
+            GL11.glBegin(GL11.GL_LINE_STRIP);
+        }
+        for (double i=start_angle; i<=end_angle; i+=delta_angle)
+        {
+            double vx=x+radius * Math.cos(i);
+            double vy=y+radius* Math.sin(i);
+            GL11.glVertex2d(vx, vy);
+        }
+        GL11.glEnd();
+    }
+
+    public void drawCircle(float x, float y, double radius, int thickness, boolean fill)
+    {
+        double pi= Math.acos(-1.0);
+        drawArc(x, y, 0,2*pi, pi/180, radius, thickness, fill);
+    }
+
     double[] Coor = new double[300000];
+
     public void drawPolygon(int counter, double[] Coor) {
         Tessellator tess = new Tessellator();
 
         tess.gluBeginPolygon();
 
         tess.gluTessBeginContour();
-        for(int Ptr = 0; Ptr < counter / 3; Ptr++){
+        for (int Ptr = 0; Ptr < counter / 3; Ptr++) {
             tess.gluTessVertex(Coor, Ptr * 3, Ptr);
         }
         tess.gluTessEndContour();
@@ -1292,10 +1338,10 @@ public class OriginalOpenGLWizard{
         tess.gluEndPolygon();
         tess.gluDeleteTess();
 
-        for(int i = 0; i < tess.primitives.size(); i++) {
+        for (int i = 0; i < tess.primitives.size(); i++) {
             Primitive Triangle = tess.primitives.get(i);
             GL11.glBegin(Triangle.type);
-            for(int j = 0; j < Triangle.vertices.size(); j++){
+            for (int j = 0; j < Triangle.vertices.size(); j++) {
                 int Ptr = Triangle.vertices.get(j);
                 GL11.glVertex2f((float) Coor[3 * Ptr], (float) Coor[3 * Ptr + 1]);
             }
@@ -1303,14 +1349,18 @@ public class OriginalOpenGLWizard{
             GL11.glPopMatrix();
         }
     }
-    static BufferedImage BackgroundImage = null;
-    static String        BackGroundPath  = null;
-    public double GetLogicalX(){
+
+    static Vector<BufferedImage> BackgroundImageList = new Vector<BufferedImage>();
+    static String BackGroundPath = null;
+
+    public double GetLogicalX() {
         return (OriginLongitude + org.lwjgl.input.Mouse.getX() * LongitudeScale / ScreenWidth);
     }
-    public double GetLogicalY(){
-        return (OriginLatitude + org.lwjgl.input.Mouse.getY()  * LatitudeScale / ScreenHeight);
+
+    public double GetLogicalY() {
+        return (OriginLatitude + org.lwjgl.input.Mouse.getY() * LatitudeScale / ScreenHeight);
     }
+
     public void renderGL() { /** For Drawing Elements */
         // Clear The Screen And The Depth Buffer
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -1371,21 +1421,46 @@ public class OriginalOpenGLWizard{
                 MoveY /= dis_sum;
             }
             // ------------------------------------------------------------------------------------------
-            double Xst = ((OriginLongitude - MoveX) - MapWizard.SingleItem.LongitudeStart)
-                    / (MapWizard.SingleItem.LongitudeEnd - MapWizard.SingleItem.LongitudeStart) * MapWizard.SingleItem.Screen.image.getWidth(null);
-            double Yst = (MapWizard.SingleItem.LatitudeEnd - (OriginLatitude + LatitudeScale - MoveY))
-                    / (MapWizard.SingleItem.LatitudeEnd - MapWizard.SingleItem.LatitudeStart) * MapWizard.SingleItem.Screen.image.getHeight(null);
-            double Xlen = (LongitudeScale)
-                    / (MapWizard.SingleItem.LongitudeEnd - MapWizard.SingleItem.LongitudeStart) * MapWizard.SingleItem.Screen.image.getWidth(null);
-            double Ylen = (LatitudeScale)
-                    / (MapWizard.SingleItem.LatitudeEnd - MapWizard.SingleItem.LatitudeStart) * MapWizard.SingleItem.Screen.image.getHeight(null);
-            // 将需要显示的经纬度范围转化为窗口界面中像素值
-            if(Xlen + Ylen < (ScreenWidth + ScreenHeight) * 1.5){
-                if((BackgroundImage == null) || (!MapWizard.SingleItem.Screen.ImagePath.equals(BackGroundPath))){
-                    BackgroundImage = TextureLoader.loadImage(MapWizard.SingleItem.Screen.ImagePath);
-                    BackGroundPath = MapWizard.SingleItem.Screen.ImagePath;
+            /** Update Image with Multiple Resolution */
+            if ((BackgroundImageList.isEmpty()) || (!MapWizard.SingleItem.Screen.ImagePath.equals(BackGroundPath))) {
+                BackgroundImageList.clear();
+                BufferedImage BackgroundImage = TextureLoader.loadImage(MapWizard.SingleItem.Screen.ImagePath);
+                BackgroundImageList.add(BackgroundImage);
+                BufferedImage SourceImage = BackgroundImageList.lastElement();
+                while (SourceImage.getWidth() + SourceImage.getHeight() > 1000) {
+                    BackgroundImage = new BufferedImage((int) (SourceImage.getWidth() * 0.7), (int) (SourceImage.getHeight() * 0.7), BufferedImage.TYPE_INT_RGB);
+                    BackgroundImage.getGraphics().drawImage(SourceImage, 0, 0, BackgroundImage.getWidth(), BackgroundImage.getHeight(),
+                            0, 0, SourceImage.getWidth(), SourceImage.getHeight(), null);
+                    BackgroundImageList.add(BackgroundImage);
+                    SourceImage = BackgroundImageList.lastElement();
                 }
-                int textureID = TextureLoader.loadTexture(BackgroundImage, (int) (Xst + 0.5), (int) (Yst + 0.5), (int) (Xst + Xlen + 0.5), (int) (Yst + Ylen + 0.5));
+                BackGroundPath = MapWizard.SingleItem.Screen.ImagePath;
+            }
+            int ImageIndex = 0;
+            BufferedImage BackgroundImage = null;
+            double Xst, Yst, Xlen, Ylen;
+            do {
+                BackgroundImage = BackgroundImageList.get(ImageIndex);
+                ImageIndex++;
+                /** 将需要显示的经纬度范围转化为窗口界面中像素值 */
+                Xst = ((OriginLongitude - MoveX) - MapWizard.SingleItem.LongitudeStart)
+                        / (MapWizard.SingleItem.LongitudeEnd - MapWizard.SingleItem.LongitudeStart) * BackgroundImage.getWidth(null);
+                Yst = (MapWizard.SingleItem.LatitudeEnd - (OriginLatitude + LatitudeScale - MoveY))
+                        / (MapWizard.SingleItem.LatitudeEnd - MapWizard.SingleItem.LatitudeStart) * BackgroundImage.getHeight(null);
+                Xlen = (LongitudeScale)
+                        / (MapWizard.SingleItem.LongitudeEnd - MapWizard.SingleItem.LongitudeStart) * BackgroundImage.getWidth(null);
+                Ylen = (LatitudeScale)
+                        / (MapWizard.SingleItem.LatitudeEnd - MapWizard.SingleItem.LatitudeStart) * BackgroundImage.getHeight(null);
+            } while ((ImageIndex < BackgroundImageList.size()) && (Xlen + Ylen > (ScreenWidth + ScreenHeight)));
+            int x1 = (int) (Xst + 0.5);
+            int x2 = (int) (Xst + Xlen + 0.5);
+            int y1 = (int) (Yst + 0.5);
+            int y2 = (int) (Yst + Ylen + 0.5);
+            /** x1, y1, x2, y2是屏幕在图片坐标系中的位置 */
+            /** Tex_x, Tex_y 是图片在屏幕坐标系中的位置 */
+            if ((x1 >= 0) && (x2 <= BackgroundImage.getWidth()) && (y1 >= 0) && (y2 <= BackgroundImage.getHeight()))
+            {
+                int textureID = TextureLoader.loadTexture(BackgroundImage, x1, y1, x2, y2);
                 GL11.glColor4f(1f, 1f, 1f, 1f);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID);
                 GL11.glBegin(GL11.GL_QUADS);
@@ -1397,6 +1472,58 @@ public class OriginalOpenGLWizard{
                 GL11.glVertex2i(ScreenWidth, ScreenHeight);
                 GL11.glTexCoord2d(0, 1);
                 GL11.glVertex2i(0, ScreenHeight);
+                GL11.glEnd();
+                GL11.glDeleteTextures(textureID);
+            } else if(((x1 < BackgroundImage.getWidth()) && (x2 > 0)) && ((y1 < BackgroundImage.getHeight()) && (y2 > 0))){
+                /** Visible_Tex 图片可见部分在图片坐标系中的位置 */
+                int Visible_Tex_x1, Visible_Tex_x2, Visible_Tex_y1, Visible_Tex_y2;
+                /** Visible_Tex_in_Screen 图片可见部分在屏幕坐标系中的位置 */
+                int Visible_Tex_in_Screen_x1, Visible_Tex_in_Screen_x2, Visible_Tex_in_Screen_y1, Visible_Tex_in_Screen_y2;
+                /** 注意！图片坐标系与屏幕坐标系的Y轴方向相反 */
+                if(x1 < 0){
+                    Visible_Tex_x1 = 0;
+                    Visible_Tex_in_Screen_x1 = GetScreenX(MapWizard.SingleItem.LongitudeStart);
+                }else{
+                    Visible_Tex_x1 = x1;
+                    Visible_Tex_in_Screen_x1 = 0;
+                }
+
+                if(x2 > BackgroundImage.getWidth()){
+                    Visible_Tex_x2 = BackgroundImage.getWidth();
+                    Visible_Tex_in_Screen_x2 = GetScreenX(MapWizard.SingleItem.LongitudeEnd);
+                }else{
+                    Visible_Tex_x2 = x2;
+                    Visible_Tex_in_Screen_x2 = ScreenWidth;
+                }
+
+                if(y1 < 0){
+                    Visible_Tex_y1 = 0;
+                    Visible_Tex_in_Screen_y2 = GetScreenY(MapWizard.SingleItem.LatitudeEnd);
+                }else{
+                    Visible_Tex_y1 = y1;
+                    Visible_Tex_in_Screen_y2 = ScreenHeight;
+                }
+
+                if(y2 > BackgroundImage.getHeight()){
+                    Visible_Tex_y2 = BackgroundImage.getHeight();
+                    Visible_Tex_in_Screen_y1 = GetScreenY(MapWizard.SingleItem.LatitudeStart);
+                }else{
+                    Visible_Tex_y2 = y2;
+                    Visible_Tex_in_Screen_y1 = 0;
+                }
+
+                int textureID = TextureLoader.loadTexture(BackgroundImage, Visible_Tex_x1, Visible_Tex_y1, Visible_Tex_x2, Visible_Tex_y2);
+                GL11.glColor4f(1f, 1f, 1f, 1f);
+                GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID);
+                GL11.glBegin(GL11.GL_QUADS);
+                GL11.glTexCoord2d(0, 0);
+                GL11.glVertex2i(Visible_Tex_in_Screen_x1, Visible_Tex_in_Screen_y1);
+                GL11.glTexCoord2d(1, 0);
+                GL11.glVertex2i(Visible_Tex_in_Screen_x2, Visible_Tex_in_Screen_y1);
+                GL11.glTexCoord2d(1, 1);
+                GL11.glVertex2i(Visible_Tex_in_Screen_x2, Visible_Tex_in_Screen_y2);
+                GL11.glTexCoord2d(0, 1);
+                GL11.glVertex2i(Visible_Tex_in_Screen_x1, Visible_Tex_in_Screen_y2);
                 GL11.glEnd();
                 GL11.glDeleteTextures(textureID);
             }
@@ -1413,7 +1540,7 @@ public class OriginalOpenGLWizard{
                 GL11.glColor4f(1f, 1f, 0f, 1f);
                 drawPoint(xx, yy, 8);
                 if (MapWizard.SingleItem.Screen.IsExtendedPointHintVisible) {
-                    drawString(MapWizard.SingleItem.Screen.ExtendedPointHint[i], xx + 8, yy);
+                    drawString(MapWizard.SingleItem.Screen.ExtendedPointHint[i], xx + 6, yy + 6);
                 }
             }
             GL11.glColor4f(0f, 1f, 0f, 1f);
@@ -1448,7 +1575,7 @@ public class OriginalOpenGLWizard{
                 int x1 = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[0]);
                 int y1 = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[0]);
                 int Ptr = MapWizard.SingleItem.Screen.ExtendedPointCount - 1;
-                if(Ptr < 0) Ptr = 0;
+                if (Ptr < 0) Ptr = 0;
                 int x2 = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[Ptr]);
                 int y2 = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[Ptr]);
                 x1 += MapWizard.SingleItem.Screen.ScreenDeltaX;
@@ -1473,10 +1600,10 @@ public class OriginalOpenGLWizard{
 
         //Draw OpenGL Elements
         if (MapWizard.SingleItem.IsAllElementInvisible) return;
-        while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(false,true)){
-            try{
+        while (!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, true)) {
+            try {
                 Thread.sleep(10);
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         };
@@ -1493,19 +1620,19 @@ public class OriginalOpenGLWizard{
                         continue;
                     if (DrawCount < MapWizard.SingleItem.VisualObjectMaxNum)
                         if ((binary & MapWizard.SingleItem.Ox("1")) != 0) {
-                           if(!MapWizard.SingleItem.LineDatabase.CheckInRegion(i, OriginLongitude, OriginLatitude, OriginLongitude + LongitudeScale, OriginLatitude + LatitudeScale)) continue;
+                            if (!MapWizard.SingleItem.LineDatabase.CheckInRegion(i, OriginLongitude, OriginLatitude, OriginLongitude + LongitudeScale, OriginLatitude + LatitudeScale))
+                                continue;
                             /** Check in Screen */
-                            if (((!MapWizard.SingleItem.ShowVisualFeature)&&((binary & MapWizard.SingleItem.Ox("1000")) != 0))
-                                    ||(MapWizard.SingleItem.ShowVisualFeature&&(MapWizard.SingleItem.LineDatabase.LineHint[i].indexOf("[LineVisible:]")!=-1)))
-                            {// For Line----------------------------
+                            if (((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("1000")) != 0))
+                                    || (MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.LineDatabase.LineHint[i].indexOf("[LineVisible:]") != -1))) {// For Line----------------------------
                                 choose = (binary >> 10) & MapWizard.SingleItem.Ox("111");
-                                java.awt.Color Origin=MapWizard.SingleItem.getChooseColor(choose);
+                                java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
                                 GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, Origin.getAlpha() / 255f);
-                                int thickness=1;
+                                int thickness = 1;
                                 if (MapWizard.SingleItem.ShowVisualFeature) {
                                     setVisualDashLine(MapWizard.SingleItem.LineDatabase.LineHint[i]);
                                     thickness = GetOpenGLLineThickness(MapWizard.SingleItem.LineDatabase.LineHint[i]);
-                                    Origin=MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.LineDatabase.LineHint[i], "Line");
+                                    Origin = MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.LineDatabase.LineHint[i], "Line");
                                     GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, Origin.getAlpha() / 255f);
                                 }
 
@@ -1527,36 +1654,36 @@ public class OriginalOpenGLWizard{
                                     if ((MapWizard.SingleItem.ShowVisualFeature)
                                             && (MapWizard.SingleItem.Screen.GetVisualArrow(MapWizard.SingleItem.LineDatabase.LineHint[i]))) {
                                         GL11.glLineStipple(2, (short) 0xFFFF);
-                                        drawLine(x2,y2,
+                                        drawLine(x2, y2,
                                                 (float) (x2
                                                         + 0.2
                                                         * (0.87 * (x1 - x2) - (y1 - y2) * 0.34)),
                                                 (float) (y2
                                                         + 0.2
-                                                        * ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))),thickness);
-                                        drawLine(x2,y2,
+                                                        * ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))), thickness);
+                                        drawLine(x2, y2,
                                                 (float) (x2
                                                         + 0.2
                                                         * (0.87 * (x1 - x2) + (y1 - y2) * 0.34)),
                                                 (float) (y2
                                                         + 0.2
-                                                        * ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))),thickness);
+                                                        * ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))), thickness);
                                         GL11.glLineStipple(2, (short) 0x6666);
                                     }
                                     DrawCount++;
                                     p1 = p2;
                                 }
                             }
-                            if ( ((!MapWizard.SingleItem.ShowVisualFeature)&&((binary & MapWizard.SingleItem.Ox("100")) != 0))
-                                    ||(MapWizard.SingleItem.ShowVisualFeature&&(MapWizard.SingleItem.LineDatabase.LineHint[i].indexOf("[PointVisible:]")!=-1))
+                            if (((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("100")) != 0))
+                                    || (MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.LineDatabase.LineHint[i].indexOf("[PointVisible:]") != -1))
                                     ) {// For Point-------------------------
                                 choose = (binary >> 7) & MapWizard.SingleItem.Ox("111");
-                                java.awt.Color Origin=MapWizard.SingleItem.getChooseColor(choose);
+                                java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
                                 GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, Origin.getAlpha() / 255f);
-                                int thickness=1;
+                                int thickness = 1;
                                 if (MapWizard.SingleItem.ShowVisualFeature) {
                                     thickness = GetOpenGLPointThickness(MapWizard.SingleItem.LineDatabase.LineHint[i]);
-                                    Origin=MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.LineDatabase.LineHint[i],"Point");
+                                    Origin = MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.LineDatabase.LineHint[i], "Point");
                                     GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, Origin.getAlpha() / 255f);
                                 }
 
@@ -1564,25 +1691,25 @@ public class OriginalOpenGLWizard{
                                 while (now != -1) {
                                     float xx = GetScreenX(MapWizard.SingleItem.LineDatabase.AllPointX[now]);
                                     float yy = GetScreenY(MapWizard.SingleItem.LineDatabase.AllPointY[now]);
-                                    drawPoint(xx,yy,thickness);
+                                    drawPoint(xx, yy, thickness);
                                     DrawCount++;
                                     now = MapWizard.SingleItem.LineDatabase.AllPointNext[now];
                                 }
                             }
-                            if(!MapWizard.SingleItem.IsAllFontInvisible)
+                            if (!MapWizard.SingleItem.IsAllFontInvisible)
                                 if (
-                                        ((!MapWizard.SingleItem.ShowVisualFeature)&&((binary & MapWizard.SingleItem.Ox("10")) != 0))
+                                        ((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("10")) != 0))
                                                 ||
-                                                (MapWizard.SingleItem.ShowVisualFeature&&(MapWizard.SingleItem.LineDatabase.LineHint[i].indexOf("[WordVisible:]")!=-1))
-                                        ){// For Word--------------------------
+                                                (MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.LineDatabase.LineHint[i].indexOf("[WordVisible:]") != -1))
+                                        ) {// For Word--------------------------
                                     choose = (binary >> 4) & MapWizard.SingleItem.Ox("111");
-                                    java.awt.Color Origin=MapWizard.SingleItem.getChooseColor(choose);
-                                    GL11.glColor4f(Origin.getRed()/255f,Origin.getGreen()/255f,Origin.getBlue()/255f, 1f);
+                                    java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
+                                    GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, 1f);
                                     now = MapWizard.SingleItem.LineDatabase.LineHead[i];
                                     int xx = GetScreenX(MapWizard.SingleItem.LineDatabase.AllPointX[now]);
                                     int yy = GetScreenY(MapWizard.SingleItem.LineDatabase.AllPointY[now]);
                                     DrawCount++;
-                                    drawString(MapWizard.SingleItem.LineDatabase.getTitle(i),  xx,  yy);
+                                    drawString(MapWizard.SingleItem.LineDatabase.getTitle(i), xx, yy);
                                 }
                         }
                 }
@@ -1597,21 +1724,22 @@ public class OriginalOpenGLWizard{
                         continue;
                     if (DrawCount < MapWizard.SingleItem.VisualObjectMaxNum)
                         if ((binary & MapWizard.SingleItem.Ox("1")) != 0) {
-                            if(!MapWizard.SingleItem.PolygonDatabase.CheckInRegion(i, OriginLongitude, OriginLatitude, OriginLongitude + LongitudeScale, OriginLatitude + LatitudeScale)) continue;
+                            if (!MapWizard.SingleItem.PolygonDatabase.CheckInRegion(i, OriginLongitude, OriginLatitude, OriginLongitude + LongitudeScale, OriginLatitude + LatitudeScale))
+                                continue;
                             /** Check in Screen */
                             if (
-                                    ((!MapWizard.SingleItem.ShowVisualFeature)&&((binary & MapWizard.SingleItem.Ox("1000")) != 0))
+                                    ((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("1000")) != 0))
                                             ||
-                                            (MapWizard.SingleItem.ShowVisualFeature&&(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i].indexOf("[LineVisible:]")!=-1))
-                                    ){// For Line----------------------------
-                                int thickness=1;
+                                            (MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.PolygonDatabase.PolygonHint[i].indexOf("[LineVisible:]") != -1))
+                                    ) {// For Line----------------------------
+                                int thickness = 1;
                                 choose = (binary >> 10) & MapWizard.SingleItem.Ox("111");
-                                java.awt.Color Origin=MapWizard.SingleItem.getChooseColor(choose);
+                                java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
                                 GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, Origin.getAlpha() / 255f);
                                 if (MapWizard.SingleItem.ShowVisualFeature) {
                                     setVisualDashLine(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i]);
                                     thickness = GetOpenGLLineThickness(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i]);
-                                    Origin = MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i],"Line");
+                                    Origin = MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i], "Line");
                                     GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, Origin.getAlpha() / 255f);
                                 }
 
@@ -1620,10 +1748,10 @@ public class OriginalOpenGLWizard{
                                 while (true) {
                                     p2 = MapWizard.SingleItem.PolygonDatabase.AllPointNext[p1];
                                     if (p2 == -1) p2 = now;
-                                    float x1 =GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[p1]);
-                                    float y1 =GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[p1]);
-                                    float x2 =GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[p2]);
-                                    float y2 =GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[p2]);
+                                    float x1 = GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[p1]);
+                                    float y1 = GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[p1]);
+                                    float x2 = GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[p2]);
+                                    float y2 = GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[p2]);
                                     drawLine(x1, y1, x2, y2, thickness);
                                     if ((MapWizard.SingleItem.ShowVisualFeature)
                                             && (MapWizard.SingleItem.Screen.GetVisualArrow(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i]))) {
@@ -1635,13 +1763,13 @@ public class OriginalOpenGLWizard{
                                                 (float) (y2
                                                         + 0.2
                                                         * ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))), thickness);
-                                        drawLine(x2,y2,
-                                                (float)(x2
+                                        drawLine(x2, y2,
+                                                (float) (x2
                                                         + 0.2
                                                         * (0.87 * (x1 - x2) + (y1 - y2) * 0.34)),
-                                                (float)(y2
+                                                (float) (y2
                                                         + 0.2
-                                                        * ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))),thickness);
+                                                        * ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))), thickness);
                                         GL11.glLineStipple(2, (short) 0x6666);
                                     }
                                     DrawCount++;
@@ -1650,11 +1778,10 @@ public class OriginalOpenGLWizard{
                                 }
                             }
                             if (MapWizard.SingleItem.ShowVisualFeature)
-                                if(!MapWizard.SingleItem.IsAllPolygonColorInvisible)
-                                    if(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i].indexOf("[PolygonVisible:]")!=-1)
-                                    {//For Polygon
-                                        java.awt.Color Origin = MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i],"Polygon");
-                                        GL11.glColor4f(Origin.getRed()/255f,Origin.getGreen()/255f,Origin.getBlue()/255f,Origin.getAlpha()/255f);
+                                if (!MapWizard.SingleItem.IsAllPolygonColorInvisible)
+                                    if (MapWizard.SingleItem.PolygonDatabase.PolygonHint[i].indexOf("[PolygonVisible:]") != -1) {//For Polygon
+                                        java.awt.Color Origin = MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i], "Polygon");
+                                        GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, Origin.getAlpha() / 255f);
                                         now = MapWizard.SingleItem.PolygonDatabase.PolygonHead[i];
                                         p1 = now;
                                         int counter = 0;
@@ -1674,41 +1801,41 @@ public class OriginalOpenGLWizard{
                                         drawPolygon(counter, Coor);
                                     }
                             if (
-                                    ((!MapWizard.SingleItem.ShowVisualFeature)&&((binary & MapWizard.SingleItem.Ox("100")) != 0))
+                                    ((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("100")) != 0))
                                             ||
-                                            (MapWizard.SingleItem.ShowVisualFeature&&(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i].indexOf("[PointVisible:]")!=-1))
-                                    ){// For Point-------------------------
+                                            (MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.PolygonDatabase.PolygonHint[i].indexOf("[PointVisible:]") != -1))
+                                    ) {// For Point-------------------------
                                 choose = (binary >> 7) & MapWizard.SingleItem.Ox("111");
-                                java.awt.Color Origin=MapWizard.SingleItem.getChooseColor(choose);
-                                GL11.glColor4f(Origin.getRed()/255f,Origin.getGreen()/255f,Origin.getBlue()/255f,Origin.getAlpha()/255f);
+                                java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
+                                GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, Origin.getAlpha() / 255f);
                                 int thickness = 1;
                                 if (MapWizard.SingleItem.ShowVisualFeature) {
                                     thickness = GetOpenGLPointThickness(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i]);
-                                    Origin=MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i],"Point");
+                                    Origin = MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i], "Point");
                                     GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, Origin.getAlpha() / 255f);
                                 }
                                 now = MapWizard.SingleItem.PolygonDatabase.PolygonHead[i];
                                 while (now != -1) {
-                                    float xx =GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[now]);
-                                    float yy =GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[now]);
+                                    float xx = GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[now]);
+                                    float yy = GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[now]);
                                     drawPoint(xx, yy, thickness);
                                     DrawCount++;
                                     now = MapWizard.SingleItem.PolygonDatabase.AllPointNext[now];
                                 }
 
                             }
-                            if(!MapWizard.SingleItem.IsAllFontInvisible)
+                            if (!MapWizard.SingleItem.IsAllFontInvisible)
                                 if (
-                                        ((!MapWizard.SingleItem.ShowVisualFeature)&&((binary & MapWizard.SingleItem.Ox("10")) != 0))
+                                        ((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("10")) != 0))
                                                 ||
-                                                (MapWizard.SingleItem.ShowVisualFeature&&(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i].indexOf("[WordVisible:]")!=-1))
-                                        ){// For Word--------------------------
+                                                (MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.PolygonDatabase.PolygonHint[i].indexOf("[WordVisible:]") != -1))
+                                        ) {// For Word--------------------------
                                     choose = (binary >> 4) & MapWizard.SingleItem.Ox("111");
-                                    java.awt.Color Origin=MapWizard.SingleItem.getChooseColor(choose);
+                                    java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
                                     GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, 1f);
                                     now = MapWizard.SingleItem.PolygonDatabase.PolygonHead[i];
-                                    int xx =GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[now]);
-                                    int yy =GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[now]);
+                                    int xx = GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[now]);
+                                    int yy = GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[now]);
                                     DrawCount++;
                                     drawString(MapWizard.SingleItem.PolygonDatabase.getTitle(i), xx, yy);
                                 }
@@ -1726,34 +1853,34 @@ public class OriginalOpenGLWizard{
                     if ((binary & MapWizard.SingleItem.Ox("1")) != 0) {
                         if (binary < 0) continue;
                         if (
-                                ((!MapWizard.SingleItem.ShowVisualFeature)&&((binary & MapWizard.SingleItem.Ox("100")) != 0))
+                                ((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("100")) != 0))
                                         ||
-                                        (MapWizard.SingleItem.ShowVisualFeature&&(MapWizard.SingleItem.PointDatabase.PointHint[i].indexOf("[PointVisible:]")!=-1))
-                                ){// For Point-------------------------
+                                        (MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.PointDatabase.PointHint[i].indexOf("[PointVisible:]") != -1))
+                                ) {// For Point-------------------------
                             choose = (binary >> 7) & MapWizard.SingleItem.Ox("111");
-                            java.awt.Color Origin=MapWizard.SingleItem.getChooseColor(choose);
-                            GL11.glColor4f(Origin.getRed()/255f,Origin.getGreen()/255f,Origin.getBlue()/255f,Origin.getAlpha()/255f);
+                            java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
+                            GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, Origin.getAlpha() / 255f);
 
                             int thickness = 1;
                             if (MapWizard.SingleItem.ShowVisualFeature) {
                                 thickness = GetOpenGLPointThickness(MapWizard.SingleItem.PointDatabase.PointHint[i]);
-                                Origin=MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.PointDatabase.PointHint[i],"Point");
+                                Origin = MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.PointDatabase.PointHint[i], "Point");
                                 GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, Origin.getAlpha() / 255f);
                             }
-                            float xx =GetScreenX(MapWizard.SingleItem.PointDatabase.AllPointX[i]);
-                            float yy =GetScreenY(MapWizard.SingleItem.PointDatabase.AllPointY[i]);
-                            if (MapWizard.SingleItem.IsEngravePointShape) thickness=1;
-                            drawPoint(xx,yy,thickness);
+                            float xx = GetScreenX(MapWizard.SingleItem.PointDatabase.AllPointX[i]);
+                            float yy = GetScreenY(MapWizard.SingleItem.PointDatabase.AllPointY[i]);
+                            if (MapWizard.SingleItem.IsEngravePointShape) thickness = 1;
+                            drawPoint(xx, yy, thickness);
                             DrawCount++;
                         }
-                        if(!MapWizard.SingleItem.IsAllFontInvisible)
+                        if (!MapWizard.SingleItem.IsAllFontInvisible)
                             if (
-                                    ((!MapWizard.SingleItem.ShowVisualFeature)&&((binary & MapWizard.SingleItem.Ox("10")) != 0))
+                                    ((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("10")) != 0))
                                             ||
-                                            (MapWizard.SingleItem.ShowVisualFeature&&(MapWizard.SingleItem.PointDatabase.PointHint[i].indexOf("[WordVisible:]")!=-1))
+                                            (MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.PointDatabase.PointHint[i].indexOf("[WordVisible:]") != -1))
                                     ) {// For Word--------------------------
                                 choose = (binary >> 4) & MapWizard.SingleItem.Ox("111");
-                                java.awt.Color Origin=MapWizard.SingleItem.getChooseColor(choose);
+                                java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
                                 GL11.glColor4f(Origin.getRed() / 255f, Origin.getGreen() / 255f, Origin.getBlue() / 255f, 1f);
                                 int xx = GetScreenX(MapWizard.SingleItem.PointDatabase.AllPointX[i]);
                                 int yy = GetScreenY(MapWizard.SingleItem.PointDatabase.AllPointY[i]);
@@ -1763,31 +1890,33 @@ public class OriginalOpenGLWizard{
                 }
             }
 
-        while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, false)){
-            try{
+        while (!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, false)) {
+            try {
                 Thread.sleep(10);
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
-        };
-        GL11.glColor4f(0f, 1f, 0f, 0.33f);
+        }
+        ;
         if (MapWizard.SingleItem.Screen.IsTextArea2Visible) {
+            GL11.glColor4f(0f, 1f, 0f, 0.33f);
             drawString(MapWizard.SingleItem.Screen.TextArea2Content, 10, Display.getHeight() - 15);
         }
-        GL11.glColor4f(0f, 0f, 0f, 1f);
-        GL11.glBegin(GL11.GL_POLYGON);
-        GL11.glVertex2f(0, 0);
-        GL11.glVertex2f(ScreenWidth, 0);
-        GL11.glVertex2f(ScreenWidth, 20);
-        GL11.glVertex2f(0, 20);
-        GL11.glEnd();
-        GL11.glPopMatrix();
-        GL11.glColor4f(1f, 0f, 0f, 1f);
         if (MapWizard.SingleItem.Screen.IsTextArea1Visible) {
+            GL11.glColor4f(0f, 0f, 0f, 1f);
+            GL11.glBegin(GL11.GL_POLYGON);
+            GL11.glVertex2f(0, 0);
+            GL11.glVertex2f(ScreenWidth, 0);
+            GL11.glVertex2f(ScreenWidth, 20);
+            GL11.glVertex2f(0, 20);
+            GL11.glEnd();
+            GL11.glPopMatrix();
+            GL11.glColor4f(1f, 0f, 0f, 1f);
             drawString(MapWizard.SingleItem.Screen.TextArea1Content, 10, 5);
         }
     }
-    public static void Sample(){
+
+    public static void Sample() {
         Tessellator tess = new Tessellator();
 
         double[] verticesC1 = new double[]{
@@ -1809,11 +1938,12 @@ public class OriginalOpenGLWizard{
         tess.gluEndPolygon();
         tess.gluDeleteTess();
 
-        for(int i = 0; i < tess.primitives.size(); i++) {
+        for (int i = 0; i < tess.primitives.size(); i++) {
             System.out.println(tess.primitives.get(i).toString());
         }
     }
 }
+
 class Primitive {
     public final int type;
     public final ArrayList<Integer> vertices = new ArrayList<>();
@@ -1823,23 +1953,28 @@ class Primitive {
     }
 
     private String getTypeString() {
-        switch(type) {
-            case GL11.GL_TRIANGLES: return "GL_TRIANGLES";
-            case GL11.GL_TRIANGLE_STRIP: return "GL_TRIANGLE_STRIP";
-            case GL11.GL_TRIANGLE_FAN: return "GL_TRIANGLE_FAN";
-            default: return Integer.toString(type);
+        switch (type) {
+            case GL11.GL_TRIANGLES:
+                return "GL_TRIANGLES";
+            case GL11.GL_TRIANGLE_STRIP:
+                return "GL_TRIANGLE_STRIP";
+            case GL11.GL_TRIANGLE_FAN:
+                return "GL_TRIANGLE_FAN";
+            default:
+                return Integer.toString(type);
         }
     }
 
     @Override
     public String toString() {
         String s = "New Primitive " + getTypeString();
-        for(int i = 0; i < vertices.size(); i++) {
+        for (int i = 0; i < vertices.size(); i++) {
             s += "\nIndex: " + vertices.get(i);
         }
         return s;
     }
 }
+
 class Tessellator extends GLUtessellatorImpl {
     public ArrayList<Primitive> primitives = new ArrayList<Primitive>();
 
