@@ -152,8 +152,9 @@ public class OriginalOpenGLWizard {
         Display.destroy();
 
         if (MapWizard.SingleItem != null)
-            if (!MapWizard.SingleItem.isVisible())
-                System.exit(0);
+            if (!MapWizard.SingleItem.isVisible()){
+                MapWizard.SingleItem.setVisible(true);
+            }
     }
 
     public void update(int delta) {
