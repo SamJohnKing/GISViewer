@@ -1362,6 +1362,13 @@ public class OriginalOpenGLWizard {
         return (OriginLatitude + org.lwjgl.input.Mouse.getY() * LatitudeScale / ScreenHeight);
     }
 
+    public void MoveMiddle(double x, double y){
+        double dx = x - (OriginLongitude + LongitudeScale / 2);
+        double dy = y - (OriginLatitude + LatitudeScale / 2);
+        OriginLongitude += dx;
+        OriginLatitude += dy;
+    }
+
     public void renderGL() { /** For Drawing Elements */
         // Clear The Screen And The Depth Buffer
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);

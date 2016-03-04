@@ -9,6 +9,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 
+import LWJGLPackage.OriginalOpenGLWizard;
 import MapKernel.FileAccept;
 import MapKernel.MapControl;
 import MapKernel.ToolPanel;
@@ -135,9 +136,18 @@ public  class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPan
 			_pos=str.indexOf('#',pos+1);
 			double x=Double.parseDouble(str.substring(0,pos));
 			double y=Double.parseDouble(str.substring(pos+1,_pos));
-			PointDB.add(x,y,"[Title:][Info:SocketInsert][Info:Transaction"+SocketTransactionCounter+"]");
+			PointDB.add(x, y, "[Title:][Info:SocketInsert][Info:Transaction" + SocketTransactionCounter + "]");
 			return "Success::";
-		}else if(Command.equals("InsertLine")){
+		} else if(Command.equals("InsertStylePoint")){ /** Command::Style#Data */
+			int pos1 = str.indexOf('#');
+			int pos2 = str.indexOf('#', pos1 + 1);
+			int pos3 = str.indexOf('#', pos2 + 1);
+			String Style = str.substring(0, pos1) + "[Info:SocketInsert][Info:Transaction " + SocketTransactionCounter + "]";
+			double x = Double.parseDouble(str.substring(pos1 + 1, pos2));
+			double y = Double.parseDouble(str.substring(pos2 + 1, pos3));
+			PointDB.add(x, y, Style);
+			return "Success::";
+		} else if(Command.equals("InsertLine")){
 			_pos=-1;
 			SocketXYCounter=0;
 			while((pos=str.indexOf('#',_pos+1))!=-1){
@@ -146,9 +156,22 @@ public  class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPan
 				SocketY[SocketXYCounter]=Double.parseDouble(str.substring(pos+1,_pos));
 				SocketXYCounter++;
 			}
-			LineDB.add(SocketX,SocketY,SocketXYCounter,"[Title:][Info:SocketInsert][Info:Transaction"+SocketTransactionCounter+"]");
+			LineDB.add(SocketX, SocketY, SocketXYCounter, "[Title:][Info:SocketInsert][Info:Transaction" + SocketTransactionCounter + "]");
 			return "Success::";		
-		}else if(Command.equals("InsertPolygon")){
+		} else if(Command.equals("InsertStyleLine")){ /** Command::Style#Data */
+			int pos1 = str.indexOf('#');
+			String Style = str.substring(0, pos1) + "[Info:SocketInsert][Info:Transaction " + SocketTransactionCounter + "]";
+			_pos = pos1;
+			SocketXYCounter=0;
+			while((pos=str.indexOf('#',_pos+1))!=-1){
+				SocketX[SocketXYCounter]=Double.parseDouble(str.substring(_pos+1,pos));
+				_pos=str.indexOf('#',pos+1);
+				SocketY[SocketXYCounter]=Double.parseDouble(str.substring(pos+1,_pos));
+				SocketXYCounter++;
+			}
+			LineDB.add(SocketX, SocketY, SocketXYCounter, Style);
+			return "Success::";
+		} else if(Command.equals("InsertPolygon")){
 			_pos=-1;
 			SocketXYCounter=0;
 			while((pos=str.indexOf('#',_pos+1))!=-1){
@@ -157,59 +180,74 @@ public  class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPan
 				SocketY[SocketXYCounter]=Double.parseDouble(str.substring(pos+1,_pos));
 				SocketXYCounter++;
 			}
-			PolygonDB.add(SocketX,SocketY,SocketXYCounter,"[Title:][Info:SocketInsert][Info:Transaction"+SocketTransactionCounter+"]");
+			PolygonDB.add(SocketX, SocketY, SocketXYCounter, "[Title:][Info:SocketInsert][Info:Transaction" + SocketTransactionCounter + "]");
 			return "Success::";
-		}else if(Command.equals("DeletePointAll")){
-			PointDB.AttributeDelete("SocketInsert",null,null,null,null);
+		} else if(Command.equals("InsertStylePolygon")){ /** Command::Style#Data */
+			int pos1 = str.indexOf('#');
+			String Style = str.substring(0, pos1) + "[Info:SocketInsert][Info:Transaction " + SocketTransactionCounter + "]";
+			_pos = pos1;
+			SocketXYCounter=0;
+			while((pos=str.indexOf('#',_pos+1))!=-1){
+				SocketX[SocketXYCounter]=Double.parseDouble(str.substring(_pos+1,pos));
+				_pos=str.indexOf('#',pos+1);
+				SocketY[SocketXYCounter]=Double.parseDouble(str.substring(pos+1,_pos));
+				SocketXYCounter++;
+			}
+			PolygonDB.add(SocketX, SocketY, SocketXYCounter, Style);
 			return "Success::";
-		}else if(Command.equals("DeleteLineAll")){
-			LineDB.AttributeDelete("SocketInsert",null,null,null,null);
+		} else if(Command.equals("DeletePointAll")){
+			PointDB.AttributeDelete("SocketInsert", null,null,null,null);
 			return "Success::";
-		}else if(Command.equals("DeletePolygonAll")){
-			PolygonDB.AttributeDelete("SocketInsert",null,null,null,null);
+		} else if(Command.equals("DeleteLineAll")){
+			LineDB.AttributeDelete("SocketInsert", null,null,null,null);
 			return "Success::";
-		}else if(Command.equals("ScreenFlush")){
+		} else if(Command.equals("DeletePolygonAll")){
+			PolygonDB.AttributeDelete("SocketInsert", null,null,null,null);
+			return "Success::";
+		} else if(Command.equals("ScreenFlush")){
 			MainHandle.ScreenFlush();
 			return "Success::";
-		}else if(Command.equals("MoveMiddle")){
+		} else if(Command.equals("MoveMiddle")){
 			pos=str.indexOf('#');
 			_pos=str.indexOf('#',pos+1);
 			double x=Double.parseDouble(str.substring(0,pos));
 			double y=Double.parseDouble(str.substring(pos+1,_pos));
 			MainHandle.getKernel().Screen.MoveMiddle(x,y);
+			if(OriginalOpenGLWizard.SingleItem != null)
+				OriginalOpenGLWizard.SingleItem.MoveMiddle(x, y);
 			return "Success::";
-		}else if(Command.equals("ShowTextArea1")){
+		} else if(Command.equals("ShowTextArea1")){
 			MainHandle.ShowTextArea1(str,true);
 			return "Success::";
-		}else if(Command.equals("ShowTextArea2")){
+		} else if(Command.equals("ShowTextArea2")){
 			MainHandle.ShowTextArea2(str, true);
 			return "Success::";
-		}else if(Command.equals("VeilTextArea1")){
+		} else if(Command.equals("VeilTextArea1")){
 			MainHandle.VeilTextArea1();
 			return "Success::";
-		}else if(Command.equals("VeilTextArea2")){
+		} else if(Command.equals("VeilTextArea2")){
 			MainHandle.VeilTextArea2();
 			return "Success::";
-		}else if(Command.equals("ShowMessageDialog")){
+		} else if(Command.equals("ShowMessageDialog")){
 			JOptionPane.showMessageDialog(null,str);
 			return "Success::";
-		}else if(Command.equals("ShowConfirmDialog")){
+		} else if(Command.equals("ShowConfirmDialog")){
 			int n=JOptionPane.showConfirmDialog(null,str,"GIS Info Upheval",JOptionPane.OK_CANCEL_OPTION);
 			if(n==JOptionPane.OK_OPTION) return "Success::";
 			else return "Abort::";
-		}else if(Command.equals("OutputPoints")){
+		} else if(Command.equals("OutputPoints")){
 			MainHandle.getPointDatabase().DatabaseFileOutput(new File(str));
 			return "Success::";
-		}else if(Command.equals("OutputLines")){
+		} else if(Command.equals("OutputLines")){
 			MainHandle.getLineDatabase().DatabaseFileOutput(new File(str));
 			return "Success::";
-		}else if(Command.equals("OutputPolygons")){
+		} else if(Command.equals("OutputPolygons")){
 			MainHandle.getPolygonDatabase().DatabaseFileOutput(new File(str));
 			return "Success::";
-		}else if(Command.equals("OutputScreen")){
+		} else if(Command.equals("OutputScreen")){
 			MainHandle.getKernel().ScreenPNGOutput(str);
 			return "Success::";
-		}else if(Command.equals("AlphaDrawer")){
+		} else if(Command.equals("AlphaDrawer")){
 			MainHandle.getKernel().Screen.AlphaDrawer(str);
 			return "Success::";
 		}

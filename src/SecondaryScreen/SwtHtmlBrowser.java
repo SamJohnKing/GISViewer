@@ -57,7 +57,12 @@ public class SwtHtmlBrowser implements Runnable{
 	static int MapHeight=0;
 	static double WebLongitudeStart,WebLongitudeEnd,WebLatitudeStart,WebLatitudeEnd;
 	static double DeviationLongitude,DeviationLatitude;
-	static Browser browser=null;
+	static Browser browser = null;
+	static Canvas canvaspane = null;
+	static Canvas Mask = null;
+	static long DownTimestamp = 0;
+	static int PressedX = -1;
+	static int PressedY = -1;
 	public static Thread SingleItemThread=null;
 	public static boolean Running=false;
 	public static byte AlphaSettingValue=10;
@@ -115,9 +120,9 @@ public class SwtHtmlBrowser implements Runnable{
 		BufferedImage Source_Image=new BufferedImage(MapWidth,MapHeight,BufferedImage.TYPE_INT_RGB);
 		Graphics2D g_alpha=Alpha_Image.createGraphics();
 		Graphics2D g_2d = Source_Image.createGraphics();
-		MapKernel.MapWizard.SingleItem.Screen.DBpaint(g_alpha, WebLongitudeStart-DeviationLongitude, WebLatitudeEnd-DeviationLatitude, 
+		MapKernel.MapWizard.SingleItem.Screen.DBpaint(g_alpha, WebLongitudeStart-DeviationLongitude, WebLatitudeEnd-DeviationLatitude,
 				WebLongitudeEnd-WebLongitudeStart, WebLatitudeEnd-WebLatitudeStart, MapWidth, MapHeight);
-		MapKernel.MapWizard.SingleItem.Screen.DBpaint(g_2d, WebLongitudeStart-DeviationLongitude, WebLatitudeEnd-DeviationLatitude, 
+		MapKernel.MapWizard.SingleItem.Screen.DBpaint(g_2d, WebLongitudeStart-DeviationLongitude, WebLatitudeEnd-DeviationLatitude,
 				WebLongitudeEnd-WebLongitudeStart, WebLatitudeEnd-WebLatitudeStart, MapWidth, MapHeight);
 		ImageData SWT_ImageData=convertToSWT(Source_Image);
 		//-----------------------------------------------------------
@@ -155,6 +160,24 @@ public class SwtHtmlBrowser implements Runnable{
 		Image SWT_Image=new Image(null,SWT_ImageData);
 		e.gc.drawImage(SWT_Image, 0, 0, MapWidth, MapHeight, 0, 0, MapWidth, MapHeight);
 	}
+	public static double GetLogicalX(int x){
+		return WebLongitudeStart + (WebLongitudeEnd - WebLongitudeStart) * x / MapWidth;
+	}
+	public static double GetLogicalY(int y){
+		return WebLatitudeEnd - (WebLatitudeEnd - WebLatitudeStart) * y / MapHeight;
+	}
+	public static int GetScreenX(double x){
+		return (int) ((x - WebLongitudeStart) / (WebLongitudeEnd - WebLongitudeStart) * MapWidth);
+	}
+	public static int GetScreenY(double y){
+		return (int) ((WebLatitudeEnd - y) / (WebLatitudeEnd - WebLatitudeStart) * MapHeight);
+	}
+	public static void MoveMiddle(double x, double y){
+		browser.execute("map.setView(L.latLng(" + y + "," + x + "),map.getZoom());");
+		browser.execute("MapBoundsToJavaWeb();");
+		canvaspane.redraw();
+		Mask.redraw();
+	}
 	public static void InitiateBrowser(){
 		try{
 	       	Display display=new Display(); 
@@ -162,50 +185,83 @@ public class SwtHtmlBrowser implements Runnable{
 	        shell.setText("GeoCity Secondary Screen"); 
 	        //----------------------------------------------------
 	        //Canvas
-	        final Canvas canvaspane=new Canvas(shell,SWT.TRANSPARENT);
+	        canvaspane=new Canvas(shell,SWT.TRANSPARENT);
 	        canvaspane.setVisible(false);
 	        canvaspane.setBounds(0, 0, MapWidth, MapHeight);
-	        canvaspane.addPaintListener(new PaintListener(){
+
+			Mask=new Canvas(shell,SWT.TRANSPARENT);
+			Mask.setVisible(false);
+			Mask.setBounds(0, 0, MapWidth, MapHeight);
+
+	        canvaspane.addPaintListener(new PaintListener() {
 				@Override
 				public void paintControl(PaintEvent e) {
 					// TODO Auto-generated method stub
 					DBPaint(e);
 				}
-	        });
-	        canvaspane.addMouseListener(new MouseListener(){
-	        	long DownTimestamp=0;
+			});
+
+			canvaspane.addMouseWheelListener(new MouseWheelListener() {
+				@Override
+				public void mouseScrolled(MouseEvent mouseEvent) {
+					double LogicalX_0 = GetLogicalX(mouseEvent.x);
+					double LogicalY_0 = GetLogicalY(mouseEvent.y);
+					double Middle_x = (WebLongitudeStart + WebLongitudeEnd) / 2;
+					double Middle_y = (WebLatitudeStart + WebLatitudeEnd) / 2;
+					if (mouseEvent.count > 0) {
+						browser.execute("map.zoomIn();");
+					} else if (mouseEvent.count < 0) {
+						browser.execute("map.zoomOut();");
+					}
+					browser.execute("MapBoundsToJavaWeb();");
+					MoveMiddle(Middle_x + (LogicalX_0 - GetLogicalX(mouseEvent.x)), Middle_y + (LogicalY_0 - GetLogicalY(mouseEvent.y)));
+				}
+			});
+
+	        canvaspane.addMouseListener(new MouseListener() {
+
 				@Override
 				public void mouseDoubleClick(MouseEvent arg0) {
 					// TODO Auto-generated method stub
-					
+
 				}
+
 				@Override
 				public void mouseDown(MouseEvent arg0) {
 					// TODO Auto-generated method stub
-					DownTimestamp=java.util.Calendar.getInstance().getTimeInMillis();
+					DownTimestamp = java.util.Calendar.getInstance().getTimeInMillis();
+					PressedX = arg0.x;
+					PressedY = arg0.y;
 				}
+
 				@Override
 				public void mouseUp(MouseEvent arg0) {
 					// TODO Auto-generated method stub
-					if(java.util.Calendar.getInstance().getInstance().getTimeInMillis()-DownTimestamp<1000){
-						if(MapKernel.MapWizard.SingleItem.NowPanel.getString().equals("MapElementsEditorPane")){
-							ExtendedToolPane.ExtendedToolPaneInterface DBEditor=(ExtendedToolPane.ExtendedToolPaneInterface)
+					if (java.util.Calendar.getInstance().getInstance().getTimeInMillis() - DownTimestamp < 200) {
+						if (MapKernel.MapWizard.SingleItem.NowPanel.getString().equals("MapElementsEditorPane")) {
+							ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
 									(MapKernel.MapWizard.SingleItem.NowPanel);
-							if(arg0.button==1){
-								double DBLongitude=WebLongitudeStart+(WebLongitudeEnd-WebLongitudeStart)*arg0.x/MapWidth-DeviationLongitude;
-								double DBLatitude=WebLatitudeEnd-(WebLatitudeEnd-WebLatitudeStart)*arg0.y/MapHeight-DeviationLatitude;
+							if (arg0.button == 1) {
+								double DBLongitude = WebLongitudeStart + (WebLongitudeEnd - WebLongitudeStart) * arg0.x / MapWidth - DeviationLongitude;
+								double DBLatitude = WebLatitudeEnd - (WebLatitudeEnd - WebLatitudeStart) * arg0.y / MapHeight - DeviationLatitude;
 								DBEditor.convey(DBLongitude, DBLatitude);
-							}else{
+							} else {
 								DBEditor.confirm();
 							}
 						}
+					} else {
+						int dx = arg0.x - PressedX;
+						int dy = arg0.y - PressedY;
+						double DLongitude = -dx * (WebLongitudeEnd - WebLongitudeStart) / MapWidth;
+						double DLatitude = +dy * (WebLatitudeEnd - WebLatitudeStart) / MapHeight;
+						MoveMiddle((WebLongitudeStart + WebLongitudeEnd) / 2 + DLongitude, (WebLatitudeStart + WebLatitudeEnd) / 2 + DLatitude);
+						return;
 					}
+					canvaspane.redraw();
+					Mask.redraw();
 				}
-	        });
-	        
-	        final Canvas Mask=new Canvas(shell,SWT.TRANSPARENT);
-	        Mask.setVisible(false);
-	        Mask.setBounds(0, 0, MapWidth, MapHeight);
+			});
+
 	        Mask.addPaintListener(new PaintListener(){
 				@Override
 				public void paintControl(PaintEvent e) {
@@ -265,8 +321,8 @@ public class SwtHtmlBrowser implements Runnable{
 	       	Button Execute_JSCode=new Button(shell,SWT.NONE);
 	       	Execute_JSCode.addListener(SWT.Selection, new Listener(){
 	            public void handleEvent(Event event) 
-	            { 
-	            	browser.execute(JScode.getText());
+	            {
+					browser.execute(JScode.getText());
 	            } 
 	       	});
 	       	Execute_JSCode.setBounds(MapWidth+10,165,200,30);
@@ -428,7 +484,7 @@ public class SwtHtmlBrowser implements Runnable{
 	        java.io.File HTML_fin=new java.io.File(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("OpenStreetMap_Sample.html"));
 	        browser.setUrl(HTML_fin.getAbsolutePath());
 	        shell.open();
-	        JScode.setText("ResizeMap("+MapWidth+","+MapHeight+");");
+	        JScode.setText("ResizeMap("+MapWidth+","+MapHeight+");\nmap.fitBounds([[31.05, 121.25],[31.45, 121.70]]);\nMapBoundsToJavaWeb();\n");
 	        
 	        long TimerCounter=java.util.Calendar.getInstance().getTimeInMillis();
 	        while ((Running)&&(!shell.isDisposed())) { 

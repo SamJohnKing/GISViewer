@@ -3142,7 +3142,7 @@ public class MapWizard extends JFrame implements ActionListener {
 				return 6;
 			}
 		}
-		public void DBpaint(Graphics2D g_2d,double ScreenLongitude,double ScreenLatitude,double LongitudeScale,double LatitudeScale,int ScreenWidth,int ScreenHeight){
+		public synchronized void DBpaint(Graphics2D g_2d,double ScreenLongitude,double ScreenLatitude,double LongitudeScale,double LatitudeScale,int ScreenWidth,int ScreenHeight){
 			BasicStroke bs = new BasicStroke(2, BasicStroke.CAP_ROUND,
 					BasicStroke.JOIN_ROUND);
 			g_2d.setStroke(bs);
@@ -5098,6 +5098,7 @@ public class MapWizard extends JFrame implements ActionListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
+				/*
 				try{
 					if(!Screen.isVisible())
 						if(SecondaryScreen.SwtHtmlBrowser.SingleItemThread!=null)
@@ -5107,6 +5108,8 @@ public class MapWizard extends JFrame implements ActionListener {
 				}
 				if(SecondaryScreen.SwtHtmlBrowser.SingleItemThread==null) ForbidenOperationSwitch();
 				else JOptionPane.showMessageDialog(null, "Secondary Screen Closed");
+				*/
+				ForbidenOperationSwitch();
 			}
 		});
 		
@@ -5794,7 +5797,7 @@ public class MapWizard extends JFrame implements ActionListener {
 			public void actionPerformed(ActionEvent arg0) {
 				if(SecondaryScreen.SwtHtmlBrowser.SingleItemThread==null)
 				{
-					if(Screen.isVisible()) Screen.setVisible(false);
+					//if(Screen.isVisible()) Screen.setVisible(false);
 				}else return;
 				// TODO Auto-generated method stub
 				String str_width=JOptionPane.showInputDialog(null,"Secondary Screen Width");
