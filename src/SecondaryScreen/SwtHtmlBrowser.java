@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
-import org.eclipse.swt.SWT; 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser; 
 import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.widgets.Button; 
@@ -34,6 +34,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.DirectColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
+import java.util.Vector;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
@@ -50,16 +51,16 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-
+import MapKernel.MapWizard;
 
 public class SwtHtmlBrowser implements Runnable{
 	static int MapWidth=0;
 	static int MapHeight=0;
 	static double WebLongitudeStart,WebLongitudeEnd,WebLatitudeStart,WebLatitudeEnd;
 	static double DeviationLongitude,DeviationLatitude;
-	static Browser browser = null;
-	static Canvas canvaspane = null;
-	static Canvas Mask = null;
+	public static Browser browser = null;
+	public static Canvas canvaspane = null;
+	public static Canvas Mask = null;
 	static long DownTimestamp = 0;
 	static int PressedX = -1;
 	static int PressedY = -1;
@@ -114,18 +115,55 @@ public class SwtHtmlBrowser implements Runnable{
 		Running=true;
 		SingleItemThread.start();
 	}
+	public static int GetOpenGLPointThickness(String info) {
+		try {
+			if (info == null)
+				return 4;
+			int p1;
+			if ((p1 = info.indexOf("[PointSize:")) != -1)
+				return Integer.parseInt(info.substring(p1 + 11,
+						info.indexOf(']', p1 + 11)));
+			else
+				return 4;
+		} catch (Exception ex) {
+			System.err.println("GetVisualPointSize_Err");
+			ex.printStackTrace();
+			return 4;
+		}
+	}
+	public static int GetOpenGLLineThickness(String info) {
+		try {
+			if (info == null) return 1;
+			int p1;
+			if ((p1 = info.indexOf("[LineWidth:")) != -1)
+				return Integer.parseInt(info.substring(p1 + 11, info.indexOf(']', p1 + 11)));
+			else return 1;
+		} catch (Exception ex) {
+			System.err.println("GetVisualLineStroke_Err");
+			ex.printStackTrace();
+			return 1;
+		}
+	}
+	public static Vector<Integer> CoorVector = new Vector<Integer>();
+	public static int[] Coor = null;
+	public static void setVisualDashLine(GC gc, String info) {
+		if (info.indexOf("[DashLine:") != -1) {
+			gc.setLineDash(new int[]{5, 5});
+		} else gc.setLineDash(null);
+	}
 	public static void DBPaint(PaintEvent e){
 		browser.execute("MapBoundsToJavaWeb();");
-		BufferedImage Alpha_Image=new BufferedImage(MapWidth,MapHeight,BufferedImage.TYPE_INT_ARGB);
-		BufferedImage Source_Image=new BufferedImage(MapWidth,MapHeight,BufferedImage.TYPE_INT_RGB);
-		Graphics2D g_alpha=Alpha_Image.createGraphics();
-		Graphics2D g_2d = Source_Image.createGraphics();
-		MapKernel.MapWizard.SingleItem.Screen.DBpaint(g_alpha, WebLongitudeStart-DeviationLongitude, WebLatitudeEnd-DeviationLatitude,
-				WebLongitudeEnd-WebLongitudeStart, WebLatitudeEnd-WebLatitudeStart, MapWidth, MapHeight);
-		MapKernel.MapWizard.SingleItem.Screen.DBpaint(g_2d, WebLongitudeStart-DeviationLongitude, WebLatitudeEnd-DeviationLatitude,
-				WebLongitudeEnd-WebLongitudeStart, WebLatitudeEnd-WebLatitudeStart, MapWidth, MapHeight);
-		ImageData SWT_ImageData=convertToSWT(Source_Image);
-		//-----------------------------------------------------------
+		if(MapWizard.SingleItem.IsShowAlphaDistribution) {
+			BufferedImage Alpha_Image = new BufferedImage(MapWidth, MapHeight, BufferedImage.TYPE_INT_ARGB);
+			BufferedImage Source_Image = new BufferedImage(MapWidth, MapHeight, BufferedImage.TYPE_INT_RGB);
+			Graphics2D g_alpha = Alpha_Image.createGraphics();
+			Graphics2D g_2d = Source_Image.createGraphics();
+			MapKernel.MapWizard.SingleItem.Screen.DBpaint(g_alpha, WebLongitudeStart - DeviationLongitude, WebLatitudeEnd - DeviationLatitude,
+					WebLongitudeEnd - WebLongitudeStart, WebLatitudeEnd - WebLatitudeStart, MapWidth, MapHeight);
+			MapKernel.MapWizard.SingleItem.Screen.DBpaint(g_2d, WebLongitudeStart - DeviationLongitude, WebLatitudeEnd - DeviationLatitude,
+					WebLongitudeEnd - WebLongitudeStart, WebLatitudeEnd - WebLatitudeStart, MapWidth, MapHeight);
+			ImageData SWT_ImageData = convertToSWT(Source_Image);
+			//-----------------------------------------------------------
 			byte[] alphaValues = new byte[SWT_ImageData.height
 					* SWT_ImageData.width];
 			byte[] RGB_List = SWT_ImageData.data;
@@ -145,32 +183,440 @@ public class SwtHtmlBrowser implements Runnable{
 					// b=RGB_List[k] & 0xff;
 					// g=RGB_List[k+1] & 0xff;
 					// r=RGB_List[k+2] & 0xff;
-					if(Math.abs(r)+Math.abs(g)+Math.abs(b)+Math.abs(a)==0) alphaValues[i*SWT_ImageData.width+j]=(byte)0;
-					else alphaValues[i*SWT_ImageData.width+j]=(byte)a;
-					
+					if (Math.abs(r) + Math.abs(g) + Math.abs(b) + Math.abs(a) == 0)
+						alphaValues[i * SWT_ImageData.width + j] = (byte) 0;
+					else alphaValues[i * SWT_ImageData.width + j] = (byte) a;
+
 					//if (Math.abs(r) + Math.abs(g) + Math.abs(b) == 0)
 					//	alphaValues[i * SWT_ImageData.width + j] = AlphaSettingValue;
 					//else
 					//	alphaValues[i * SWT_ImageData.width + j] = (byte) a;
 				}
 				offset += SWT_ImageData.bytesPerLine;
+			}
+			SWT_ImageData.alphaData = alphaValues;
+			//-------------------------------------------------------------
+			Image SWT_Image = new Image(null, SWT_ImageData);
+			e.gc.drawImage(SWT_Image, 0, 0, MapWidth, MapHeight, 0, 0, MapWidth, MapHeight);
+			return;
 		}
-		SWT_ImageData.alphaData=alphaValues;
-		//-------------------------------------------------------------
-		Image SWT_Image=new Image(null,SWT_ImageData);
-		e.gc.drawImage(SWT_Image, 0, 0, MapWidth, MapHeight, 0, 0, MapWidth, MapHeight);
+		// Draw for Extended Components
+		e.gc.setLineDash(new int[]{5,5});
+		if ((MapWizard.SingleItem.Screen.IsExtendedPointVisible) && (MapWizard.SingleItem.Screen.ExtendedPointCount > 0)) {
+			for (int i = 0; i < MapWizard.SingleItem.Screen.ExtendedPointCount; i++) {
+				int xx = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[i]);
+				int yy = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[i]);
+				xx += MapWizard.SingleItem.Screen.ScreenDeltaX;
+				yy += MapWizard.SingleItem.Screen.ScreenDeltaY;
+				e.gc.setForeground(new Color(null, 255, 255, 0));
+				e.gc.setBackground(new Color(null, 255, 255, 0));
+				e.gc.setAlpha(255);
+				e.gc.fillOval(xx - 4, yy - 4, 8, 8);
+				if (MapWizard.SingleItem.Screen.IsExtendedPointHintVisible) {
+					e.gc.drawString(MapWizard.SingleItem.Screen.ExtendedPointHint[i], xx + 1, yy + 1, true);
+				}
+			}
+			e.gc.setForeground(new Color(null, 0, 255, 0));
+			e.gc.setAlpha(255);
+			if (MapWizard.SingleItem.Screen.IsConsecutiveLink)
+				for (int i = 1; i < MapWizard.SingleItem.Screen.ExtendedPointCount; i++) {
+					int x1 = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[i - 1]);
+					int y1 = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[i - 1]);
+					int x2 = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[i]);
+					int y2 = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[i]);
+					x1 += MapWizard.SingleItem.Screen.ScreenDeltaX;
+					y1 += MapWizard.SingleItem.Screen.ScreenDeltaY;
+					x2 += MapWizard.SingleItem.Screen.ScreenDeltaX;
+					y2 += MapWizard.SingleItem.Screen.ScreenDeltaY;
+					e.gc.setLineDash(new int[]{5,5});
+					e.gc.setLineWidth(2);
+					e.gc.drawLine(x1, y1, x2, y2);
+					e.gc.setLineDash(null);
+
+					int x3 = (x1 + x2) / 2 + (y2 - y1) / 4;
+					int y3 = (y1 + y2) / 2 - (x2 - x1) / 4;
+					x3 = x3 + 3 * (x2 - x3) / 4;
+					y3 = y3 + 3 * (y2 - y3) / 4;
+					e.gc.drawLine(x3, y3, x2, y2);
+
+					x3 = (x1 + x2) / 2 - (y2 - y1) / 4;
+					y3 = (y1 + y2) / 2 + (x2 - x1) / 4;
+					x3 = x3 + 3 * (x2 - x3) / 4;
+					y3 = y3 + 3 * (y2 - y3) / 4;
+					e.gc.drawLine(x3, y3, x2, y2);
+				}
+			if (MapWizard.SingleItem.Screen.IsHeadTailLink) {
+				e.gc.setForeground(new Color(null, 255, 0, 0));
+				e.gc.setAlpha(255);
+				int x1 = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[0]);
+				int y1 = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[0]);
+				int Ptr = MapWizard.SingleItem.Screen.ExtendedPointCount - 1;
+				if (Ptr < 0) Ptr = 0;
+				int x2 = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[Ptr]);
+				int y2 = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[Ptr]);
+				x1 += MapWizard.SingleItem.Screen.ScreenDeltaX;
+				y1 += MapWizard.SingleItem.Screen.ScreenDeltaY;
+				x2 += MapWizard.SingleItem.Screen.ScreenDeltaX;
+				y2 += MapWizard.SingleItem.Screen.ScreenDeltaY;
+				e.gc.setLineDash(new int[]{5, 5});
+				e.gc.drawLine(x1, y1, x2, y2);
+				e.gc.setLineDash(null);
+			}
+			if (MapWizard.SingleItem.Screen.ExtendedPointSelectCount != 0) {
+				for (int i = 0; i < MapWizard.SingleItem.Screen.ExtendedPointSelectCount; i++) {
+					int xx = GetScreenX(MapWizard.SingleItem.Screen.ExtendedPointX[MapWizard.SingleItem.Screen.ExtendedPointSelectList[i]]);
+					int yy = GetScreenY(MapWizard.SingleItem.Screen.ExtendedPointY[MapWizard.SingleItem.Screen.ExtendedPointSelectList[i]]);
+					xx += MapWizard.SingleItem.Screen.ScreenDeltaX;
+					yy += MapWizard.SingleItem.Screen.ScreenDeltaY;
+					e.gc.setForeground(new Color(null, 255, 0, 0));
+					e.gc.setAlpha(255);
+					e.gc.fillOval(xx - 4, yy - 4, 8, 8);
+				}
+			}
+		}
+		e.gc.setLineDash(null);
+
+		//Draw OpenGL Elements
+		if (MapWizard.SingleItem.IsAllElementInvisible) return;
+		while (!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, true)) {
+			try {
+				Thread.sleep(10);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		};
+
+
+		if (!MapWizard.SingleItem.IsAllLineInvisible)
+			if (MapWizard.SingleItem.LineDatabaseFile != null) {
+				int binary, choose, now, p1, p2;
+				int DrawCount = 0;
+				for (int i = 0; i < MapWizard.SingleItem.LineDatabase.LineNum; i++) {
+					binary = MapWizard.SingleItem.LineDatabase.LineVisible[i];
+					if (binary < 0)
+						continue;
+					if (DrawCount < MapWizard.SingleItem.VisualObjectMaxNum)
+						if ((binary & MapWizard.SingleItem.Ox("1")) != 0) {
+							if (!MapWizard.SingleItem.LineDatabase.CheckInRegion(i, WebLongitudeStart, WebLatitudeStart, WebLongitudeEnd, WebLatitudeEnd))
+								continue;
+							/** Check in Screen */
+							if (((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("1000")) != 0))
+									|| (MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.LineDatabase.LineHint[i].indexOf("[LineVisible:]") != -1))) {// For Line----------------------------
+								choose = (binary >> 10) & MapWizard.SingleItem.Ox("111");
+								java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
+								e.gc.setForeground(new Color(null, Origin.getRed(), Origin.getGreen(), Origin.getBlue()));
+								e.gc.setAlpha(Origin.getAlpha());
+								int thickness = 1;
+								if (MapWizard.SingleItem.ShowVisualFeature) {
+									setVisualDashLine(e.gc, MapWizard.SingleItem.LineDatabase.LineHint[i]);
+									thickness = GetOpenGLLineThickness(MapWizard.SingleItem.LineDatabase.LineHint[i]);
+									Origin = MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.LineDatabase.LineHint[i], "Line");
+									e.gc.setForeground(new Color(null, Origin.getRed(), Origin.getGreen(), Origin.getBlue()));
+									e.gc.setAlpha(Origin.getAlpha());
+								}
+
+								now = MapWizard.SingleItem.LineDatabase.LineHead[i];
+								p1 = now;
+
+								while (true) {
+									p2 = MapWizard.SingleItem.LineDatabase.AllPointNext[p1];
+									if (p2 == -1)
+										break;
+
+									int x1 = GetScreenX(MapWizard.SingleItem.LineDatabase.AllPointX[p1]);
+									int y1 = GetScreenY(MapWizard.SingleItem.LineDatabase.AllPointY[p1]);
+									int x2 = GetScreenX(MapWizard.SingleItem.LineDatabase.AllPointX[p2]);
+									int y2 = GetScreenY(MapWizard.SingleItem.LineDatabase.AllPointY[p2]);
+
+									e.gc.setLineWidth(thickness);
+									e.gc.drawLine(x1, y1, x2, y2);
+
+									if ((MapWizard.SingleItem.ShowVisualFeature)
+											&& (MapWizard.SingleItem.Screen.GetVisualArrow(MapWizard.SingleItem.LineDatabase.LineHint[i]))) {
+										e.gc.setLineWidth(2);
+										e.gc.drawLine(x2, y2,
+												(int) (x2
+														+ 0.2
+														* (0.87 * (x1 - x2) - (y1 - y2) * 0.34)),
+												(int) (y2
+														+ 0.2
+														* ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))));
+										e.gc.drawLine(x2, y2,
+												(int) (x2
+														+ 0.2
+														* (0.87 * (x1 - x2) + (y1 - y2) * 0.34)),
+												(int) (y2
+														+ 0.2
+														* ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))));
+									}
+									DrawCount++;
+									p1 = p2;
+								}
+							}
+							if (((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("100")) != 0))
+									|| (MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.LineDatabase.LineHint[i].indexOf("[PointVisible:]") != -1))
+									) {// For Point-------------------------
+								choose = (binary >> 7) & MapWizard.SingleItem.Ox("111");
+								java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
+								e.gc.setBackground(new Color(null, Origin.getRed(), Origin.getGreen(), Origin.getBlue()));
+								e.gc.setAlpha(Origin.getAlpha());
+								int thickness = 1;
+								if (MapWizard.SingleItem.ShowVisualFeature) {
+									thickness = GetOpenGLPointThickness(MapWizard.SingleItem.LineDatabase.LineHint[i]);
+									Origin = MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.LineDatabase.LineHint[i], "Point");
+									e.gc.setBackground(new Color(null, Origin.getRed(), Origin.getGreen(), Origin.getBlue()));
+									e.gc.setAlpha(Origin.getAlpha());
+								}
+
+								now = MapWizard.SingleItem.LineDatabase.LineHead[i];
+								while (now != -1) {
+									int xx = GetScreenX(MapWizard.SingleItem.LineDatabase.AllPointX[now]);
+									int yy = GetScreenY(MapWizard.SingleItem.LineDatabase.AllPointY[now]);
+									e.gc.fillOval(xx - thickness / 2, yy - thickness / 2, thickness, thickness);
+									DrawCount++;
+									now = MapWizard.SingleItem.LineDatabase.AllPointNext[now];
+								}
+							}
+							if (!MapWizard.SingleItem.IsAllFontInvisible)
+								if (
+										((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("10")) != 0))
+												||
+												(MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.LineDatabase.LineHint[i].indexOf("[WordVisible:]") != -1))
+										) {// For Word--------------------------
+									choose = (binary >> 4) & MapWizard.SingleItem.Ox("111");
+									java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
+									e.gc.setForeground(new Color(null, Origin.getRed(), Origin.getGreen(), Origin.getBlue()));
+									e.gc.setAlpha(Origin.getAlpha());
+									now = MapWizard.SingleItem.LineDatabase.LineHead[i];
+									int xx = GetScreenX(MapWizard.SingleItem.LineDatabase.AllPointX[now]);
+									int yy = GetScreenY(MapWizard.SingleItem.LineDatabase.AllPointY[now]);
+									DrawCount++;
+									e.gc.drawString(MapWizard.SingleItem.LineDatabase.getTitle(i), xx + 1, yy + 1, true);
+								}
+						}
+				}
+			}
+		if (!MapWizard.SingleItem.IsAllPolygonInvisible)
+			if (MapWizard.SingleItem.PolygonDatabaseFile != null) {
+				int binary, choose, now, p1, p2;
+				int DrawCount = 0;
+				for (int i = 0; i < MapWizard.SingleItem.PolygonDatabase.PolygonNum; i++) {
+					binary = MapWizard.SingleItem.PolygonDatabase.PolygonVisible[i];
+					if (binary < 0)
+						continue;
+					if (DrawCount < MapWizard.SingleItem.VisualObjectMaxNum)
+						if ((binary & MapWizard.SingleItem.Ox("1")) != 0) {
+							if (!MapWizard.SingleItem.PolygonDatabase.CheckInRegion(i, WebLongitudeStart, WebLatitudeStart, WebLongitudeEnd, WebLatitudeEnd))
+								continue;
+							/** Check in Screen */
+							if (
+									((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("1000")) != 0))
+											||
+											(MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.PolygonDatabase.PolygonHint[i].indexOf("[LineVisible:]") != -1))
+									) {// For Line----------------------------
+								int thickness = 1;
+								choose = (binary >> 10) & MapWizard.SingleItem.Ox("111");
+								java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
+								e.gc.setForeground(new Color(null, Origin.getRed(), Origin.getGreen(), Origin.getBlue()));
+								e.gc.setAlpha(Origin.getAlpha());
+								if (MapWizard.SingleItem.ShowVisualFeature) {
+									setVisualDashLine(e.gc, MapWizard.SingleItem.PolygonDatabase.PolygonHint[i]);
+									thickness = GetOpenGLLineThickness(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i]);
+									Origin = MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i], "Line");
+									e.gc.setForeground(new Color(null, Origin.getRed(), Origin.getGreen(), Origin.getBlue()));
+									e.gc.setAlpha(Origin.getAlpha());
+								}
+
+								now = MapWizard.SingleItem.PolygonDatabase.PolygonHead[i];
+								p1 = now;
+								while (true) {
+									p2 = MapWizard.SingleItem.PolygonDatabase.AllPointNext[p1];
+									if (p2 == -1) p2 = now;
+									int x1 = GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[p1]);
+									int y1 = GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[p1]);
+									int x2 = GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[p2]);
+									int y2 = GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[p2]);
+									e.gc.setLineWidth(thickness);
+									e.gc.drawLine(x1, y1, x2, y2);
+									if ((MapWizard.SingleItem.ShowVisualFeature)
+											&& (MapWizard.SingleItem.Screen.GetVisualArrow(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i]))) {
+										e.gc.setLineWidth(2);
+										e.gc.drawLine(x2, y2,
+												(int) (x2
+														+ 0.2
+														* (0.87 * (x1 - x2) - (y1 - y2) * 0.34)),
+												(int) (y2
+														+ 0.2
+														* ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))));
+										e.gc.drawLine(x2, y2,
+												(int) (x2
+														+ 0.2
+														* (0.87 * (x1 - x2) + (y1 - y2) * 0.34)),
+												(int) (y2
+														+ 0.2
+														* ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))));
+									}
+									DrawCount++;
+									p1 = p2;
+									if (p1 == now) break;
+								}
+							}
+							if (MapWizard.SingleItem.ShowVisualFeature)
+								if (!MapWizard.SingleItem.IsAllPolygonColorInvisible)
+									if (MapWizard.SingleItem.PolygonDatabase.PolygonHint[i].indexOf("[PolygonVisible:]") != -1) {//For Polygon
+										java.awt.Color Origin = MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i], "Polygon");
+										e.gc.setBackground(new Color(null, Origin.getRed(), Origin.getGreen(), Origin.getBlue()));
+										e.gc.setAlpha(Origin.getAlpha());
+										now = MapWizard.SingleItem.PolygonDatabase.PolygonHead[i];
+										p1 = now;
+
+										CoorVector.clear();
+										while (true) {
+											p2 = MapWizard.SingleItem.PolygonDatabase.AllPointNext[p1];
+											if (p2 == -1) p2 = now;
+											CoorVector.add(GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[p1]));
+											CoorVector.add(GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[p1]));
+											p1 = p2;
+											if (p1 == now) break;
+										}
+										/** DrawPolygon */
+										Coor = new int[CoorVector.size()];
+										int counter = 0;
+										for(Integer Item : CoorVector){
+											Coor[counter] = CoorVector.get(counter);
+											counter++;
+										}
+										e.gc.fillPolygon(Coor);
+									}
+							if (
+									((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("100")) != 0))
+											||
+											(MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.PolygonDatabase.PolygonHint[i].indexOf("[PointVisible:]") != -1))
+									) {// For Point-------------------------
+								choose = (binary >> 7) & MapWizard.SingleItem.Ox("111");
+								java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
+								e.gc.setBackground(new Color(null, Origin.getRed(), Origin.getGreen(), Origin.getBlue()));
+								e.gc.setAlpha(Origin.getAlpha());
+								int thickness = 1;
+								if (MapWizard.SingleItem.ShowVisualFeature) {
+									thickness = GetOpenGLPointThickness(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i]);
+									Origin = MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i], "Point");
+									e.gc.setBackground(new Color(null, Origin.getRed(), Origin.getGreen(), Origin.getBlue()));
+									e.gc.setAlpha(Origin.getAlpha());
+								}
+								now = MapWizard.SingleItem.PolygonDatabase.PolygonHead[i];
+								while (now != -1) {
+									int xx = GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[now]);
+									int yy = GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[now]);
+									e.gc.fillOval(xx - thickness / 2, yy - thickness / 2, thickness, thickness);
+									DrawCount++;
+									now = MapWizard.SingleItem.PolygonDatabase.AllPointNext[now];
+								}
+
+							}
+							if (!MapWizard.SingleItem.IsAllFontInvisible)
+								if (
+										((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("10")) != 0))
+												||
+												(MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.PolygonDatabase.PolygonHint[i].indexOf("[WordVisible:]") != -1))
+										) {// For Word--------------------------
+									choose = (binary >> 4) & MapWizard.SingleItem.Ox("111");
+									java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
+									e.gc.setForeground(new Color(null, Origin.getRed(), Origin.getGreen(), Origin.getBlue()));
+									e.gc.setAlpha(Origin.getAlpha());
+									now = MapWizard.SingleItem.PolygonDatabase.PolygonHead[i];
+									int xx = GetScreenX(MapWizard.SingleItem.PolygonDatabase.AllPointX[now]);
+									int yy = GetScreenY(MapWizard.SingleItem.PolygonDatabase.AllPointY[now]);
+									DrawCount++;
+									e.gc.drawString(MapWizard.SingleItem.PolygonDatabase.getTitle(i), xx + 1, yy + 1, true);
+								}
+						}
+				}
+			}
+		if ((!MapWizard.SingleItem.IsAllPointInvisible) && (!MapWizard.SingleItem.IsShowAlphaDistribution))
+			if (MapWizard.SingleItem.PointDatabaseFile != null) {
+				int binary, choose, now, p1, p2;
+				int DrawCount = 0;
+				for (int i = 0; i < MapWizard.SingleItem.PointDatabase.PointNum; i++) {
+					binary = MapWizard.SingleItem.PointDatabase.PointVisible[i];
+					if (DrawCount > MapWizard.SingleItem.VisualObjectMaxNum) break;
+					if ((binary & MapWizard.SingleItem.Ox("1")) != 0) {
+						if (binary < 0) continue;
+						if (
+								((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("100")) != 0))
+										||
+										(MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.PointDatabase.PointHint[i].indexOf("[PointVisible:]") != -1))
+								) {// For Point-------------------------
+							choose = (binary >> 7) & MapWizard.SingleItem.Ox("111");
+							java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
+							e.gc.setBackground(new Color(null, Origin.getRed(), Origin.getGreen(), Origin.getBlue()));
+							e.gc.setAlpha(Origin.getAlpha());
+
+							int thickness = 1;
+							if (MapWizard.SingleItem.ShowVisualFeature) {
+								thickness = GetOpenGLPointThickness(MapWizard.SingleItem.PointDatabase.PointHint[i]);
+								Origin = MapWizard.SingleItem.Screen.GetVisualColor(MapWizard.SingleItem.PointDatabase.PointHint[i], "Point");
+								e.gc.setBackground(new Color(null, Origin.getRed(), Origin.getGreen(), Origin.getBlue()));
+								e.gc.setAlpha(Origin.getAlpha());
+							}
+							int xx = GetScreenX(MapWizard.SingleItem.PointDatabase.AllPointX[i]);
+							int yy = GetScreenY(MapWizard.SingleItem.PointDatabase.AllPointY[i]);
+							if (MapWizard.SingleItem.IsEngravePointShape) thickness = 1;
+								e.gc.fillOval(xx - thickness / 2, yy - thickness / 2, thickness, thickness);
+							DrawCount++;
+						}
+						if (!MapWizard.SingleItem.IsAllFontInvisible)
+							if (
+									((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("10")) != 0))
+											||
+											(MapWizard.SingleItem.ShowVisualFeature && (MapWizard.SingleItem.PointDatabase.PointHint[i].indexOf("[WordVisible:]") != -1))
+									) {// For Word--------------------------
+								choose = (binary >> 4) & MapWizard.SingleItem.Ox("111");
+								java.awt.Color Origin = MapWizard.SingleItem.getChooseColor(choose);
+								e.gc.setForeground(new Color(null, Origin.getRed(), Origin.getGreen(), Origin.getBlue()));
+								e.gc.setAlpha(Origin.getAlpha());
+								int xx = GetScreenX(MapWizard.SingleItem.PointDatabase.AllPointX[i]);
+								int yy = GetScreenY(MapWizard.SingleItem.PointDatabase.AllPointY[i]);
+								e.gc.drawString(MapWizard.SingleItem.PointDatabase.getTitle(i), xx + 1, yy + 1, true);
+							}
+					}
+				}
+			}
+
+		while (!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, false)) {
+			try {
+				Thread.sleep(10);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+		;
+		if (MapWizard.SingleItem.Screen.IsTextArea2Visible) {
+			e.gc.setForeground(new Color(null, 0, 255, 0));
+			e.gc.setAlpha(255);
+			e.gc.setBackground(new Color(null, 0, 0, 0));
+			e.gc.fillRectangle(0, 0, MapWidth, 21);
+			e.gc.drawString(MapWizard.SingleItem.Screen.TextArea2Content, 10, 2, true);
+		}
+		if (MapWizard.SingleItem.Screen.IsTextArea1Visible) {
+			e.gc.setForeground(new Color(null, 255, 0, 0));
+			e.gc.setAlpha(255);
+			e.gc.setBackground(new Color(null, 0, 0, 0));
+			e.gc.fillRectangle(0, MapHeight - 20, MapWidth, 20);
+			e.gc.drawString(MapWizard.SingleItem.Screen.TextArea1Content, 10, MapHeight - 18, true);
+		}
 	}
 	public static double GetLogicalX(int x){
-		return WebLongitudeStart + (WebLongitudeEnd - WebLongitudeStart) * x / MapWidth;
+		return WebLongitudeStart + (WebLongitudeEnd - WebLongitudeStart) * x / MapWidth - DeviationLongitude;
 	}
 	public static double GetLogicalY(int y){
-		return WebLatitudeEnd - (WebLatitudeEnd - WebLatitudeStart) * y / MapHeight;
+		return WebLatitudeEnd - (WebLatitudeEnd - WebLatitudeStart) * y / MapHeight - DeviationLatitude;
 	}
 	public static int GetScreenX(double x){
-		return (int) ((x - WebLongitudeStart) / (WebLongitudeEnd - WebLongitudeStart) * MapWidth);
+		return (int) (((x + DeviationLongitude) - WebLongitudeStart) / (WebLongitudeEnd - WebLongitudeStart) * MapWidth + 0.5);
 	}
 	public static int GetScreenY(double y){
-		return (int) ((WebLatitudeEnd - y) / (WebLatitudeEnd - WebLatitudeStart) * MapHeight);
+		return (int) ((WebLatitudeEnd - (y + DeviationLatitude)) / (WebLatitudeEnd - WebLatitudeStart) * MapHeight + 0.5);
 	}
 	public static void MoveMiddle(double x, double y){
 		browser.execute("map.setView(L.latLng(" + y + "," + x + "),map.getZoom());");
@@ -237,7 +683,10 @@ public class SwtHtmlBrowser implements Runnable{
 				@Override
 				public void mouseUp(MouseEvent arg0) {
 					// TODO Auto-generated method stub
-					if (java.util.Calendar.getInstance().getInstance().getTimeInMillis() - DownTimestamp < 200) {
+					int dx = arg0.x - PressedX;
+					int dy = arg0.y - PressedY;
+					if ((java.util.Calendar.getInstance().getInstance().getTimeInMillis() - DownTimestamp < 200)
+							&&(Math.abs(dx) + Math.abs(dy) == 0 )) {
 						if (MapKernel.MapWizard.SingleItem.NowPanel.getString().equals("MapElementsEditorPane")) {
 							ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
 									(MapKernel.MapWizard.SingleItem.NowPanel);
@@ -250,8 +699,6 @@ public class SwtHtmlBrowser implements Runnable{
 							}
 						}
 					} else {
-						int dx = arg0.x - PressedX;
-						int dy = arg0.y - PressedY;
 						double DLongitude = -dx * (WebLongitudeEnd - WebLongitudeStart) / MapWidth;
 						double DLatitude = +dy * (WebLatitudeEnd - WebLatitudeStart) / MapHeight;
 						MoveMiddle((WebLongitudeStart + WebLongitudeEnd) / 2 + DLongitude, (WebLatitudeStart + WebLatitudeEnd) / 2 + DLatitude);

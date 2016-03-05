@@ -13,6 +13,8 @@ import LWJGLPackage.OriginalOpenGLWizard;
 import MapKernel.FileAccept;
 import MapKernel.MapControl;
 import MapKernel.ToolPanel;
+import SecondaryScreen.SwtHtmlBrowser;
+import org.eclipse.swt.widgets.Display;
 
 public  class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPaneInterface,ActionListener,ItemListener{
 	MapControl MainHandle;
@@ -210,11 +212,19 @@ public  class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPan
 		} else if(Command.equals("MoveMiddle")){
 			pos=str.indexOf('#');
 			_pos=str.indexOf('#',pos+1);
-			double x=Double.parseDouble(str.substring(0,pos));
-			double y=Double.parseDouble(str.substring(pos+1,_pos));
+			final double x=Double.parseDouble(str.substring(0,pos));
+			final double y=Double.parseDouble(str.substring(pos+1,_pos));
 			MainHandle.getKernel().Screen.MoveMiddle(x,y);
 			if(OriginalOpenGLWizard.SingleItem != null)
 				OriginalOpenGLWizard.SingleItem.MoveMiddle(x, y);
+			if(SwtHtmlBrowser.SingleItemThread != null){
+				Display.getDefault().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						SwtHtmlBrowser.MoveMiddle(x, y);
+					}
+				});
+			}
 			return "Success::";
 		} else if(Command.equals("ShowTextArea1")){
 			MainHandle.ShowTextArea1(str,true);

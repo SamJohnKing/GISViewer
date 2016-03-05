@@ -4980,7 +4980,7 @@ public class MapWizard extends JFrame implements ActionListener {
 			AllLineInvisible, AllPolygonInvisible, AllFontInvisible, AllPolygonColorInvisible;
 	JMenuItem EngravePointShape, ClearLineDBItem, ClearPolygonDBItem,
 			VisualFeatureSwitchItem,AlphaFeatureSwitchItem;
-	JMenuItem SplitJPGItem,OpenSecondaryScreenItem,OpenOpenGLScreenItem,SettingOpenGLMicroscope;
+	JMenuItem SplitJPGItem,OpenSecondaryScreenItem,OpenOpenGLScreenItem;
 
 	public boolean IsEngravePointShape = false;
 	public boolean IsAllElementInvisible = false;
@@ -5798,7 +5798,10 @@ public class MapWizard extends JFrame implements ActionListener {
 				if(SecondaryScreen.SwtHtmlBrowser.SingleItemThread==null)
 				{
 					//if(Screen.isVisible()) Screen.setVisible(false);
-				}else return;
+				}else {
+					javax.swing.JOptionPane.showMessageDialog(null, "Another Instance is Running");
+					return;
+				}
 				// TODO Auto-generated method stub
 				String str_width=JOptionPane.showInputDialog(null,"Secondary Screen Width");
 				String str_height=JOptionPane.showInputDialog(null,"Secondary Screnn Height");
@@ -5819,34 +5822,6 @@ public class MapWizard extends JFrame implements ActionListener {
 				LWJGLPackage.OriginalOpenGLWizard.GetInstance();
 			}
 		});
-		
-		SettingOpenGLMicroscope=new JMenuItem(LanguageDic.GetWords("OpenGL第二屏幕放大镜参数设定"));
-		SettingOpenGLMicroscope.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				String str=JOptionPane.showInputDialog("Input x0,y0,x1,y1");
-				if((str==null)||(str.equals(""))){
-					JOptionPane.showMessageDialog(null,"Setting Error");
-					return;
-				}else{
-					try{
-						String[] Parameter=str.split(",");
-						double x0=java.lang.Double.parseDouble(Parameter[0]);
-						double y0=java.lang.Double.parseDouble(Parameter[1]);
-						double x1=java.lang.Double.parseDouble(Parameter[2]);
-						double y1=java.lang.Double.parseDouble(Parameter[3]);
-						OpenGLPackage.OpenGL_Basic_Screen.Screen_X0=Math.min(x0,x1);
-						OpenGLPackage.OpenGL_Basic_Screen.Screen_Y0=Math.min(y0,y1);
-						OpenGLPackage.OpenGL_Basic_Screen.Screen_X1=Math.max(x0,x1);
-						OpenGLPackage.OpenGL_Basic_Screen.Screen_Y1=Math.max(y0,y1);
-						OpenGLPackage.OpenGL_Basic_Screen.Screen_Zoom=(org.lwjgl.opengl.Display.getHeight()+1)/Math.abs(y1-y0);
-					}catch(Exception ex){
-						JOptionPane.showMessageDialog(null,"Setting Error");
-					}
-				}
-			}
-		});
-		
 		
 		YangshanPortASCPaneItem=new JMenuItem(LanguageDic.GetWords("YangshanPortASCPane"));
 		YangshanPortASCPaneItem.addActionListener(new ActionListener(){
@@ -5904,7 +5879,6 @@ public class MapWizard extends JFrame implements ActionListener {
 		EditMenu.add(HtmlMapOutputPaneItem);
 		EditMenu.add(OpenSecondaryScreenItem);
 		EditMenu.add(OpenOpenGLScreenItem);
-		EditMenu.add(SettingOpenGLMicroscope);
 		//----------------------------------
 		MapControlMenu.add(TwoPointItem);
 		MapControlMenu.add(CalibrateItem);

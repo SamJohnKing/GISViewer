@@ -1,5 +1,7 @@
 package ExtendedToolPane;
 import MapKernel.*;
+import SecondaryScreen.SwtHtmlBrowser;
+import org.eclipse.swt.widgets.Display;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -54,6 +56,14 @@ public class MapElementsEditorPaneClass extends ToolPanel implements ExtendedToo
 			confirm();
 		}else if(e.getSource()==RollBack){
 			rollback();
+		}
+		if(SecondaryScreen.SwtHtmlBrowser.SingleItemThread != null){
+			Display.getDefault().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					SwtHtmlBrowser.canvaspane.redraw();
+				}
+			});
 		}
 	}
 	//Specific Part--------------------------------------------
@@ -149,6 +159,14 @@ public class MapElementsEditorPaneClass extends ToolPanel implements ExtendedToo
 				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("隐去顺序"));
 				MainHandle.setPointHintVisible(false);
 			}
+		}
+		if(SecondaryScreen.SwtHtmlBrowser.SingleItemThread != null){
+			Display.getDefault().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					SwtHtmlBrowser.canvaspane.redraw();
+				}
+			});
 		}
 	}
 	public void emerge(){

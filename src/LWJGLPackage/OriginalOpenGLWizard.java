@@ -15,7 +15,6 @@ import java.util.Calendar;
 import java.util.Vector;
 
 import MapKernel.MapWizard;
-import OpenGLPackage.mdesl.graphics.*;
 import javafx.stage.Screen;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -1620,7 +1619,6 @@ public class OriginalOpenGLWizard {
         if (!MapWizard.SingleItem.IsAllLineInvisible)
             if (MapWizard.SingleItem.LineDatabaseFile != null) {
                 int binary, choose, now, p1, p2;
-                Line2D line;
                 int DrawCount = 0;
                 for (int i = 0; i < MapWizard.SingleItem.LineDatabase.LineNum; i++) {
                     binary = MapWizard.SingleItem.LineDatabase.LineVisible[i];
@@ -1661,22 +1659,20 @@ public class OriginalOpenGLWizard {
 
                                     if ((MapWizard.SingleItem.ShowVisualFeature)
                                             && (MapWizard.SingleItem.Screen.GetVisualArrow(MapWizard.SingleItem.LineDatabase.LineHint[i]))) {
-                                        GL11.glLineStipple(2, (short) 0xFFFF);
                                         drawLine(x2, y2,
                                                 (float) (x2
                                                         + 0.2
                                                         * (0.87 * (x1 - x2) - (y1 - y2) * 0.34)),
                                                 (float) (y2
                                                         + 0.2
-                                                        * ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))), thickness);
+                                                        * ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))), 2);
                                         drawLine(x2, y2,
                                                 (float) (x2
                                                         + 0.2
                                                         * (0.87 * (x1 - x2) + (y1 - y2) * 0.34)),
                                                 (float) (y2
                                                         + 0.2
-                                                        * ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))), thickness);
-                                        GL11.glLineStipple(2, (short) 0x6666);
+                                                        * ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))), 2);
                                     }
                                     DrawCount++;
                                     p1 = p2;
@@ -1763,22 +1759,20 @@ public class OriginalOpenGLWizard {
                                     drawLine(x1, y1, x2, y2, thickness);
                                     if ((MapWizard.SingleItem.ShowVisualFeature)
                                             && (MapWizard.SingleItem.Screen.GetVisualArrow(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i]))) {
-                                        GL11.glLineStipple(2, (short) 0xFFFF);
                                         drawLine(x2, y2,
                                                 (float) (x2
                                                         + 0.2
                                                         * (0.87 * (x1 - x2) - (y1 - y2) * 0.34)),
                                                 (float) (y2
                                                         + 0.2
-                                                        * ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))), thickness);
+                                                        * ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))), 2);
                                         drawLine(x2, y2,
                                                 (float) (x2
                                                         + 0.2
                                                         * (0.87 * (x1 - x2) + (y1 - y2) * 0.34)),
                                                 (float) (y2
                                                         + 0.2
-                                                        * ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))), thickness);
-                                        GL11.glLineStipple(2, (short) 0x6666);
+                                                        * ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))), 2);
                                     }
                                     DrawCount++;
                                     p1 = p2;
@@ -1853,7 +1847,6 @@ public class OriginalOpenGLWizard {
         if ((!MapWizard.SingleItem.IsAllPointInvisible) && (!MapWizard.SingleItem.IsShowAlphaDistribution))
             if (MapWizard.SingleItem.PointDatabaseFile != null) {
                 int binary, choose, now, p1, p2;
-                Point2D Point;
                 int DrawCount = 0;
                 for (int i = 0; i < MapWizard.SingleItem.PointDatabase.PointNum; i++) {
                     binary = MapWizard.SingleItem.PointDatabase.PointVisible[i];
