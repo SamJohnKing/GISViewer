@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
+import ExtendedToolPane.ServerSocketPaneClass;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser; 
 import org.eclipse.swt.browser.BrowserFunction;
@@ -61,6 +62,8 @@ public class SwtHtmlBrowser implements Runnable{
 	public static Browser browser = null;
 	public static Canvas canvaspane = null;
 	public static Canvas Mask = null;
+	public static Shell shell = null;
+	public static boolean Accessed = false;
 	static long DownTimestamp = 0;
 	static int PressedX = -1;
 	static int PressedY = -1;
@@ -104,15 +107,49 @@ public class SwtHtmlBrowser implements Runnable{
 			}
 		}
 	}
-	public static void InitiateBrowser(int Width,int Height){
-		if(SingleItemThread!=null) return;
+	public static void GetInstance(){
+		if(SingleItemThread!=null) {
+			Display.getDefault().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					if(shell.isVisible()) javax.swing.JOptionPane.showMessageDialog(null, "Another Instance is Running");
+					else{
+						shell.setVisible(true);
+						Accessed = true;
+						shell.setFocus();
+					}
+				}
+			});
+			return;
+		}
+		// TODO Auto-generated method stub
+		String str_width=JOptionPane.showInputDialog(null,"Secondary Screen Width");
+		String str_height=JOptionPane.showInputDialog(null,"Secondary Screnn Height");
+		GetInstance(Integer.parseInt(str_width), Integer.parseInt(str_height));
+	}
+
+	public static void GetInstance(int Width, int Height){
+		if(SingleItemThread!=null) {
+			Display.getDefault().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					if(shell.isVisible()) javax.swing.JOptionPane.showMessageDialog(null, "Another Instance is Running");
+					else{
+						shell.setVisible(true);
+						Accessed = true;
+						shell.setFocus();
+					}
+				}
+			});
+			return;
+		}
+		// TODO Auto-generated method stub
 		FlushInterval=500;
 		DeviationLongitude=0;
 		DeviationLatitude=0;
 		MapWidth=Width;
 		MapHeight=Height;
 		SingleItemThread=new Thread(new SwtHtmlBrowser());
-		Running=true;
 		SingleItemThread.start();
 	}
 	public static int GetOpenGLPointThickness(String info) {
@@ -621,14 +658,54 @@ public class SwtHtmlBrowser implements Runnable{
 	public static void MoveMiddle(double x, double y){
 		browser.execute("map.setView(L.latLng(" + y + "," + x + "),map.getZoom());");
 		browser.execute("MapBoundsToJavaWeb();");
-		canvaspane.redraw();
 		Mask.redraw();
+		canvaspane.redraw();
 	}
+	public static void ScreenFlush(){
+		SwtHtmlBrowser.canvaspane.redraw();
+	}
+
+	public static boolean IsReady(){
+		return Accessed;
+	}
+
 	public static void InitiateBrowser(){
+		Display display=new Display();
 		try{
-	       	Display display=new Display(); 
-	        final Shell shell=new Shell(display); 
-	        shell.setText("GeoCity Secondary Screen"); 
+			shell=new Shell(display);
+
+			shell.addShellListener(new ShellListener() {
+				@Override
+				public void shellActivated(ShellEvent shellEvent) {
+
+				}
+
+				@Override
+				public void shellClosed(ShellEvent shellEvent) {
+					Accessed = false;
+					if(ServerSocketPaneClass.ServerHandle.ServerOpen) { // 网络连接开启时不允许关闭
+						shellEvent.doit = false;
+						shell.setVisible(false);
+					}
+				}
+
+				@Override
+				public void shellDeactivated(ShellEvent shellEvent) {
+
+				}
+
+				@Override
+				public void shellDeiconified(ShellEvent shellEvent) {
+
+				}
+
+				@Override
+				public void shellIconified(ShellEvent shellEvent) {
+
+				}
+			});
+
+	        shell.setText("GeoCity Secondary Screen");
 	        //----------------------------------------------------
 	        //Canvas
 	        canvaspane=new Canvas(shell,SWT.TRANSPARENT);
@@ -705,7 +782,6 @@ public class SwtHtmlBrowser implements Runnable{
 						return;
 					}
 					canvaspane.redraw();
-					Mask.redraw();
 				}
 			});
 
@@ -718,7 +794,7 @@ public class SwtHtmlBrowser implements Runnable{
 					e.gc.fillRectangle(0, 0, MapWidth, MapHeight);
 				}
 	        });
-	        
+
 	        //------------------------------------------------------
 	        //JSEditor
 	        Label lb1=new Label(shell,SWT.CENTER);
@@ -726,59 +802,59 @@ public class SwtHtmlBrowser implements Runnable{
 	        lb1.setText("JavaScript Editors");
 	        lb1.setFont(new Font(display,"Consolas",16,SWT.BOLD));//设置文字的字体字号
 	        lb1.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
-	        
+
 	        final Text JScode=new Text(shell,SWT.BORDER|SWT.WRAP);
 	        JScode.setBounds(MapWidth+10, 60 , 275, 100);
-	        
+
 	        final Text AlphaSettingText=new Text(shell,SWT.BORDER);
 	        AlphaSettingText.setBounds(MapWidth+215, 200 , 70, 30);
-	        
+
 	        final Text UrlAddressText=new Text(shell,SWT.BORDER);
 	        UrlAddressText.setBounds(MapWidth+60, 235, 225, 30);
-	        
+
 	        final Text LongitudeEastText=new Text(shell,SWT.BORDER);
 	        LongitudeEastText.setBounds(MapWidth+10,270,70,30);
-	        
+
 	        final Text LatitudeNorthText=new Text(shell,SWT.BORDER);
 	        LatitudeNorthText.setBounds(MapWidth+215,270,70,30);
 	        //------------------------------------------------------
 	        //Buttons
 	       	Button UnLockButton=new Button(shell,SWT.NONE);
 	       	UnLockButton.addListener(SWT.Selection, new Listener(){
-	            public void handleEvent(Event event) 
-	            { 
+	            public void handleEvent(Event event)
+	            {
 	            	canvaspane.setVisible(false);
 	            	Mask.setVisible(false);
-	            } 
+	            }
 	       	});
 	       	UnLockButton.setBounds(MapWidth+10, 5, 100, 30);
 	       	UnLockButton.setText("UnLock Map");
-	       	
+
 	       	Button LockButton=new Button(shell,SWT.NONE);
 	       	LockButton.addListener(SWT.Selection, new Listener(){
-	            public void handleEvent(Event event) 
-	            { 
+	            public void handleEvent(Event event)
+	            {
 	            	canvaspane.setVisible(true);
 	            	Mask.setVisible(true);
-	            } 
+	            }
 	       	});
 	       	LockButton.setBounds(MapWidth+120, 5, 160, 30);
 	       	LockButton.setText("Lock Map Show Data");
-	       	
+
 	       	Button Execute_JSCode=new Button(shell,SWT.NONE);
 	       	Execute_JSCode.addListener(SWT.Selection, new Listener(){
-	            public void handleEvent(Event event) 
+	            public void handleEvent(Event event)
 	            {
 					browser.execute(JScode.getText());
-	            } 
+	            }
 	       	});
 	       	Execute_JSCode.setBounds(MapWidth+10,165,200,30);
 	       	Execute_JSCode.setText("Execute JavaScript Code");
-	       	
+
 	       	Button Setting_Alpha=new Button(shell,SWT.NONE);
 	       	Setting_Alpha.addListener(SWT.Selection, new Listener(){
-	            public void handleEvent(Event event) 
-	            { 
+	            public void handleEvent(Event event)
+	            {
 	            	try{
 	            		AlphaSettingValue=(byte)(Integer.parseInt(AlphaSettingText.getText())%256);
 	            		Mask.setVisible(true);
@@ -787,21 +863,21 @@ public class SwtHtmlBrowser implements Runnable{
 	            		ex.printStackTrace();
 	            		return;
 	            	}
-	            } 
+	            }
 	       	});
 	       	Setting_Alpha.setBounds(MapWidth+10,200,200,30);
 	       	Setting_Alpha.setText("Setting Mask Alpha Value");
-	       	
+
 	       	Button GoUrl=new Button(shell,SWT.NONE);
 	       	GoUrl.addListener(SWT.Selection,new Listener(){
-	            public void handleEvent(Event event) 
-	            { 
+	            public void handleEvent(Event event)
+	            {
 	            	GoUrlAction(UrlAddressText.getText());
-	            } 
+	            }
 	       	});
 	        GoUrl.setBounds(MapWidth+10, 235, 45, 30);
 	        GoUrl.setText("GoUrl");
-	        
+
 	        Button LongitudeLatitudeDelta=new Button(shell,SWT.NONE);
 	        LongitudeLatitudeDelta.setBounds(MapWidth+85,270,125,30);
 	        LongitudeLatitudeDelta.addListener(SWT.Selection, new Listener(){
@@ -818,12 +894,12 @@ public class SwtHtmlBrowser implements Runnable{
 				}
 	        });
 	        LongitudeLatitudeDelta.setText("Data::(Lng→ || Lat↑)");
-	        
-	        
-	        
+
+
+
 	        final Text ScreenFlushSetting=new Text(shell,SWT.BORDER);
 	        ScreenFlushSetting.setBounds(MapWidth+215,305,70,30);
-	        
+
 	        final Button ScreenFlushCheckbox=new Button(shell,SWT.CHECK);
 	        ScreenFlushCheckbox.setBounds(MapWidth+10,305,205,30);
 	        ScreenFlushCheckbox.setText("Editable:: Flush Screen in [ms]");
@@ -831,7 +907,7 @@ public class SwtHtmlBrowser implements Runnable{
 				@Override
 				public void widgetDefaultSelected(SelectionEvent arg0) {
 					// TODO Auto-generated method stub
-					
+
 				}
 				@Override
 				public void widgetSelected(SelectionEvent arg0) {
@@ -848,8 +924,8 @@ public class SwtHtmlBrowser implements Runnable{
 				}
 	        });
 	        //----------------------------------------------------------------
-	        //HeatMap Compnent    
-	        
+	        //HeatMap Compnent
+
 	        final Label GridsRowNumberLabel=new Label(shell,SWT.LEFT);
 	        GridsRowNumberLabel.setBounds(MapWidth+10,375,150,20);
 	        GridsRowNumberLabel.setText("GridsRowNumber::");
@@ -857,7 +933,7 @@ public class SwtHtmlBrowser implements Runnable{
 	        GridsRowNumberLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 	        final Text GridsRowNumberText=new Text(shell,SWT.BORDER);
 	        GridsRowNumberText.setBounds(MapWidth+175,375,110,20);
-	        
+
 	        final Label GridsColumnNumberLabel=new Label(shell,SWT.LEFT);
 	        GridsColumnNumberLabel.setBounds(MapWidth+10,400,150,20);
 	        GridsColumnNumberLabel.setText("GridsColNumber::");
@@ -865,7 +941,7 @@ public class SwtHtmlBrowser implements Runnable{
 	        GridsColumnNumberLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 	        final Text GridsColumnNumberText=new Text(shell,SWT.BORDER);
 	        GridsColumnNumberText.setBounds(MapWidth+175,400,110,20);
-	        
+
 	        final Label RadiationLabel=new Label(shell,SWT.LEFT);
 	        RadiationLabel.setBounds(MapWidth+10,425,150,20);
 	        RadiationLabel.setText("RadiationLevel::");
@@ -873,7 +949,7 @@ public class SwtHtmlBrowser implements Runnable{
 	        RadiationLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 	        final Text RadiationText=new Text(shell,SWT.BORDER);
 	        RadiationText.setBounds(MapWidth+175,425,110,20);
-	        
+
 	        Label FullAlphaLevelLabel=new Label(shell,SWT.LEFT);
 	        FullAlphaLevelLabel.setBounds(MapWidth+10,450,150,20);
 	        FullAlphaLevelLabel.setText("100% Alpha Level::");
@@ -881,7 +957,7 @@ public class SwtHtmlBrowser implements Runnable{
 	        FullAlphaLevelLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 	        final Text FullAlphaLevelText=new Text(shell,SWT.BORDER);
 	        FullAlphaLevelText.setBounds(MapWidth+175,450,110,20);
-	        
+
 	        final Button HeatMapCheckBox=new Button(shell,SWT.CHECK);
 	        HeatMapCheckBox.setBounds(MapWidth+10,340,250,30);
 	        HeatMapCheckBox.setText("Show HeatMap of Points in Screen");
@@ -889,20 +965,20 @@ public class SwtHtmlBrowser implements Runnable{
 				@Override
 				public void widgetDefaultSelected(SelectionEvent arg0) {
 					// TODO Auto-generated method stub
-					
+
 				}
 				@Override
 				public void widgetSelected(SelectionEvent arg0) {
 					// TODO Auto-generated method stub
-					
+
 					if(HeatMapCheckBox.getSelection()){
 						try{
 							MapKernel.MapWizard.SingleItem.AlphaGridsRow=Integer.parseInt(GridsRowNumberText.getText());
 							MapKernel.MapWizard.SingleItem.AlphaGridsColumn=Integer.parseInt(GridsColumnNumberText.getText());
 							MapKernel.MapWizard.SingleItem.AlphaPercentScale=Integer.parseInt(FullAlphaLevelText.getText());
 							MapKernel.MapWizard.SingleItem.RadiationDistance=Integer.parseInt(RadiationText.getText());
-							canvaspane.redraw();
 							Mask.redraw();
+							canvaspane.redraw();
 						}catch(Exception ex){
 							ex.printStackTrace();
 							HeatMapCheckBox.setSelection(false);
@@ -921,10 +997,10 @@ public class SwtHtmlBrowser implements Runnable{
 						MapKernel.MapWizard.SingleItem.Screen.LastRadiationDistance=0;
 					}
 				}
-	        });    
+	        });
 	        //----------------------------------------------------------------
-	        browser=new Browser(shell,SWT.NONE); 
-	        browser.setBounds(0,0,MapWidth,MapHeight); 
+	        browser=new Browser(shell,SWT.NONE);
+	        browser.setBounds(0,0,MapWidth,MapHeight);
 	        shell.setSize(browser.getSize().x+310,browser.getSize().y+40);
 	        new CallJava(browser,"CallJava");
 	        //----------------------------------------------------------------
@@ -932,9 +1008,11 @@ public class SwtHtmlBrowser implements Runnable{
 	        browser.setUrl(HTML_fin.getAbsolutePath());
 	        shell.open();
 	        JScode.setText("ResizeMap("+MapWidth+","+MapHeight+");\nmap.fitBounds([[31.05, 121.25],[31.45, 121.70]]);\nMapBoundsToJavaWeb();\n");
-	        
+
 	        long TimerCounter=java.util.Calendar.getInstance().getTimeInMillis();
-	        while ((Running)&&(!shell.isDisposed())) { 
+			Running = true;
+			Accessed = true;
+	        while ((Running)&&(!shell.isDisposed())) {
 	            if (!display.readAndDispatch()) 
 	              display.sleep(); 
 	            	if(ScreenFlushCheckbox.getSelection()){
@@ -943,12 +1021,18 @@ public class SwtHtmlBrowser implements Runnable{
 	            			canvaspane.redraw();
 	            		}
 	            	}
-	          } 
-	          display.dispose(); 
+	          }
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}finally{
 			SingleItemThread=null;
+			Running = false;
+			Accessed = false;
+			browser.dispose();
+			canvaspane.dispose();
+			Mask.dispose();
+			shell.dispose();
+			display.dispose();
 		}
 	}
 	public static void GoUrlAction(String URL_str){

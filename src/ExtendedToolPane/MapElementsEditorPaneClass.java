@@ -61,7 +61,7 @@ public class MapElementsEditorPaneClass extends ToolPanel implements ExtendedToo
 			Display.getDefault().syncExec(new Runnable() {
 				@Override
 				public void run() {
-					SwtHtmlBrowser.canvaspane.redraw();
+					SwtHtmlBrowser.ScreenFlush();
 				}
 			});
 		}
@@ -164,7 +164,7 @@ public class MapElementsEditorPaneClass extends ToolPanel implements ExtendedToo
 			Display.getDefault().syncExec(new Runnable() {
 				@Override
 				public void run() {
-					SwtHtmlBrowser.canvaspane.redraw();
+					SwtHtmlBrowser.ScreenFlush();
 				}
 			});
 		}

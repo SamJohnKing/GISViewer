@@ -86,11 +86,25 @@ public class OriginalOpenGLWizard {
         String str_width = JOptionPane.showInputDialog(null, "Screen Width");
         String str_height = JOptionPane.showInputDialog(null, "Screnn Height");
         try {
-            double width = Integer.parseInt(str_width);
-            double height = Integer.parseInt(str_height);
-            GetInstance((int) width, (int) height, MapWizard.SingleItem.Screen.ScreenLongitude,
+            int width = Integer.parseInt(str_width);
+            int height = Integer.parseInt(str_height);
+            GetInstance(width, height);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return;
+        }
+    }
+
+    public static void GetInstance(int Width, int Height){
+        if (SingleItem != null) {
+            javax.swing.JOptionPane.showMessageDialog(null, "Another Instance is Running");
+            return;
+        }
+
+        try {
+            GetInstance(Width, Height, MapWizard.SingleItem.Screen.ScreenLongitude,
                     MapWizard.SingleItem.Screen.ScreenLatitude - MapWizard.SingleItem.Screen.LatitudeScale,
-                    MapWizard.SingleItem.Screen.LongitudeScale / 600 * width, MapWizard.SingleItem.Screen.LatitudeScale / 600 * height);
+                    MapWizard.SingleItem.Screen.LongitudeScale / 600 * Width, MapWizard.SingleItem.Screen.LatitudeScale / 600 * Height);
         } catch (Exception ex) {
             ex.printStackTrace();
             return;
@@ -112,8 +126,8 @@ public class OriginalOpenGLWizard {
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 } finally {
-                    Display.destroy();
                     LWJGLPackage.OriginalOpenGLWizard.SingleItem = null;
+                    Display.destroy();
                 }
             }
         }).start();
@@ -147,7 +161,7 @@ public class OriginalOpenGLWizard {
             Display.update();
             Display.sync(60); // cap fps to 60fps
         }
-
+        LWJGLPackage.OriginalOpenGLWizard.SingleItem = null;
         Display.destroy();
 
         if (MapWizard.SingleItem != null)
@@ -1319,7 +1333,7 @@ public class OriginalOpenGLWizard {
     public void drawCircle(float x, float y, double radius, int thickness, boolean fill)
     {
         double pi= Math.acos(-1.0);
-        drawArc(x, y, 0,2*pi, pi/180, radius, thickness, fill);
+        drawArc(x, y, 0, 2 * pi, pi / 180, radius, thickness, fill);
     }
 
     double[] Coor = new double[300000];
@@ -1352,6 +1366,10 @@ public class OriginalOpenGLWizard {
 
     static Vector<BufferedImage> BackgroundImageList = new Vector<BufferedImage>();
     static String BackGroundPath = null;
+
+    public static boolean IsReady(){
+        return (MapWizard.SingleItem.Screen.ImagePath.equals(BackGroundPath));
+    }
 
     public double GetLogicalX() {
         return (OriginLongitude + org.lwjgl.input.Mouse.getX() * LongitudeScale / ScreenWidth);

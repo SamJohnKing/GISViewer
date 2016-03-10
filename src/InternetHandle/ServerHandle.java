@@ -9,7 +9,7 @@ public class ServerHandle implements Runnable{
 	ServerSocket server;
 	Socket ClientRequest;
 	int SocketNum;
-	boolean ServerOpen=false;
+	public boolean ServerOpen=false;
 	public void setHandle(MapKernel.MapControl Handle){
 		this.MainHandle=Handle;
 	}

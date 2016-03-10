@@ -4974,13 +4974,13 @@ public class MapWizard extends JFrame implements ActionListener {
 		}
 	}
 
-	JMenuItem ChangeMapBackground, setDefaultMapBackground,
+	public JMenuItem ChangeMapBackground, setDefaultMapBackground,
 			ScreenLocationMicroDelta, ScreenLocationReset;
-	JMenuItem ClearPointDBItem, AllElementInvisible, AllPointInvisible,
+	public JMenuItem ClearPointDBItem, AllElementInvisible, AllPointInvisible,
 			AllLineInvisible, AllPolygonInvisible, AllFontInvisible, AllPolygonColorInvisible;
-	JMenuItem EngravePointShape, ClearLineDBItem, ClearPolygonDBItem,
+	public JMenuItem EngravePointShape, ClearLineDBItem, ClearPolygonDBItem,
 			VisualFeatureSwitchItem,AlphaFeatureSwitchItem;
-	JMenuItem SplitJPGItem,OpenSecondaryScreenItem,OpenOpenGLScreenItem;
+	public JMenuItem SplitJPGItem,OpenSecondaryScreenItem,OpenOpenGLScreenItem;
 
 	public boolean IsEngravePointShape = false;
 	public boolean IsAllElementInvisible = false;
@@ -5795,18 +5795,8 @@ public class MapWizard extends JFrame implements ActionListener {
 		OpenSecondaryScreenItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if(SecondaryScreen.SwtHtmlBrowser.SingleItemThread==null)
-				{
-					//if(Screen.isVisible()) Screen.setVisible(false);
-				}else {
-					javax.swing.JOptionPane.showMessageDialog(null, "Another Instance is Running");
-					return;
-				}
-				// TODO Auto-generated method stub
-				String str_width=JOptionPane.showInputDialog(null,"Secondary Screen Width");
-				String str_height=JOptionPane.showInputDialog(null,"Secondary Screnn Height");
 				try{
-					SecondaryScreen.SwtHtmlBrowser.InitiateBrowser(Integer.parseInt(str_width),Integer.parseInt(str_height));
+					SecondaryScreen.SwtHtmlBrowser.GetInstance();
 				}catch(Exception ex){
 					ex.printStackTrace();
 					return;
@@ -5822,7 +5812,7 @@ public class MapWizard extends JFrame implements ActionListener {
 				LWJGLPackage.OriginalOpenGLWizard.GetInstance();
 			}
 		});
-		
+
 		YangshanPortASCPaneItem=new JMenuItem(LanguageDic.GetWords("YangshanPortASCPane"));
 		YangshanPortASCPaneItem.addActionListener(new ActionListener(){
 			@Override
@@ -6183,7 +6173,7 @@ public class MapWizard extends JFrame implements ActionListener {
 //The Rest Work:
 	}
 
-	void MapInput() {// 读取init文件，根据里面的内容打开各个相关文件
+	public void MapInput() {// 读取init文件，根据里面的内容打开各个相关文件
 		try {
 			File f = new File(DIR, "init.txt");
 			BufferedReader in = new BufferedReader(new InputStreamReader(
