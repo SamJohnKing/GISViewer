@@ -63,6 +63,7 @@ public class SwtHtmlBrowser implements Runnable{
 	public static Canvas canvaspane = null;
 	public static Canvas Mask = null;
 	public static Shell shell = null;
+	public static String MapInitCommand = null;
 	public static boolean Accessed = false;
 	static long DownTimestamp = 0;
 	static int PressedX = -1;
@@ -99,6 +100,12 @@ public class SwtHtmlBrowser implements Runnable{
 					}finally{
 						BFout.close();
 					}
+				}else if(FunctionType.equals("SetDataDeviation")){
+					DeviationLongitude = Double.parseDouble(Results[1].toString());
+					DeviationLatitude = Double.parseDouble(Results[2].toString());
+					ScreenFlush();
+				}else if(FunctionType.equals("MapAccessed")){
+					Accessed = true;
 				}
 				return null;
 			} catch (Exception ex) {
@@ -334,7 +341,8 @@ public class SwtHtmlBrowser implements Runnable{
 						continue;
 					if (DrawCount < MapWizard.SingleItem.VisualObjectMaxNum)
 						if ((binary & MapWizard.SingleItem.Ox("1")) != 0) {
-							if (!MapWizard.SingleItem.LineDatabase.CheckInRegion(i, WebLongitudeStart, WebLatitudeStart, WebLongitudeEnd, WebLatitudeEnd))
+							if (!MapWizard.SingleItem.LineDatabase.CheckInRegion(i, WebLongitudeStart - DeviationLongitude,
+									WebLatitudeStart - DeviationLatitude, WebLongitudeEnd - DeviationLongitude, WebLatitudeEnd - DeviationLatitude))
 								continue;
 							/** Check in Screen */
 							if (((!MapWizard.SingleItem.ShowVisualFeature) && ((binary & MapWizard.SingleItem.Ox("1000")) != 0))
@@ -443,7 +451,8 @@ public class SwtHtmlBrowser implements Runnable{
 						continue;
 					if (DrawCount < MapWizard.SingleItem.VisualObjectMaxNum)
 						if ((binary & MapWizard.SingleItem.Ox("1")) != 0) {
-							if (!MapWizard.SingleItem.PolygonDatabase.CheckInRegion(i, WebLongitudeStart, WebLatitudeStart, WebLongitudeEnd, WebLatitudeEnd))
+							if (!MapWizard.SingleItem.PolygonDatabase.CheckInRegion(i, WebLongitudeStart - DeviationLongitude,
+									WebLatitudeStart - DeviationLatitude, WebLongitudeEnd - DeviationLongitude, WebLatitudeEnd - DeviationLatitude))
 								continue;
 							/** Check in Screen */
 							if (
@@ -575,6 +584,10 @@ public class SwtHtmlBrowser implements Runnable{
 				int binary, choose, now, p1, p2;
 				int DrawCount = 0;
 				for (int i = 0; i < MapWizard.SingleItem.PointDatabase.PointNum; i++) {
+					if (!MapWizard.SingleItem.PointDatabase.CheckInRegion(i, WebLongitudeStart - DeviationLongitude,
+							WebLatitudeStart - DeviationLatitude, WebLongitudeEnd - DeviationLongitude, WebLatitudeEnd - DeviationLatitude))
+						continue;
+					/** Check in Screen */
 					binary = MapWizard.SingleItem.PointDatabase.PointVisible[i];
 					if (DrawCount > MapWizard.SingleItem.VisualObjectMaxNum) break;
 					if ((binary & MapWizard.SingleItem.Ox("1")) != 0) {
@@ -655,8 +668,9 @@ public class SwtHtmlBrowser implements Runnable{
 	public static int GetScreenY(double y){
 		return (int) ((WebLatitudeEnd - (y + DeviationLatitude)) / (WebLatitudeEnd - WebLatitudeStart) * MapHeight + 0.5);
 	}
+	/** Input the Logical Coordinate */
 	public static void MoveMiddle(double x, double y){
-		browser.execute("map.setView(L.latLng(" + y + "," + x + "),map.getZoom());");
+		browser.execute("map.setView(L.latLng(" + (y + DeviationLatitude) + "," + (x + DeviationLongitude) + "),map.getZoom(), {reset : false, animate : true, pan : {animate : true}, zoom : {animate : true}});");
 		browser.execute("MapBoundsToJavaWeb();");
 		Mask.redraw();
 		canvaspane.redraw();
@@ -668,7 +682,6 @@ public class SwtHtmlBrowser implements Runnable{
 	public static boolean IsReady(){
 		return Accessed;
 	}
-
 	public static void InitiateBrowser(){
 		Display display=new Display();
 		try{
@@ -727,10 +740,22 @@ public class SwtHtmlBrowser implements Runnable{
 			canvaspane.addMouseWheelListener(new MouseWheelListener() {
 				@Override
 				public void mouseScrolled(MouseEvent mouseEvent) {
+					double StayX = GetLogicalX(mouseEvent.x) + DeviationLongitude;
+					double StayY = GetLogicalY(mouseEvent.y) + DeviationLatitude;
+					if (mouseEvent.count > 0) {
+						browser.execute("map.setZoomAround(L.latLng(" + StayY + "," + StayX + "),  map.getZoom() + 1, {animate : true});");
+					} else if (mouseEvent.count < 0) {
+						browser.execute("map.setZoomAround(L.latLng(" + StayY + "," + StayX + "),  map.getZoom() - 1, {animate : true});");
+					}
+					browser.execute("MapBoundsToJavaWeb();");
+					Mask.redraw();
+					canvaspane.redraw();
+
+					/*
 					double LogicalX_0 = GetLogicalX(mouseEvent.x);
 					double LogicalY_0 = GetLogicalY(mouseEvent.y);
-					double Middle_x = (WebLongitudeStart + WebLongitudeEnd) / 2;
-					double Middle_y = (WebLatitudeStart + WebLatitudeEnd) / 2;
+					double Middle_x = (WebLongitudeStart + WebLongitudeEnd) / 2 - DeviationLongitude;
+					double Middle_y = (WebLatitudeStart + WebLatitudeEnd) / 2 - DeviationLatitude;
 					if (mouseEvent.count > 0) {
 						browser.execute("map.zoomIn();");
 					} else if (mouseEvent.count < 0) {
@@ -738,6 +763,7 @@ public class SwtHtmlBrowser implements Runnable{
 					}
 					browser.execute("MapBoundsToJavaWeb();");
 					MoveMiddle(Middle_x + (LogicalX_0 - GetLogicalX(mouseEvent.x)), Middle_y + (LogicalY_0 - GetLogicalY(mouseEvent.y)));
+					*/
 				}
 			});
 
@@ -764,7 +790,9 @@ public class SwtHtmlBrowser implements Runnable{
 					int dy = arg0.y - PressedY;
 					if ((java.util.Calendar.getInstance().getInstance().getTimeInMillis() - DownTimestamp < 200)
 							&&(Math.abs(dx) + Math.abs(dy) == 0 )) {
-						if (MapKernel.MapWizard.SingleItem.NowPanel.getString().equals("MapElementsEditorPane")) {
+						if (MapWizard.SingleItem.BehaviorListener != null) {
+							MapKernel.MapWizard.SingleItem.BehaviorListener.MousePressedListener(GetLogicalX(arg0.x), GetLogicalY(arg0.y));
+						}else if (MapKernel.MapWizard.SingleItem.NowPanel.getString().equals("MapElementsEditorPane")) {
 							ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
 									(MapKernel.MapWizard.SingleItem.NowPanel);
 							if (arg0.button == 1) {
@@ -775,10 +803,11 @@ public class SwtHtmlBrowser implements Runnable{
 								DBEditor.confirm();
 							}
 						}
+
 					} else {
 						double DLongitude = -dx * (WebLongitudeEnd - WebLongitudeStart) / MapWidth;
 						double DLatitude = +dy * (WebLatitudeEnd - WebLatitudeStart) / MapHeight;
-						MoveMiddle((WebLongitudeStart + WebLongitudeEnd) / 2 + DLongitude, (WebLatitudeStart + WebLatitudeEnd) / 2 + DLatitude);
+						MoveMiddle((WebLongitudeStart + WebLongitudeEnd) / 2 - DeviationLongitude + DLongitude, (WebLatitudeStart + WebLatitudeEnd) / 2 - DeviationLatitude + DLatitude);
 						return;
 					}
 					canvaspane.redraw();
@@ -820,52 +849,48 @@ public class SwtHtmlBrowser implements Runnable{
 	        //------------------------------------------------------
 	        //Buttons
 	       	Button UnLockButton=new Button(shell,SWT.NONE);
-	       	UnLockButton.addListener(SWT.Selection, new Listener(){
-	            public void handleEvent(Event event)
-	            {
-	            	canvaspane.setVisible(false);
-	            	Mask.setVisible(false);
-	            }
-	       	});
-	       	UnLockButton.setBounds(MapWidth+10, 5, 100, 30);
+	       	UnLockButton.addListener(SWT.Selection, new Listener() {
+				public void handleEvent(Event event) {
+					canvaspane.setVisible(false);
+					Mask.setVisible(false);
+				}
+			});
+	       	UnLockButton.setBounds(MapWidth + 10, 5, 100, 30);
 	       	UnLockButton.setText("UnLock Map");
 
 	       	Button LockButton=new Button(shell,SWT.NONE);
-	       	LockButton.addListener(SWT.Selection, new Listener(){
-	            public void handleEvent(Event event)
-	            {
-	            	canvaspane.setVisible(true);
-	            	Mask.setVisible(true);
-	            }
-	       	});
-	       	LockButton.setBounds(MapWidth+120, 5, 160, 30);
+	       	LockButton.addListener(SWT.Selection, new Listener() {
+				public void handleEvent(Event event) {
+					canvaspane.setVisible(true);
+					Mask.setVisible(true);
+				}
+			});
+	       	LockButton.setBounds(MapWidth + 120, 5, 160, 30);
 	       	LockButton.setText("Lock Map Show Data");
 
 	       	Button Execute_JSCode=new Button(shell,SWT.NONE);
-	       	Execute_JSCode.addListener(SWT.Selection, new Listener(){
-	            public void handleEvent(Event event)
-	            {
+	       	Execute_JSCode.addListener(SWT.Selection, new Listener() {
+				public void handleEvent(Event event) {
 					browser.execute(JScode.getText());
-	            }
-	       	});
-	       	Execute_JSCode.setBounds(MapWidth+10,165,200,30);
+				}
+			});
+	       	Execute_JSCode.setBounds(MapWidth + 10, 165, 200, 30);
 	       	Execute_JSCode.setText("Execute JavaScript Code");
 
 	       	Button Setting_Alpha=new Button(shell,SWT.NONE);
-	       	Setting_Alpha.addListener(SWT.Selection, new Listener(){
-	            public void handleEvent(Event event)
-	            {
-	            	try{
-	            		AlphaSettingValue=(byte)(Integer.parseInt(AlphaSettingText.getText())%256);
-	            		Mask.setVisible(true);
-	            		Mask.redraw();
-	            	}catch(Exception ex){
-	            		ex.printStackTrace();
-	            		return;
-	            	}
-	            }
-	       	});
-	       	Setting_Alpha.setBounds(MapWidth+10,200,200,30);
+	       	Setting_Alpha.addListener(SWT.Selection, new Listener() {
+				public void handleEvent(Event event) {
+					try {
+						AlphaSettingValue = (byte) (Integer.parseInt(AlphaSettingText.getText()) % 256);
+						Mask.setVisible(true);
+						Mask.redraw();
+					} catch (Exception ex) {
+						ex.printStackTrace();
+						return;
+					}
+				}
+			});
+	       	Setting_Alpha.setBounds(MapWidth + 10, 200, 200, 30);
 	       	Setting_Alpha.setText("Setting Mask Alpha Value");
 
 	       	Button GoUrl=new Button(shell,SWT.NONE);
@@ -1007,7 +1032,7 @@ public class SwtHtmlBrowser implements Runnable{
 	        java.io.File HTML_fin=new java.io.File(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("OpenStreetMap_Sample.html"));
 	        browser.setUrl(HTML_fin.getAbsolutePath());
 	        shell.open();
-	        JScode.setText("ResizeMap("+MapWidth+","+MapHeight+");\nmap.fitBounds([[31.05, 121.25],[31.45, 121.70]]);\nMapBoundsToJavaWeb();\n");
+	        JScode.setText(MapInitCommand = "ResizeMap("+MapWidth+","+MapHeight+");\nmap.fitBounds([[31.05, 121.25],[31.45, 121.70]]);\nMapBoundsToJavaWeb();\nSetDataDeviation();\n");
 
 	        long TimerCounter=java.util.Calendar.getInstance().getTimeInMillis();
 			Running = true;
@@ -1035,8 +1060,31 @@ public class SwtHtmlBrowser implements Runnable{
 			display.dispose();
 		}
 	}
-	public static void GoUrlAction(String URL_str){
-		browser.setUrl(URL_str);
+	public static void GoUrlAction(final String URL_str){
+		Accessed = false;
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				browser.setUrl(URL_str);
+			}
+		});
+		new Thread(new Runnable(){
+			public void run(){
+				try{
+					while(!IsReady()) {
+						Thread.sleep(1000);
+					}
+				}catch(Exception ex){
+					ex.printStackTrace();
+				}
+				Display.getDefault().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						browser.execute(MapInitCommand);
+					}
+				});
+			}
+		}).start();
 	}
 	
 	public static BufferedImage convertToAWT(ImageData data) {

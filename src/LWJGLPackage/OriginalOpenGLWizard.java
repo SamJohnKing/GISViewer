@@ -1867,6 +1867,9 @@ public class OriginalOpenGLWizard {
                 int binary, choose, now, p1, p2;
                 int DrawCount = 0;
                 for (int i = 0; i < MapWizard.SingleItem.PointDatabase.PointNum; i++) {
+                    if (!MapWizard.SingleItem.PointDatabase.CheckInRegion(i, OriginLongitude, OriginLatitude, OriginLongitude + LongitudeScale, OriginLatitude + LatitudeScale))
+                        continue;
+                    /** Check in Screen */
                     binary = MapWizard.SingleItem.PointDatabase.PointVisible[i];
                     if (DrawCount > MapWizard.SingleItem.VisualObjectMaxNum) break;
                     if ((binary & MapWizard.SingleItem.Ox("1")) != 0) {
