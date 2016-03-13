@@ -662,6 +662,10 @@ public class SwtHtmlBrowser implements Runnable{
 	public static double GetLogicalY(int y){
 		return WebLatitudeEnd - (WebLatitudeEnd - WebLatitudeStart) * y / MapHeight - DeviationLatitude;
 	}
+	public static double GetLongitudeStart() { return WebLongitudeStart - DeviationLongitude; };
+	public static double GetLongitudeEnd() { return WebLongitudeEnd - DeviationLongitude; };
+	public static double GetLatitudeStart() { return WebLatitudeStart - DeviationLatitude; };
+	public static double GetLatitudeEnd() { return WebLatitudeEnd - DeviationLatitude; };
 	public static int GetScreenX(double x){
 		return (int) (((x + DeviationLongitude) - WebLongitudeStart) / (WebLongitudeEnd - WebLongitudeStart) * MapWidth + 0.5);
 	}
@@ -676,6 +680,7 @@ public class SwtHtmlBrowser implements Runnable{
 		canvaspane.redraw();
 	}
 	public static void ScreenFlush(){
+		SwtHtmlBrowser.Mask.redraw();
 		SwtHtmlBrowser.canvaspane.redraw();
 	}
 
@@ -810,6 +815,7 @@ public class SwtHtmlBrowser implements Runnable{
 						MoveMiddle((WebLongitudeStart + WebLongitudeEnd) / 2 - DeviationLongitude + DLongitude, (WebLatitudeStart + WebLatitudeEnd) / 2 - DeviationLatitude + DLatitude);
 						return;
 					}
+					Mask.redraw();
 					canvaspane.redraw();
 				}
 			});
@@ -1043,6 +1049,7 @@ public class SwtHtmlBrowser implements Runnable{
 	            	if(ScreenFlushCheckbox.getSelection()){
 	            		if(java.util.Calendar.getInstance().getTimeInMillis()-TimerCounter>FlushInterval){
 	            			TimerCounter=java.util.Calendar.getInstance().getTimeInMillis();
+							Mask.redraw();
 	            			canvaspane.redraw();
 	            		}
 	            	}
