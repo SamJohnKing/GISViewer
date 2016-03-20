@@ -73,6 +73,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	JMenuItem LandMarkEditItem, AboutFrameItem, LandMarkOnScreenItem,
 			LandMarkVeilItem, LandMarkNameOnScreenItem, LandMarkNameVeilItem;
 	JMenuItem LandMarkQueryItem, MyTimerOn, MyTimerOff, ClearMemory;
+	public JMenuItem WizardForbidenOperationSwitch;
 	JFileChooser FileDialog;
 	LandMarkQueryFrameClass LandMarkQueryFrame;
 	LandMarkSpotFrameClass LandMarkSpotFrame;
@@ -2939,7 +2940,12 @@ public class MapWizard extends JFrame implements ActionListener {
 						continue;
 					if (pos_row >= AlphaGridsRow)
 						continue;
-					AlphaGridsCounter[pos_row][pos_col]++;
+					int HeatAlphaPos = -1;
+					if((HeatAlphaPos = PointDatabase.PointHint[ptr_i].indexOf("[HeatAlpha:")) != -1){
+						int HeatAlphaPos2 = PointDatabase.PointHint[ptr_i].indexOf("]", HeatAlphaPos);
+						double HeatAlpha = Double.parseDouble(PointDatabase.PointHint[ptr_i].substring(HeatAlphaPos + 11, HeatAlphaPos2));
+						AlphaGridsCounter[pos_row][pos_col] += HeatAlpha;
+					}else AlphaGridsCounter[pos_row][pos_col]++;
 				}
 				int AllCounter = 0;
 				float MaxCounter = 0;
@@ -4052,7 +4058,12 @@ public class MapWizard extends JFrame implements ActionListener {
 							continue;
 						if (pos_row >= AlphaGridsRow)
 							continue;
-						AlphaGridsCounter[pos_row][pos_col]++;
+						int HeatAlphaPos = -1;
+						if((HeatAlphaPos = PointDatabase.PointHint[ptr_i].indexOf("[HeatAlpha:")) != -1){
+							int HeatAlphaPos2 = PointDatabase.PointHint[ptr_i].indexOf("]", HeatAlphaPos);
+							double HeatAlpha = Double.parseDouble(PointDatabase.PointHint[ptr_i].substring(HeatAlphaPos + 11, HeatAlphaPos2));
+							AlphaGridsCounter[pos_row][pos_col] += HeatAlpha;
+						}else AlphaGridsCounter[pos_row][pos_col]++;
 					}
 					float AllCounter = 0;
 					float MaxCounter = 0;
@@ -4104,7 +4115,7 @@ public class MapWizard extends JFrame implements ActionListener {
 					
 					if (AlphaPercentScale > 0)
 						MaxCounter = AlphaPercentScale;
-					else MaxCounter*=0.5;
+					else MaxCounter*= 0.5;
 
 					Handle.ShowTextArea1(LanguageDic.GetWords("总计 ")
 							+ AllCounter + " pts", true);
@@ -4194,6 +4205,70 @@ public class MapWizard extends JFrame implements ActionListener {
 					ex.printStackTrace();
 				}
 			};
+		}
+		public void GISPaint(Graphics2D g_2d,double ScreenLongitude,double ScreenLatitude,double LongitudeScale,double LatitudeScale,int ScreenWidth,int ScreenHeight){
+				if (ShowBackGround) {
+				// ------------------------------------------------------------------------------------------
+				// ScreenBackGroundMove----------------------------------------------------------------------
+				double MoveX = 0;
+				double MoveY = 0;
+				if (BackGroundMoveVectorNum != 0) {
+					int min_1 = -1;
+					double min_1_dis = 1e100;
+					int min_2 = -1;
+					double min_2_dis = 1e100;
+					int min_3 = -1;
+					double min_3_dis = 1e100;
+					double dis = 1e100;
+					double center_x = ScreenLongitude + LongitudeScale / 2;
+					double center_y = ScreenLatitude - LatitudeScale / 2;
+					for (int i = 0; i < BackGroundMoveVectorNum; i++) {
+						dis = Math.abs(center_x - BackGroundMoveX[i])
+								+ Math.abs(center_y - BackGroundMoveY[i]);
+						if (dis < min_1_dis) {
+							min_3 = min_2;
+							min_3_dis = min_2_dis;
+							min_2 = min_1;
+							min_2_dis = min_1_dis;
+							min_1 = i;
+							min_1_dis = dis;
+						} else if (dis < min_2_dis) {
+							min_3 = min_2;
+							min_3_dis = min_2_dis;
+							min_2 = i;
+							min_2_dis = dis;
+						} else if (dis < min_3_dis) {
+							min_3 = i;
+							min_3_dis = dis;
+						}
+					}
+					double dis_sum = 1 / min_1_dis + 1 / min_2_dis + 1
+							/ min_3_dis;
+					MoveX = BackGroundMoveDx[min_1] / min_1_dis
+							+ BackGroundMoveDx[min_2] / min_2_dis
+							+ BackGroundMoveDx[min_3] / min_3_dis;
+					MoveX /= dis_sum;
+					MoveY = BackGroundMoveDy[min_1] / min_1_dis
+							+ BackGroundMoveDy[min_2] / min_2_dis
+							+ BackGroundMoveDy[min_3] / min_3_dis;
+					MoveY /= dis_sum;
+				}
+				// ------------------------------------------------------------------------------------------
+				double Xst = ((ScreenLongitude - MoveX) - LongitudeStart)
+						/ (LongitudeEnd - LongitudeStart)
+						* image.getWidth(this);
+				double Yst = (LatitudeEnd - (ScreenLatitude - MoveY))
+						/ (LatitudeEnd - LatitudeStart) * image.getHeight(this);
+				double Xlen = (LongitudeScale)
+						/ (LongitudeEnd - LongitudeStart)
+						* image.getWidth(this);
+				double Ylen = (LatitudeScale) / (LatitudeEnd - LatitudeStart)
+						* image.getHeight(this);
+				// 将需要显示的经纬度范围转化为窗口界面中像素值
+				g_2d.drawImage(image, 0, 0, ScreenWidth, ScreenHeight, (int) Xst,
+						(int) Yst, (int) (Xst + Xlen), (int) (Yst + Ylen), this);
+			}
+			DBpaint(g_2d, ScreenLongitude, ScreenLatitude, LongitudeScale, LatitudeScale, ScreenWidth, ScreenHeight);
 		}
 		public void paint(Graphics g) {
 			if (DIR == null) {// 没打开文件，不显示
@@ -5093,7 +5168,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		WashScreenItem=new JMenuItem(LanguageDic.GetWords("清洗屏幕"));
 		WashScreenItem.addActionListener(this);		
 		
-		final JMenuItem WizardForbidenOperationSwitch=new JMenuItem(LanguageDic.GetWords("可视化开关"));
+		WizardForbidenOperationSwitch=new JMenuItem(LanguageDic.GetWords("可视化开关"));
 		WizardForbidenOperationSwitch.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -9149,7 +9224,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		File PrefixDir=new File(Prefix);
 		PrefixDir.mkdirs();
 		//================================================
-		System.out.println("EntireMapDrawing");
+		ReTitle("HD Zoom Map Drawing");
 		BufferedImage ImageData;
 		try{
 			//ImageData=this.getToolkit().createImage(JPGOutput(LongitudeStart, LongitudeEnd, LatitudeStart, LatitudeEnd,
@@ -9178,16 +9253,16 @@ public class MapWizard extends JFrame implements ActionListener {
 		Dir7.mkdirs();
 		File Dir8=new File(PrefixDir,"8");
 		Dir8.mkdirs();
-		JPGMatrixOutput(1,1,256,256,Dir8,ImageData);
+		JPGMatrixOutput(1, 1, 256, 256, Dir8, ImageData);
 		File Dir9=new File(PrefixDir,"9");
 		Dir9.mkdirs();
-		JPGMatrixOutput(2,2,256,256,Dir9,ImageData);
+		JPGMatrixOutput(2,2,256,256,Dir9, ImageData);
 		File Dir10=new File(PrefixDir,"10");
 		Dir10.mkdirs();
-		JPGMatrixOutput(4,4,256,256,Dir10,ImageData);
+		JPGMatrixOutput(4,4,256,256,Dir10, ImageData);
 		File Dir11=new File(PrefixDir,"11");
 		Dir11.mkdirs();
-		JPGMatrixOutput(8,8,256,256,Dir11,ImageData);
+		JPGMatrixOutput(8,8,256,256,Dir11, ImageData);
 		File Dir12=new File(PrefixDir,"12");
 		Dir12.mkdirs();
 		JPGMatrixOutput(16,16,256,256,Dir12,ImageData);
@@ -9196,22 +9271,34 @@ public class MapWizard extends JFrame implements ActionListener {
 		JPGMatrixOutput(32,32,256,256,Dir13,ImageData);
 		File Dir14=new File(PrefixDir,"14");
 		Dir14.mkdirs();
-		JPGMatrixOutput(64,64,256,256,Dir14,ImageData);
+		JPGMatrixOutput(64,64,256,256,Dir14,null);
+		File Dir15=new File(PrefixDir,"15");
+		Dir15.mkdirs();
+		JPGMatrixOutput(128, 128, 256, 256, Dir15,null);
+		ReTitle("Finished HD Zoom Map Drawing");
 	}
 	public void JPGMatrixOutput(int Row,int Col,int SingleWidth,int SingleHeight,File LocalDir,BufferedImage ImageData){
 		BufferedImage ImageOutput;
 		Graphics2D g_2d;
 		FileOutputStream out;
-		int col_step=ImageData.getWidth(this)/Col;
-		int row_step=ImageData.getHeight(this)/Row;
+		int col_step=ImageData == null ? 0 : ImageData.getWidth(this)/Col;
+		int row_step=ImageData == null ? 0 : ImageData.getHeight(this)/Row;
 		try{
 		for(int Col_ptr=0;Col_ptr<Col;Col_ptr++){
 			for(int Row_ptr=0;Row_ptr<Row;Row_ptr++){
 				ImageOutput = new BufferedImage(SingleWidth, SingleHeight,BufferedImage.TYPE_INT_RGB);
 				g_2d=ImageOutput.createGraphics();
-				g_2d.drawImage(ImageData, 0, 0, SingleWidth, SingleHeight,
+				if(ImageData == null){
+					double x1 = LongitudeStart + Col_ptr * (LongitudeEnd - LongitudeStart) / Col;
+					double x2 = LongitudeStart + (Col_ptr + 1) * (LongitudeEnd - LongitudeStart) / Col;
+					double y1 = LatitudeEnd - (Row_ptr + 1) * (LatitudeEnd - LatitudeStart) / Row;
+					double y2 = LatitudeEnd - Row_ptr * (LatitudeEnd - LatitudeStart) / Row;
+					Screen.GISPaint(g_2d, x1, y2, x2 - x1, y2 - y1, SingleWidth, SingleHeight);
+				}else
+					g_2d.drawImage(ImageData, 0, 0, SingleWidth, SingleHeight,
 						Col_ptr*col_step, Row_ptr*row_step, (Col_ptr+1)*col_step,
 						(Row_ptr+1)*row_step, this);
+
 				out = new FileOutputStream(LocalDir+"\\"+Col_ptr+"_"+Row_ptr+".jpg");
 				JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
 				encoder.encode(ImageOutput);
