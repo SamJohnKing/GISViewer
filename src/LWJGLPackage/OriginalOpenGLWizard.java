@@ -1677,19 +1677,21 @@ public class OriginalOpenGLWizard {
 
                                     if ((MapWizard.SingleItem.ShowVisualFeature)
                                             && (MapWizard.SingleItem.Screen.GetVisualArrow(MapWizard.SingleItem.LineDatabase.LineHint[i]))) {
+                                        double Scale = ((Math.abs(x2 - x1) + Math.abs(y2 - y1) > 0.1 * (ScreenWidth + ScreenHeight)) ?
+                                                (0.2 / (Math.abs(x2 - x1) + Math.abs(y2 - y1)) * 0.1 * (ScreenWidth + ScreenHeight)) : 0.2);
                                         drawLine(x2, y2,
                                                 (float) (x2
-                                                        + 0.2
+                                                        + Scale
                                                         * (0.87 * (x1 - x2) - (y1 - y2) * 0.34)),
                                                 (float) (y2
-                                                        + 0.2
+                                                        + Scale
                                                         * ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))), 2);
                                         drawLine(x2, y2,
                                                 (float) (x2
-                                                        + 0.2
+                                                        + Scale
                                                         * (0.87 * (x1 - x2) + (y1 - y2) * 0.34)),
                                                 (float) (y2
-                                                        + 0.2
+                                                        + Scale
                                                         * ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))), 2);
                                     }
                                     DrawCount++;
@@ -1777,19 +1779,21 @@ public class OriginalOpenGLWizard {
                                     drawLine(x1, y1, x2, y2, thickness);
                                     if ((MapWizard.SingleItem.ShowVisualFeature)
                                             && (MapWizard.SingleItem.Screen.GetVisualArrow(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i]))) {
+                                        double Scale = ((Math.abs(x2 - x1) + Math.abs(y2 - y1) > 0.1 * (ScreenWidth + ScreenHeight)) ?
+                                                (0.2 / (Math.abs(x2 - x1) + Math.abs(y2 - y1)) * 0.1 * (ScreenWidth + ScreenHeight)) : 0.2);
                                         drawLine(x2, y2,
                                                 (float) (x2
-                                                        + 0.2
+                                                        + Scale
                                                         * (0.87 * (x1 - x2) - (y1 - y2) * 0.34)),
                                                 (float) (y2
-                                                        + 0.2
+                                                        + Scale
                                                         * ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))), 2);
                                         drawLine(x2, y2,
                                                 (float) (x2
-                                                        + 0.2
+                                                        + Scale
                                                         * (0.87 * (x1 - x2) + (y1 - y2) * 0.34)),
                                                 (float) (y2
-                                                        + 0.2
+                                                        + Scale
                                                         * ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))), 2);
                                     }
                                     DrawCount++;

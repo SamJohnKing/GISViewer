@@ -3564,23 +3564,25 @@ public class MapWizard extends JFrame implements ActionListener {
 											if ((ShowVisualFeature)
 													&& (GetVisualArrow(LineDatabase.LineHint[i]))) {
 												g_2d.setStroke(bs);
+												double Scale = ((Math.abs(x2 - x1) + Math.abs(y2 - y1) > 0.1 * (ScreenWidth + ScreenHeight)) ?
+														(0.2 / (Math.abs(x2 - x1) + Math.abs(y2 - y1)) * 0.1 * (ScreenWidth + ScreenHeight)) : 0.2);
 												g_2d.draw(new Line2D.Double(
 														(double) x2,
 														(double) y2,
 														x2
-																+ 0.2
+																+ Scale
 																* (0.87 * (x1 - x2) - (y1 - y2) * 0.34),
 														y2
-																+ 0.2
+																+ Scale
 																* ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))));
 												g_2d.draw(new Line2D.Double(
 														(double) x2,
 														(double) y2,
 														x2
-																+ 0.2
+																+ Scale
 																* (0.87 * (x1 - x2) + (y1 - y2) * 0.34),
 														y2
-																+ 0.2
+																+ Scale
 																* ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))));
 											}
 
@@ -3793,23 +3795,25 @@ public class MapWizard extends JFrame implements ActionListener {
 											if ((ShowVisualFeature)
 													&& (GetVisualArrow(PolygonDatabase.PolygonHint[i]))) {
 												g_2d.setStroke(bs);
+												double Scale = ((Math.abs(x2 - x1) + Math.abs(y2 - y1) > 0.1 * (ScreenWidth + ScreenHeight)) ?
+														(0.2 / (Math.abs(x2 - x1) + Math.abs(y2 - y1)) * 0.1 * (ScreenWidth + ScreenHeight)) : 0.2);
 												g_2d.draw(new Line2D.Double(
 														(double) x2,
 														(double) y2,
 														x2
-																+ 0.2
+																+ Scale
 																* (0.87 * (x1 - x2) - (y1 - y2) * 0.34),
 														y2
-																+ 0.2
+																+ Scale
 																* ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))));
 												g_2d.draw(new Line2D.Double(
 														(double) x2,
 														(double) y2,
 														x2
-																+ 0.2
+																+ Scale
 																* (0.87 * (x1 - x2) + (y1 - y2) * 0.34),
 														y2
-																+ 0.2
+																+ Scale
 																* ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))));
 											}
 											DrawCount++;
@@ -8777,23 +8781,25 @@ public class MapWizard extends JFrame implements ActionListener {
 										&& (Screen
 												.GetVisualArrow(LineDatabase.LineHint[i]))) {
 									g_2d.setStroke(bs);
+									double Scale = ((Math.abs(x2 - x1) + Math.abs(y2 - y1) > 0.1 * (ScreenWidth + ScreenHeight)) ?
+											(0.2 / (Math.abs(x2 - x1) + Math.abs(y2 - y1)) * 0.1 * (ScreenWidth + ScreenHeight)) : 0.2);
 									g_2d.draw(new Line2D.Double(
 											(double) x2,
 											(double) y2,
 											x2
-													+ 0.2
+													+ Scale
 													* (0.87 * (x1 - x2) - (y1 - y2) * 0.34),
 											y2
-													+ 0.2
+													+ Scale
 													* ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))));
 									g_2d.draw(new Line2D.Double(
 											(double) x2,
 											(double) y2,
 											x2
-													+ 0.2
+													+ Scale
 													* (0.87 * (x1 - x2) + (y1 - y2) * 0.34),
 											y2
-													+ 0.2
+													+ Scale
 													* ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))));
 								}
 
@@ -8972,23 +8978,25 @@ public class MapWizard extends JFrame implements ActionListener {
 										&& (Screen
 												.GetVisualArrow(PolygonDatabase.PolygonHint[i]))) {
 									g_2d.setStroke(bs);
+									double Scale = ((Math.abs(x2 - x1) + Math.abs(y2 - y1) > 0.1 * (ScreenWidth + ScreenHeight)) ?
+											(0.2 / (Math.abs(x2 - x1) + Math.abs(y2 - y1)) * 0.1 * (ScreenWidth + ScreenHeight)) : 0.2);
 									g_2d.draw(new Line2D.Double(
 											(double) x2,
 											(double) y2,
 											x2
-													+ 0.2
+													+ Scale
 													* (0.87 * (x1 - x2) - (y1 - y2) * 0.34),
 											y2
-													+ 0.2
+													+ Scale
 													* ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))));
 									g_2d.draw(new Line2D.Double(
 											(double) x2,
 											(double) y2,
 											x2
-													+ 0.2
+													+ Scale
 													* (0.87 * (x1 - x2) + (y1 - y2) * 0.34),
 											y2
-													+ 0.2
+													+ Scale
 													* ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))));
 								}
 								p1 = p2;

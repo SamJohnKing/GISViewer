@@ -379,19 +379,21 @@ public class SwtHtmlBrowser implements Runnable{
 									if ((MapWizard.SingleItem.ShowVisualFeature)
 											&& (MapWizard.SingleItem.Screen.GetVisualArrow(MapWizard.SingleItem.LineDatabase.LineHint[i]))) {
 										e.gc.setLineWidth(2);
+										double Scale = ((Math.abs(x2 - x1) + Math.abs(y2 - y1) > 0.1 * (MapWidth + MapHeight)) ?
+												(0.2 / (Math.abs(x2 - x1) + Math.abs(y2 - y1)) * 0.1 * (MapWidth + MapHeight)) : 0.2);
 										e.gc.drawLine(x2, y2,
 												(int) (x2
-														+ 0.2
+														+ Scale
 														* (0.87 * (x1 - x2) - (y1 - y2) * 0.34)),
 												(int) (y2
-														+ 0.2
+														+ Scale
 														* ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))));
 										e.gc.drawLine(x2, y2,
 												(int) (x2
-														+ 0.2
+														+ Scale
 														* (0.87 * (x1 - x2) + (y1 - y2) * 0.34)),
 												(int) (y2
-														+ 0.2
+														+ Scale
 														* ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))));
 									}
 									DrawCount++;
@@ -487,19 +489,21 @@ public class SwtHtmlBrowser implements Runnable{
 									if ((MapWizard.SingleItem.ShowVisualFeature)
 											&& (MapWizard.SingleItem.Screen.GetVisualArrow(MapWizard.SingleItem.PolygonDatabase.PolygonHint[i]))) {
 										e.gc.setLineWidth(2);
+										double Scale = ((Math.abs(x2 - x1) + Math.abs(y2 - y1) > 0.1 * (MapWidth + MapHeight)) ?
+												(0.2 / (Math.abs(x2 - x1) + Math.abs(y2 - y1)) * 0.1 * (MapWidth + MapHeight)) : 0.2);
 										e.gc.drawLine(x2, y2,
 												(int) (x2
-														+ 0.2
+														+ Scale
 														* (0.87 * (x1 - x2) - (y1 - y2) * 0.34)),
 												(int) (y2
-														+ 0.2
+														+ Scale
 														* ((y1 - y2) * 0.87 + 0.34 * (x1 - x2))));
 										e.gc.drawLine(x2, y2,
 												(int) (x2
-														+ 0.2
+														+ Scale
 														* (0.87 * (x1 - x2) + (y1 - y2) * 0.34)),
 												(int) (y2
-														+ 0.2
+														+ Scale
 														* ((y1 - y2) * 0.87 - 0.34 * (x1 - x2))));
 									}
 									DrawCount++;
