@@ -1924,10 +1924,13 @@ public class OriginalOpenGLWizard {
             }
         }
         ;
+        if(MapWizard.SingleItem.Screen.TextArea2Content!=null)
         if (MapWizard.SingleItem.Screen.IsTextArea2Visible) {
             GL11.glColor4f(0f, 1f, 0f, 0.33f);
             drawString(MapWizard.SingleItem.Screen.TextArea2Content, 10, Display.getHeight() - 15);
         }
+
+        if(MapWizard.SingleItem.Screen.TextArea1Content!=null)
         if (MapWizard.SingleItem.Screen.IsTextArea1Visible) {
             GL11.glColor4f(0f, 0f, 0f, 1f);
             GL11.glBegin(GL11.GL_POLYGON);
