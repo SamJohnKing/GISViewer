@@ -1292,7 +1292,7 @@ public class OriginalOpenGLWizard {
 
     public void drawLine(float x1, float y1, float x2, float y2, float thickness) {
         GL11.glLineWidth(thickness);
-        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        //GL11.glEnable(GL11.GL_LINE_SMOOTH); // Will make lines invisible in Linux environment
         GL11.glBegin(GL11.GL_LINES);
         GL11.glVertex2f(x1, y1);
         GL11.glVertex2f(x2, y2);
