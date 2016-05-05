@@ -3728,7 +3728,7 @@ public class MapWizard extends JFrame implements ActionListener {
 								if (
 										((!ShowVisualFeature)&&((binary & Ox("1000")) != 0))
 										||
-										(ShowVisualFeature&&(PolygonDatabase.PolygonHint[i].indexOf("[LineVisible:]")!=-1))
+										(ShowVisualFeature&&((PolygonDatabase.PolygonHint[i].indexOf("[LineVisible:]")!=-1)||(PolygonDatabase.PolygonHint[i].indexOf("[PolygonVisible:]")!=-1)))
 									){// For Line----------------------------
 									choose = (binary >> 10) & Ox("111");
 									g_2d.setColor(getChooseColor(choose));
@@ -3791,8 +3791,9 @@ public class MapWizard extends JFrame implements ActionListener {
 												|| CheckInScreen(x1, y1, x2, y2, ScreenWidth, ScreenHeight)) {
 											if (ShowVisualFeature)
 												g_2d.setStroke(bs_temp);
-											g_2d.draw(line);
-											if ((ShowVisualFeature)
+											if((!ShowVisualFeature) || (((ShowVisualFeature)) && (PolygonDatabase.PolygonHint[i].indexOf("[LineVisible:]")!=-1)))
+												g_2d.draw(line);
+											if ((ShowVisualFeature) && (PolygonDatabase.PolygonHint[i].indexOf("[LineVisible:]")!=-1)
 													&& (GetVisualArrow(PolygonDatabase.PolygonHint[i]))) {
 												g_2d.setStroke(bs);
 												double Scale = ((Math.abs(x2 - x1) + Math.abs(y2 - y1) > 0.1 * (ScreenWidth + ScreenHeight)) ?
@@ -4531,6 +4532,14 @@ public class MapWizard extends JFrame implements ActionListener {
 				return;
 			}
 			int mods = e.getModifiers();
+			if (BehaviorListener != null) {
+				double x = ScreenLongitude + e.getX() * LongitudeScale
+						/ ScreenWidth;
+				double y = ScreenLatitude - e.getY() * LatitudeScale
+						/ ScreenHeight;
+				BehaviorListener.MousePressedListener(x, y);
+				return;
+			}
 			if ((mods & InputEvent.BUTTON1_MASK) == 0) {
 				if (e.getClickCount() == 1) {
 					if (NowPanel instanceof ExtendedToolPaneInterface)
@@ -8918,7 +8927,7 @@ public class MapWizard extends JFrame implements ActionListener {
 						if (
 								((!ShowVisualFeature)&&((binary & Ox("1000")) != 0))
 								||
-								(ShowVisualFeature&&(PolygonDatabase.PolygonHint[i].indexOf("[LineVisible:]")!=-1))
+								(ShowVisualFeature&&((PolygonDatabase.PolygonHint[i].indexOf("[LineVisible:]")!=-1) || (PolygonDatabase.PolygonHint[i].indexOf("[PolygonVisible:]")!=-1)))
 							){// For
 															// Line----------------------------
 							choose = (binary >> 10) & Ox("111");
@@ -8973,8 +8982,9 @@ public class MapWizard extends JFrame implements ActionListener {
 								ColorPolygon.addPoint(x1, y1);
 								if (ShowVisualFeature)
 									g_2d.setStroke(bs_temp);
-								g_2d.draw(line);
-								if ((ShowVisualFeature)
+								if((!ShowVisualFeature) || (((ShowVisualFeature)) && (PolygonDatabase.PolygonHint[i].indexOf("[LineVisible:]")!=-1)))
+								    g_2d.draw(line);
+								if ((ShowVisualFeature) && (PolygonDatabase.PolygonHint[i].indexOf("[LineVisible:]")!=-1)
 										&& (Screen
 												.GetVisualArrow(PolygonDatabase.PolygonHint[i]))) {
 									g_2d.setStroke(bs);
