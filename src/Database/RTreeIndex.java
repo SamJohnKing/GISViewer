@@ -4,7 +4,7 @@ import javax.swing.JOptionPane;
 public class RTreeIndex implements IndexInterface{
 	//-----------------------------------------------
 	//Share the basic Definition 
-	final static int MaxTreeNodeNum=100000;
+	final static int MaxTreeNodeNum=5000000;
 	final static int MAXCH=4;
 	class RTreeNode{
 		double x1,y1,x2,y2;

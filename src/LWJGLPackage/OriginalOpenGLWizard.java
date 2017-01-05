@@ -1398,7 +1398,7 @@ public class OriginalOpenGLWizard {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         if (MapWizard.SingleItem.DIR == null) return;
         if (MapWizard.SingleItem.Screen.image == null) {
-            GL11.glClearColor(0f, 0f, 0f, 1f);
+            GL11.glClearColor(1f, 1f, 1f, 1f);
         } else if (MapWizard.SingleItem.Screen.ShowBackGround) {
             // ------------------------------------------------------------------------------------------
             // ScreenBackGroundMove----------------------------------------------------------------------

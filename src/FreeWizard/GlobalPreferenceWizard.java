@@ -482,7 +482,17 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 	public GlobalPreferenceWizard(){
 		setBounds(0,0,720,600);
 		setVisible(false);
-		setUndecorated(true);
+		//String os = System.getProperty("os.name");
+		//if(os.toLowerCase().startsWith("win")) {
+		//	setUndecorated(true);
+		//} else {
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				submerge();
+			}
+		});
+		//}
 		setLocationRelativeTo(null);
 		Pic=new FacePic();
 		add(Pic,BorderLayout.CENTER);
