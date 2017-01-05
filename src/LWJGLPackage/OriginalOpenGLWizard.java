@@ -1292,7 +1292,7 @@ public class OriginalOpenGLWizard {
 
     public void drawLine(float x1, float y1, float x2, float y2, float thickness) {
         GL11.glLineWidth(thickness);
-        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        //GL11.glEnable(GL11.GL_LINE_SMOOTH); // Will make lines invisible in Linux environment
         GL11.glBegin(GL11.GL_LINES);
         GL11.glVertex2f(x1, y1);
         GL11.glVertex2f(x2, y2);
@@ -1398,7 +1398,7 @@ public class OriginalOpenGLWizard {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         if (MapWizard.SingleItem.DIR == null) return;
         if (MapWizard.SingleItem.Screen.image == null) {
-            GL11.glClearColor(1f, 1f, 1f, 1f);
+            GL11.glClearColor(0f, 0f, 0f, 1f);
         } else if (MapWizard.SingleItem.Screen.ShowBackGround) {
             // ------------------------------------------------------------------------------------------
             // ScreenBackGroundMove----------------------------------------------------------------------
@@ -1924,10 +1924,13 @@ public class OriginalOpenGLWizard {
             }
         }
         ;
+        if(MapWizard.SingleItem.Screen.TextArea2Content!=null)
         if (MapWizard.SingleItem.Screen.IsTextArea2Visible) {
             GL11.glColor4f(0f, 1f, 0f, 0.33f);
             drawString(MapWizard.SingleItem.Screen.TextArea2Content, 10, Display.getHeight() - 15);
         }
+
+        if(MapWizard.SingleItem.Screen.TextArea1Content!=null)
         if (MapWizard.SingleItem.Screen.IsTextArea1Visible) {
             GL11.glColor4f(0f, 0f, 0f, 1f);
             GL11.glBegin(GL11.GL_POLYGON);

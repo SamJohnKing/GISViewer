@@ -447,7 +447,7 @@ public class LanguageResources {
 		ChineseToEnglish.put("地图元素编辑面板","Map Editor Pane");
 		ChineseToEnglish.put("选择添加地标点状地图元素","Click to add Point Element");
 		ChineseToEnglish.put("选择添加连通线状地图元素","Click to add Line Element");
-		ChineseToEnglish.put("选择添加多边形状地图元素","Click to add Polygon Element");
+		ChineseToEnglish.put("选择添加多边形状地图元素","Click to all Polygon Element");
 		ChineseToEnglish.put("勾选则开始编辑，取消则不能编辑","Click to allow edition");
 		ChineseToEnglish.put("勾选则开始点点连接，取消则不连接","Click to allow Point Link");
 		ChineseToEnglish.put("勾选则开始首尾相连，取消则不相连","Click to allow Head Tail Link");
@@ -587,3 +587,4 @@ public class LanguageResources {
 		}else return str;
 	}
 }
+
