@@ -7,11 +7,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -328,7 +324,17 @@ public class LineDatabaseWizard extends JFrame  implements FreeWizardInterface{
 	}
 	public LineDatabaseWizard(){
 		setVisible(false);
-		setUndecorated(true);
+		//String os = System.getProperty("os.name");
+		//if(os.toLowerCase().startsWith("win")) {
+		//	setUndecorated(true);
+		//} else {
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				submerge();
+			}
+		});
+		//}
 		setBounds(0,0,600,435);
 		setLocationRelativeTo(null);
 		Pic=new FacePic();

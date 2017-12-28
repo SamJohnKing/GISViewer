@@ -704,10 +704,15 @@ public class SwtHtmlBrowser implements Runnable{
 
 				@Override
 				public void shellClosed(ShellEvent shellEvent) {
-					Accessed = false;
-					if(ServerSocketPaneClass.ServerHandle.ServerOpen) { // 网络连接开启时不允许关闭
-						shellEvent.doit = false;
-						shell.setVisible(false);
+					if(OSUtil.isWindows()) {
+						Accessed = false;
+                        if (ServerSocketPaneClass.ServerHandle.ServerOpen) { // 网络连接开启时不允许关闭
+                            shellEvent.doit = false;
+                            shell.setVisible(false);
+                        }
+					} else {
+                        shellEvent.doit = false;
+                        shell.setVisible(false);
 					}
 				}
 

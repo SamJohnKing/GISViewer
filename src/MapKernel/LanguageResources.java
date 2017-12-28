@@ -587,3 +587,4 @@ public class LanguageResources {
 		}else return str;
 	}
 }
+
