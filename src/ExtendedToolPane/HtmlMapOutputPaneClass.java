@@ -116,7 +116,8 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 				OpenSourceFilePath.setText(OpenWizard.getSelectedFile().getAbsolutePath());
 			}
 		}else if(e.getSource()==InstantView){
-			Process proc = Runtime.getRuntime().exec("C:\\\\Program Files\\Internet Explorer\\iexplore "+GenerateHTML("MapTemp.html"));
+			//Process proc = Runtime.getRuntime().exec("C:\\\\Program Files\\Internet Explorer\\iexplore "+GenerateHTML("MapTemp.html"));
+			Process proc = Runtime.getRuntime().exec("C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome "+GenerateHTML("MapTemp.html"));
 			StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "Error");
 			StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "Output");
 			errorGobbler.start();
@@ -177,6 +178,15 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 		if(col>=MaxColNum) return;
 		Grid[row][col]++;
 	}
+	String CatchKeyWord(String KeyWord, String Words) {
+		if(Words == null) return null;
+		if(Words.isEmpty()) return null;
+		int pos = Words.indexOf(KeyWord);
+		if(pos != -1) {
+			int endspos = Words.indexOf("]",pos);
+			return Words.substring(pos + KeyWord.length() + 1, endspos);
+		} else return null;
+	}
 	String GenerateHTML(String FileName){
 		File OutFile=new File(MapKernel.GeoCityInfo_main.Append_Folder_Prefix(FileName));
 		try{
@@ -195,7 +205,13 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 			String LineContainerStr="map";
 			String PolygonContainerStr="map";
 			while((buf=in.readLine())!=null){
-				out.write(buf);
+				if(buf.equals("var map = new L.Map('map', {center: new L.LatLng(39.5, 117), zoom: 9, zoomAnimation: true });")) {
+					LongitudeStart=MainHandle.getKernel().Screen.ScreenLongitude;
+					LongitudeEnd=MainHandle.getKernel().Screen.LongitudeScale+LongitudeStart;
+					LatitudeEnd=MainHandle.getKernel().Screen.ScreenLatitude;
+					LatitudeStart=LatitudeEnd-MainHandle.getKernel().Screen.LatitudeScale;
+					out.write("var map = new L.Map('map', {center: new L.LatLng(" + (LatitudeEnd + LatitudeStart)/2 +", " + (LongitudeEnd + LongitudeStart)/2 + "), zoom: 9, zoomAnimation: true });");
+				} else out.write(buf);
 				out.newLine();
 				if(buf.startsWith("//UseGrid")){
 					ClearGrid();
@@ -316,7 +332,20 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 						}
 						//--------------------------------------------
 						if(Point_check){
-							out.write("L.circle(["+(PointDB.AllPointY[i]+GetLatLngDelta(Point_LatitudeDelta.getText()))+","+(PointDB.AllPointX[i]+GetLatLngDelta(Point_LongitudeDelta.getText()))+"],50,{color:'green',fillColor: 'green',fillOpacity: 0.5}).addTo("+PointContainerStr+");");
+							String Hint = PointDB.PointHint[i] != null ? PointDB.PointHint[i] : "";
+							String fillColor = CatchKeyWord("PointRGB",Hint);
+							if((fillColor == null) || (fillColor.isEmpty())) fillColor = "green";
+							else fillColor = "#" + fillColor.substring(2).toUpperCase();
+
+							String BoundColor = fillColor;
+							String fillOpacity = CatchKeyWord("PointAlpha",Hint);
+							if((fillOpacity == null) || (fillOpacity.isEmpty())) fillOpacity = "0.5";
+
+							String Popup = CatchKeyWord("Popup",Hint);
+							String bindPopup = "";
+							if((Popup != null) && (!Popup.isEmpty())) bindPopup = ".bindPopup(\""+Popup+"\")";
+
+							out.write("L.circle(["+(PointDB.AllPointY[i]+GetLatLngDelta(Point_LatitudeDelta.getText()))+","+(PointDB.AllPointX[i]+GetLatLngDelta(Point_LongitudeDelta.getText()))+"],50,{color:'" + BoundColor + "',fillColor: '" + fillColor + "',fillOpacity: " + fillOpacity + "}).addTo("+PointContainerStr+")" + bindPopup + ";");
 							out.newLine();
 						}
 					}
@@ -356,7 +385,22 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 								ptr=LineDB.AllPointNext[ptr];
 								if(ptr!=-1) out.write(",\n"); else out.newLine();
 							}
-							out.write("], {color: 'orange'}).addTo("+LineContainerStr+");");
+
+							String Hint = LineDB.LineHint[i] != null ? LineDB.LineHint[i] : "";
+							String fillColor = CatchKeyWord("LineRGB",Hint);
+							if((fillColor == null) || (fillColor.isEmpty())) fillColor = "orange";
+							else fillColor = "#" + fillColor.substring(2).toUpperCase();
+
+							String BoundColor = fillColor;
+							String fillOpacity = CatchKeyWord("LineAlpha",Hint);
+							if((fillOpacity == null) || (fillOpacity.isEmpty())) fillOpacity = "0.5";
+
+							String Popup = CatchKeyWord("Popup",Hint);
+							String bindPopup = "";
+							if((Popup != null) && (!Popup.isEmpty())) bindPopup = ".bindPopup(\""+Popup+"\")";
+
+							out.write("], {color: '" + BoundColor + "',fillColor: '" + fillColor + "',fillOpacity: " + fillOpacity + ",weight: 2}).addTo("+LineContainerStr+")" + bindPopup + ";");
+
 							out.newLine();
 						}
 					}
@@ -398,7 +442,24 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 								ptr=PolygonDB.AllPointNext[ptr];
 								if(ptr!=-1) out.write(",\n"); else out.newLine();
 							}
-							out.write("], {color: 'red'}).addTo("+PolygonContainerStr+");");
+
+							String Hint = PolygonDB.PolygonHint[i] != null ? PolygonDB.PolygonHint[i] : "";
+							String fillColor = CatchKeyWord("PolygonRGB",Hint);
+							if((fillColor == null) || (fillColor.isEmpty())) fillColor = "red";
+							else fillColor = "#" + fillColor.substring(2).toUpperCase();
+
+							String BoundColor = CatchKeyWord("LineRGB",Hint);
+							if((BoundColor == null) || (BoundColor.isEmpty())) BoundColor = "red";
+							else BoundColor = "#" + BoundColor.substring(2).toUpperCase();
+
+							String fillOpacity = CatchKeyWord("PolygonAlpha",Hint);
+							if((fillOpacity == null) || (fillOpacity.isEmpty())) fillOpacity = "0.5";
+
+							String Popup = CatchKeyWord("Popup",Hint);
+							String bindPopup = "";
+							if((Popup != null) && (!Popup.isEmpty())) bindPopup = ".bindPopup(\""+Popup+"\")";
+
+							out.write("], {color: '" + BoundColor + "',fillColor: '" + fillColor + "',fillOpacity: " + fillOpacity + ",weight: 2}).addTo("+PolygonContainerStr+")" + bindPopup + ";");
 							out.newLine();
 						}
 					}
