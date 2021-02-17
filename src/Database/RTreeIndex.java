@@ -6,6 +6,7 @@ public class RTreeIndex implements IndexInterface{
 	//Share the basic Definition 
 	final static int MaxTreeNodeNum=5000000;
 	final static int MAXCH=4;
+	static double minsize = 0.0001; /** Grid的最小分辨率 */
 	class RTreeNode{
 		double x1,y1,x2,y2;
 		RTreeNode[] next;
@@ -16,7 +17,7 @@ public class RTreeIndex implements IndexInterface{
 			x2=-1e100;
 			y2=-1e100;
 			num=-2;
-			
+
 			id=-1;
 			next=new RTreeNode[MAXCH];
 		}
@@ -71,7 +72,7 @@ public class RTreeIndex implements IndexInterface{
 		if(me.head>=0){//Leave Point
 			AllPointNext[id]=me.head;
 			me.head=id;
-			if(me.count>MaxElementNumber){
+			if((me.count>MaxElementNumber) && (Math.abs(me.y2 - me.y1) + Math.abs(me.x2 - me.x1) > minsize)){
 				me.next[0]=new QuadTreeNode();
 				me.next[1]=new QuadTreeNode();
 				me.next[2]=new QuadTreeNode();
@@ -133,9 +134,9 @@ public class RTreeIndex implements IndexInterface{
 	//The RTreeCode:-------------------------------------------------
 	void re(RTreeNode tmp)
 	{
-	    RTreeNode t1=tmp.next[0];
+		RTreeNode t1=tmp.next[0];
 		double xx1=t1.x1,xx2=t1.x2,yy1=t1.y1,yy2=t1.y2;
-	    for(int i=1;i<tmp.num;i++)
+		for(int i=1;i<tmp.num;i++)
 		{
 			t1=tmp.next[i];
 			if(t1.x1<xx1) xx1=t1.x1;
@@ -158,8 +159,8 @@ public class RTreeIndex implements IndexInterface{
 		temp.x2=FreeNode.x2;
 		temp.y1=FreeNode.y1;
 		temp.y2=FreeNode.y2;
-	    for(i=0;i<temp.num;i++)
-		temp.next[i]=FreeNode.next[i];
+		for(i=0;i<temp.num;i++)
+			temp.next[i]=FreeNode.next[i];
 		return temp;
 	}
 	double change_x1,change_y1,change_x2,change_y2;
@@ -197,7 +198,7 @@ public class RTreeIndex implements IndexInterface{
 				{
 					RTreeNode t=new RTreeNode();
 					t.num=0;
-	                for(int i=MAXCH/2;i<MAXCH;i++)
+					for(int i=MAXCH/2;i<MAXCH;i++)
 					{
 						t.next[t.num]=me.next[i];
 						t.num++;
@@ -224,7 +225,7 @@ public class RTreeIndex implements IndexInterface{
 			}
 		}
 	}
-//Above is the basic operation of RTree
+	//Above is the basic operation of RTree
 	@Override
 	public void IndexInit(DatabaseInterface DB) {
 		// TODO Auto-generated method stub
