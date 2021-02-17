@@ -1,6 +1,7 @@
 package Database;
 
 import LWJGLPackage.OriginalOpenGLWizard;
+import MapKernel.MapWizard;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -39,6 +40,7 @@ public class PointDataSet implements PointDatabaseInterface{
 	public void DatabaseFileInput(File Input){
 		if(Input==null) return;
 		BufferedReader in=null;
+		while(!MapWizard.SingleItem.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		try{
 			in=new BufferedReader(new InputStreamReader(new FileInputStream(Input),"UTF-8"));
 			double DeltaX=0,DeltaY=0;
@@ -109,12 +111,14 @@ public class PointDataSet implements PointDatabaseInterface{
 			}catch(Exception ex){
 				ex.printStackTrace();
 			}
+			while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 		}
 	}
-	public void DatabaseFileOutput(File Output){
+	public void DatabaseFileOutput(File Output){ /** Unsafe in MultiThread */
 		if(Output==null) return;
 		FileOutputStream fostream=null;
 		BufferedWriter out=null;
+		while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, true));
 		try{
 			fostream=new FileOutputStream(Output,false);
 			out=new BufferedWriter(new OutputStreamWriter(fostream,"UTF-8"));
@@ -150,6 +154,7 @@ public class PointDataSet implements PointDatabaseInterface{
 			}catch(Exception ex){
 				ex.printStackTrace();
 			}
+			while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, false));
 		}
 	}
 	public void MoveEntireData(double longitude_delta,double latitude_delta){
@@ -234,6 +239,7 @@ public class PointDataSet implements PointDatabaseInterface{
 	}
 	public static int PointMaxNum=10000000;
 	public void DatabaseInit(){
+		while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		System.out.println("初始化PointDB\nPointMaxNum = " + PointMaxNum);
 		if(AllPointX == null) AllPointX=new double[PointMaxNum];
 		if(AllPointY == null) AllPointY=new double[PointMaxNum];
@@ -243,6 +249,7 @@ public class PointDataSet implements PointDatabaseInterface{
 			PointVisible[i]=0;
 		}
 		if(PointHint == null) PointHint=new String[PointMaxNum];
+		while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 		System.gc();
 	}
 	public void Clear(int index){

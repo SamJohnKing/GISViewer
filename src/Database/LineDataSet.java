@@ -1,5 +1,7 @@
 package Database;
 
+import MapKernel.MapWizard;
+
 import javax.sound.sampled.Line;
 import javax.swing.plaf.synth.Region;
 import java.io.BufferedReader;
@@ -33,6 +35,7 @@ public class LineDataSet implements LineDatabaseInterface{
 	}
 	public void DatabaseFileInput(File Input){
 		BufferedReader in=null;
+		while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		try{
 			if(Input==null) return;
 			in=new BufferedReader(new InputStreamReader(new FileInputStream(Input),"UTF-8"));
@@ -143,12 +146,14 @@ public class LineDataSet implements LineDatabaseInterface{
 			}catch(Exception ex){
 				ex.printStackTrace();
 			}
+			while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 		}
 	}
 	public void DatabaseFileOutput(File Output){
 		if(Output==null) return;
 		FileOutputStream fostream=null;
 		BufferedWriter out=null;
+		while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, true));
 		try{
 			fostream=new FileOutputStream(Output,false);
 			out=new BufferedWriter(new OutputStreamWriter(fostream,"UTF-8"));
@@ -202,6 +207,7 @@ public class LineDataSet implements LineDatabaseInterface{
 			}catch(Exception ex){
 				ex.printStackTrace();
 			}
+			while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, false));
 		}
 	}
 	public double GetRealMeter(double st_longitude,double st_latitude,double en_longitude,double en_latitude){
@@ -440,6 +446,7 @@ public class LineDataSet implements LineDatabaseInterface{
 	public static int LineMaxNum=20000000;
 	public static int PointMaxNum=50000000;
 	public void DatabaseInit(){
+		while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		System.out.println("初始化LineDB\nLineMaxNum = " + LineMaxNum + "\nPointMaxNum = " + PointMaxNum);
 		if(AllPointX == null) AllPointX=new double[PointMaxNum];
 		if(AllPointY == null) AllPointY=new double[PointMaxNum];
@@ -463,6 +470,7 @@ public class LineDataSet implements LineDatabaseInterface{
 		}
 		AllPointNext[PointMaxNum-1]=-1;
 		if(LineHint == null) LineHint=new String[LineMaxNum];
+		while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 		System.gc();
 	}
 	public void update(int index,int visible,String Hint){

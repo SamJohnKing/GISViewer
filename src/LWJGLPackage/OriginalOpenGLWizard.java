@@ -1804,7 +1804,7 @@ public class OriginalOpenGLWizard {
         if (MapWizard.SingleItem.IsAllElementInvisible) return;
         while (!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, true)) {
             try {
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -2386,7 +2386,7 @@ public class OriginalOpenGLWizard {
 
         while (!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, false)) {
             try {
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

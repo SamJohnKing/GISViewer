@@ -1,5 +1,7 @@
 package Database;
 
+import MapKernel.MapWizard;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 public class PolygonDataSet implements PolygonDatabaseInterface{
@@ -33,6 +36,7 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 	public void DatabaseFileInput(File Input){
 		if(Input==null) return;
 		BufferedReader in=null;
+		while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		try{
 			in=new BufferedReader(new InputStreamReader(new FileInputStream(Input),"UTF-8"));
 			double DeltaX=0,DeltaY=0;
@@ -147,12 +151,14 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 			}catch(Exception ex){
 				ex.printStackTrace();
 			}
+			while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 		}
 	}
 	public void DatabaseFileOutput(File Output){
 		if(Output==null) return;
 		FileOutputStream fostream=null;
 		BufferedWriter out=null;
+		while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, true));
 		try{
 			fostream=new FileOutputStream(Output,false);
 			out=new BufferedWriter(new OutputStreamWriter(fostream,"UTF-8"));
@@ -205,6 +211,7 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 			}catch(Exception ex){
 				ex.printStackTrace();
 			}
+			while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, false));
 		}
 	}
 	public void MoveEntireData(double longitude_delta,double latitude_delta){
@@ -358,6 +365,7 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 	public static int PolygonMaxNum=100000;
 	public static int PointMaxNum=10000000;
 	public void DatabaseInit(){
+		while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		System.out.println("初始化PolygonDB\nPolygonMaxNum = " + PolygonMaxNum + "\nPointMaxNum = " + PointMaxNum);
 		if(AllPointX == null) AllPointX=new double[PointMaxNum];
 		if(AllPointY == null) AllPointY=new double[PointMaxNum];
@@ -381,6 +389,7 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 		}
 		AllPointNext[PointMaxNum-1]=-1;
 		if(PolygonHint == null) PolygonHint=new String[PolygonMaxNum];
+		while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 		System.gc();
 	}
 	public void update(int index,int visible,String Hint){

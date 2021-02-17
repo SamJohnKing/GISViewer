@@ -590,7 +590,7 @@ public class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPane
             } else if (Command.equals("OutputScreen")) {
                 MainHandle.getKernel().ScreenPNGOutput(str);
                 return "Success::";
-            } else if (Command.equals("AlphaDrawer")) { //热力图绘制会抢占Screen数组资源，造成多线程冲突，慎用！
+            } else if (Command.equals("AlphaDrawer")) { //参数也未设置，不推荐使用，所有功能由outputscreen替换实现！热力图绘制会抢占Screen数组资源，造成多线程冲突，慎用！
                 MainHandle.getKernel().Screen.AlphaDrawer(str);
                 return "Success::";
             } else if (Command.equals("BrowserPNGCapture")){
