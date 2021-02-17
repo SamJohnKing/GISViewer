@@ -1,0 +1,975 @@
+<html lang="zh-cn">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" >
+<head>
+	<title>Leaflet</title>
+	<!--<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />-->
+	<link rel="stylesheet" href="leaflet.css" />
+	<!--<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>-->
+	<script src="leaflet.js"></script>
+	<style type="text/css">
+		.leaflet-div-icon{
+			background:transparent;
+			border:0
+		}
+		.BarLegendPane {
+			position:relative;
+			margin-left:50px;
+			margin-top:5px;
+			width:auto;
+			float:left;
+			z-index:1000;
+			background-color:white;
+		}
+
+		.BarLegendItem {
+			position:relative;
+			width:auto;
+			float:left;
+			margin-top:1px;
+			font-size:12px;
+			margin-right:8px;
+			margin-left:8px;
+			background-color:white;
+		}
+
+		.BarLegendColor {
+			position:relative;
+			float:left;
+			width:11px;
+			height:11px;
+			margin-top:3px;
+		}
+
+		.BarLegendContent {
+			position:relative;
+			float:left;
+			margin-left:5px;
+			font-size:12px;
+		}
+	</style>
+	<script type='text/javascript'>
+		//heatcanvas.js
+		/**
+		 * Copyright 2010-2011 Sun Ning <classicning@gmail.com>
+		 *
+		 * Permission is hereby granted, free of charge, to any person obtaining a copy
+		 * of this software and associated documentation files (the "Software"), to deal
+		 * in the Software without restriction, including without limitation the rights
+		 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		 * copies of the Software, and to permit persons to whom the Software is
+		 * furnished to do so, subject to the following conditions:
+		 *
+		 * The above copyright notice and this permission notice shall be included in all
+		 * copies or substantial portions of the Software.
+		 *
+		 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		 * SOFTWARE.
+		 */
+
+		/**
+		 * Heatmap api based on canvas
+		 *
+		 */
+		var HeatCanvas = function(canvas){
+			if (typeof(canvas) == "string") {
+				this.canvas = document.getElementById(canvas);
+			} else {
+				this.canvas = canvas;
+			}
+			if(this.canvas == null){
+				return null;
+			}
+
+			this.worker = new Worker('./heatcanvas-worker.js');
+
+			this.width = this.canvas.width;
+			this.height = this.canvas.height;
+
+			this.onRenderingStart = null;
+			this.onRenderingEnd = null;
+
+			this.data = {};
+		};
+
+		HeatCanvas.prototype.resize = function( w, h ) {
+			this.width = this.canvas.width = w;
+			this.height = this.canvas.height = h;
+
+			this.canvas.style.width = w + 'px';
+			this.canvas.style.height = h + 'px';
+		};
+
+		HeatCanvas.prototype.push = function(x, y, data){
+			// ignore all data out of extent
+			if (x < 0 || x > this.width) {
+				return ;
+			}
+			if (y < 0 || y > this.height) {
+				return;
+			}
+
+			var id = x+y*this.width;
+			if(this.data[id]){
+				this.data[id] = this.data[id] + data;
+			} else {
+				this.data[id] = data;
+			}
+		};
+
+		HeatCanvas.prototype.render = function(step, degree, f_value_color){
+			step = step || 1;
+			degree = degree || HeatCanvas.LINEAR ;
+
+			var self = this;
+			this.worker.onmessage = function(e){
+				self.value = e.data.value;
+				self.data = {};
+				self._render(f_value_color);
+				if (self.onRenderingEnd){
+					self.onRenderingEnd();
+				}
+			}
+			var msg = {
+				'data': self.data,
+				'width': self.width,
+				'height': self.height,
+				'step': step,
+				'degree': degree,
+				'value': self.value
+			};
+			this.worker.postMessage(msg);
+			if (this.onRenderingStart){
+				this.onRenderingStart();
+			}
+		};
+
+		//var OutputIS=false;
+		//function Ts(color){
+		//	return "#"+(Math.round(color[0])).toString(16)+","+(Math.round(color[1])).toString(16)+","+(Math.round(color[2])).toString(16);
+		//}
+		HeatCanvas.prototype._render = function(f_value_color){
+			f_value_color = f_value_color || HeatCanvas.defaultValue2Color;
+
+			var ctx = this.canvas.getContext("2d");
+			ctx.clearRect(0, 0, this.width, this.height);
+
+			defaultColor = this.bgcolor || [0, 0, 0, 255];
+			var canvasData = ctx.createImageData(this.width, this.height);
+			for (var i=0; i<canvasData.data.length; i+=4){
+				canvasData.data[i] = defaultColor[0]; // r
+				canvasData.data[i+1] = defaultColor[1];
+				canvasData.data[i+2] = defaultColor[2];
+				canvasData.data[i+3] = defaultColor[3];
+			}
+
+			// maximum
+			var maxValue = 0;
+			for(var id in this.value){
+				maxValue = Math.max(this.value[id], maxValue);
+			}
+
+			for(var pos in this.value){
+				var x = Math.floor(pos%this.width);
+				var y = Math.floor(pos/this.width);
+
+				// MDC ImageData:
+				// data = [r1, g1, b1, a1, r2, g2, b2, a2 ...]
+				var pixelColorIndex = y*this.width*4+x*4;
+
+				var color = HeatCanvas.hsla2rgba.apply(
+						null, f_value_color(this.value[pos] / maxValue));
+
+				/*if(!OutputIS){
+					OutputIS=true;
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(0))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(1/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(2/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(3/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(4/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(5/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(6/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(7/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(8/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(9/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(10/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(11/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(12/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(13/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(14/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(15/16))));
+					console.log(Ts(HeatCanvas.hsla2rgba.apply(null, f_value_color(16/16))));
+				}*/
+				canvasData.data[pixelColorIndex] = color[0]; //r
+				canvasData.data[pixelColorIndex+1] = color[1]; //g
+				canvasData.data[pixelColorIndex+2] = color[2]; //b
+				canvasData.data[pixelColorIndex+3] = color[3]; //a
+			}
+
+			ctx.putImageData(canvasData, 0, 0);
+
+		};
+
+		HeatCanvas.prototype.clear = function(){
+			this.data = {};
+			this.value = {};
+
+			this.canvas.getContext("2d").clearRect(0, 0, this.width, this.height);
+		};
+
+		HeatCanvas.prototype.exportImage = function() {
+			return this.canvas.toDataURL();
+		};
+
+		HeatCanvas.defaultValue2Color = function(value){
+			var h = (1 - value);
+			var l = value * 0.6;
+			var s = 0.8;
+			var a = 1;
+			return [h, s, l, a];
+		}
+
+		// function copied from:
+		// http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
+		HeatCanvas.hsla2rgba = function(h, s, l, a){
+			var r, g, b;
+
+			if(s == 0){
+				r = g = b = l;
+			}else{
+				function hue2rgb(p, q, t){
+					if(t < 0) t += 1;
+					if(t > 1) t -= 1;
+					if(t < 1/6) return p + (q - p) * 6 * t;
+					if(t < 1/2) return q;
+					if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+					return p;
+				}
+
+				var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+				var p = 2 * l - q;
+				r = hue2rgb(p, q, h + 1/3);
+				g = hue2rgb(p, q, h);
+				b = hue2rgb(p, q, h - 1/3);
+			}
+
+			return [r * 255, g * 255, b * 255, a * 255];
+		}
+
+		HeatCanvas.LINEAR = 1;
+		HeatCanvas.QUAD = 2;
+		HeatCanvas.CUBIC = 3;
+
+		HeatCanvas.getPath = function() {
+			var scriptTags = document.getElementsByTagName("script");
+			for (var i=0; i<scriptTags.length; i++) {
+				var src = scriptTags[i].src;
+				var match = src.match(/heatcanvas(-[a-z0-9]{32})?\.js/);
+				var pos = match ? match.index : 0;
+				if (pos > 0) {
+					return src.substring(0, pos);
+				}
+			}
+			return "";
+		}
+	</script>
+	<script type='text/javascript'>
+		//heatcanvas-leaflet.js
+		/**
+		 * Copyright 2010 Sun Ning <classicning@gmail.com>
+		 *
+		 * Permission is hereby granted, free of charge, to any person obtaining a copy
+		 * of this software and associated documentation files (the "Software"), to deal
+		 * in the Software without restriction, including without limitation the rights
+		 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		 * copies of the Software, and to permit persons to whom the Software is
+		 * furnished to do so, subject to the following conditions:
+		 *
+		 * The above copyright notice and this permission notice shall be included in all
+		 * copies or substantial portions of the Software.
+		 *
+		 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		 * SOFTWARE.
+		 */
+
+		L.TileLayer.HeatCanvas = L.Class.extend({
+
+			initialize: function(options, heatCanvasOptions){
+				this.heatCanvasOptions = heatCanvasOptions;
+				this.data= [];
+				this._onRenderingStart = null;
+				this._onRenderingEnd = null;
+			},
+
+			onRenderingStart: function(cb){
+				this._onRenderingStart = cb;
+			},
+
+			onRenderingEnd: function(cb) {
+				this._onRenderingEnd = cb;
+			},
+
+			onAdd: function(map) {
+				this.map = map;
+				this._initHeatCanvas(this.map, this.heatCanvasOptions);
+				map.on("moveend", this._redraw, this);
+				this._redraw();
+			},
+
+			onRemove: function(map) {
+				map.getPanes().overlayPane.removeChild(this._div);
+				map.off("moveend", this._redraw, this);
+			},
+
+			_initHeatCanvas: function(map, options){
+				options = options || {};
+				this._step = options.step || 1;
+				this._degree = options.degree || HeatCanvas.LINEAR;
+				this._opacity = options.opacity || 0.6;
+				this._colorscheme = options.colorscheme || null;
+
+				var container = L.DomUtil.create('div', 'leaflet-heatmap-container');
+				container.style.position = 'absolute';
+				container.style.width = this.map.getSize().x+"px";
+				container.style.height = this.map.getSize().y+"px";
+
+				var canv = document.createElement("canvas");
+				canv.width = this.map.getSize().x;
+				canv.height = this.map.getSize().y;
+				canv.style.width = canv.width+"px";
+				canv.style.height = canv.height+"px";
+				canv.style.opacity = this._opacity;
+				container.appendChild(canv);
+
+				this.heatmap = new HeatCanvas(canv);
+				this.heatmap.onRenderingStart = this._onRenderingStart;
+				this.heatmap.onRenderingEnd = this._onRenderingEnd;
+				this.heatmap.bgcolor = options.bgcolor || null;
+				this._div = container;
+				this.map.getPanes().overlayPane.appendChild(this._div);
+			},
+
+			pushData: function(lat, lon, value) {
+				this.data.push({"lat":lat, "lon":lon, "v":value});
+			},
+
+			_resetCanvasPosition: function() {
+				var bounds = this.map.getBounds();
+				var topLeft = this.map.latLngToLayerPoint(bounds.getNorthWest());
+				L.DomUtil.setPosition(this._div, topLeft);
+			},
+
+			_redraw: function() {
+				this._resetCanvasPosition();
+				this.heatmap.clear();
+				if (this.data.length > 0) {
+					for (var i=0, l=this.data.length; i<l; i++) {
+						var lonlat = new L.LatLng(this.data[i].lat, this.data[i].lon);
+						var localXY = this.map.latLngToLayerPoint(lonlat);
+						localXY = this.map.layerPointToContainerPoint(localXY);
+						this.heatmap.push(
+								Math.floor(localXY.x),
+								Math.floor(localXY.y),
+								this.data[i].v);
+					}
+
+					this.heatmap.render(this._step, this._degree, this._colorscheme);
+				}
+				return this;
+			},
+
+			clear: function(){
+				this.heatmap.clear();
+				this.data = [];
+			},
+
+			redraw: function(){
+				this._redraw();
+			}
+
+		});
+
+		L.TileLayer.heatcanvas = function (options) {
+			return new L.TileLayer.HeatCanvas(options);
+		};
+
+	</script>
+	<!--<script src="../layer/tile/Bing.js"></script>-->
+	<script type='text/javascript'>
+	L.BingLayer = L.TileLayer.extend({
+	options: {
+		subdomains: [0, 1, 2, 3],
+		type: 'Aerial',
+		attribution: 'Bing',
+		culture: ''
+	},
+
+	initialize: function(key, options) {
+		L.Util.setOptions(this, options);
+
+		this._key = key;
+		this._url = null;
+		this.meta = {};
+		this.loadMetadata();
+	},
+
+	tile2quad: function(x, y, z) {
+		var quad = '';
+		for (var i = z; i > 0; i--) {
+			var digit = 0;
+			var mask = 1 << (i - 1);
+			if ((x & mask) !== 0) digit += 1;
+			if ((y & mask) !== 0) digit += 2;
+			quad = quad + digit;
+		}
+		return quad;
+	},
+
+	getTileUrl: function(p, z) {
+		var zoom = this._getZoomForUrl();
+		var subdomains = this.options.subdomains,
+			s = this.options.subdomains[Math.abs((p.x + p.y) % subdomains.length)];
+		if(this.options.culture=="zh") return "http://r2.tiles.ditu.live.com/tiles/r{quadkey}.png?g=41".replace('{quadkey}',this.tile2quad(p.x, p.y, zoom));
+		return this._url.replace('{subdomain}', s)
+				.replace('{quadkey}', this.tile2quad(p.x, p.y, zoom))
+				.replace('{culture}', this.options.culture);
+	},
+
+	loadMetadata: function() {
+		var _this = this;
+		var cbid = '_bing_metadata_' + L.Util.stamp(this);
+		window[cbid] = function (meta) {
+			_this.meta = meta;
+			window[cbid] = undefined;
+			var e = document.getElementById(cbid);
+			e.parentNode.removeChild(e);
+			if (meta.errorDetails) {
+				return;
+			}
+			_this.initMetadata();
+		};
+		var url = 'http:' + '//dev.virtualearth.net/REST/v1/Imagery/Metadata/' + this.options.type + '?include=ImageryProviders&jsonp=' + cbid +
+		          '&key=' + this._key + '&UriScheme=' + 'http:'.slice(0, -1);
+		var script = document.createElement('script');
+		script.type = 'text/javascript';
+		script.src = url;
+		script.id = cbid;
+		document.getElementsByTagName('head')[0].appendChild(script);
+	},
+
+	initMetadata: function() {
+		var r = this.meta.resourceSets[0].resources[0];
+		this.options.subdomains = r.imageUrlSubdomains;
+		this._url = r.imageUrl;
+		this._providers = [];
+		if (r.imageryProviders) {
+			for (var i = 0; i < r.imageryProviders.length; i++) {
+				var p = r.imageryProviders[i];
+				for (var j = 0; j < p.coverageAreas.length; j++) {
+					var c = p.coverageAreas[j];
+					var coverage = {zoomMin: c.zoomMin, zoomMax: c.zoomMax, active: false};
+					var bounds = new L.LatLngBounds(
+							new L.LatLng(c.bbox[0]+0.01, c.bbox[1]+0.01),
+							new L.LatLng(c.bbox[2]-0.01, c.bbox[3]-0.01)
+					);
+					coverage.bounds = bounds;
+					coverage.attrib = p.attribution;
+					this._providers.push(coverage);
+				}
+			}
+		}
+		this._update();
+	},
+
+	_update: function() {
+		if (this._url === null || !this._map) return;
+		this._update_attribution();
+		L.TileLayer.prototype._update.apply(this, []);
+	},
+
+	_update_attribution: function() {
+		var bounds = this._map.getBounds();
+		var zoom = this._map.getZoom();
+		for (var i = 0; i < this._providers.length; i++) {
+			var p = this._providers[i];
+			if ((zoom <= p.zoomMax && zoom >= p.zoomMin) &&
+					bounds.intersects(p.bounds)) {
+				if (!p.active && this._map.attributionControl)
+					this._map.attributionControl.addAttribution(p.attrib);
+				p.active = true;
+			} else {
+				if (p.active && this._map.attributionControl)
+					this._map.attributionControl.removeAttribution(p.attrib);
+				p.active = false;
+			}
+		}
+	},
+
+	onRemove: function(map) {
+		for (var i = 0; i < this._providers.length; i++) {
+			var p = this._providers[i];
+			if (p.active && this._map.attributionControl) {
+				this._map.attributionControl.removeAttribution(p.attrib);
+				p.active = false;
+			}
+		}
+        	L.TileLayer.prototype.onRemove.apply(this, [map]);
+	}
+});
+
+L.bingLayer = function (key, options) {
+    return new L.BingLayer(key, options);
+};
+	</script>
+</head>
+<script type="text/javascript">
+	function heatmap_init(){
+		var heatmap = new
+				L.TileLayer.HeatCanvas({},{'step':10, 'degree':HeatCanvas.QUAD, 'opacity':0.7});
+		return heatmap;
+	}
+</script>
+<body style="margin:0px 0px 0px 0px" onload="init();">
+	<div style="width: 100%; height:100%" id="map">
+		<div class="BarLegendPane" id="bar">
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color0"></div>
+				<div class="BarLegendContent" id="Scale0">0%~10%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color1"></div>
+				<div class="BarLegendContent" id="Scale1">10%~20%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color2"></div>
+				<div class="BarLegendContent" id="Scale2">20%~30%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color3"></div>
+				<div class="BarLegendContent" id="Scale3">30%~40%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color4"></div>
+				<div class="BarLegendContent" id="Scale4">40%~50%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color5"></div>
+				<div class="BarLegendContent" id="Scale5">50%~60%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color6"></div>
+				<div class="BarLegendContent" id="Scale6">60%~70%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color7"></div>
+				<div class="BarLegendContent" id="Scale7">70%~80%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color8"></div>
+				<div class="BarLegendContent" id="Scale8">80%~90%</div>
+			</div>
+			<div class="BarLegendItem">
+				<div class="BarLegendColor" id="Color9"></div>
+				<div class="BarLegendContent" id="Scale9">90%~100%</div>
+			</div>
+		</div>
+	</div>
+<script type='text/javascript'>
+var map = new L.Map('map', {center: new L.LatLng(1.3,103.85), zoom: 12, maxZoom: 19, zoomAnimation: true});
+var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+var bing_AerialWithLabels = new L.BingLayer("ArZCNayugTS_wpkhFYJHjCM6ojGG_fvv7rXLhd4WmDXNOE-7rs6NpUsigWq34s3y",{type: 'AerialWithLabels',culture: 'en-US'});
+var bing_Aerial = new L.BingLayer("ArZCNayugTS_wpkhFYJHjCM6ojGG_fvv7rXLhd4WmDXNOE-7rs6NpUsigWq34s3y",{type: 'Aerial',culture:"ja"});
+var bing_Road = new L.BingLayer("ArZCNayugTS_wpkhFYJHjCM6ojGG_fvv7rXLhd4WmDXNOE-7rs6NpUsigWq34s3y",{type: 'Road' , culture: "zh" /**culture: "en-US"*/});
+var heatmap=heatmap_init();
+var DrawerLayers = new L.LayerGroup();
+var GridLayers=new L.LayerGroup();
+var StackLayers=new L.LayerGroup();
+map.addLayer(osm);
+var MapSwitcher=new L.Control.Layers({'OSM':osm, "Bing_AerialWithLabels":bing_AerialWithLabels, "Bing_Aerial":bing_Aerial, "Bing_Road":bing_Road}, {"DrawerLayers":DrawerLayers,"heatmap[OnlyIE]":heatmap,"GridLayers":GridLayers,"StackLayer":StackLayers});
+map.addControl(MapSwitcher);
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
+//Quadtree Grids Component-----------------------------------------------------------------------------------
+	QuadTreeNode_Minimal_Longitude_Span=0.007;
+	QuadTreeNode_Minimal_Latitude_Span=0.005;
+	var QuadTreeNode ={
+		LongitudeStart	:0,
+		LongitudeEnd	:0,
+		LatitudeStart	:0,
+		LatitudeEnd		:0,
+		counter			:0,
+		ch_left_down	:null,
+		ch_left_up		:null,
+		ch_right_down	:null,
+		ch_right_up		:null,
+		ptr_grid		:null
+	}
+	var Quadtree_root=Object.create(QuadTreeNode);
+	Quadtree_root.LongitudeStart=70;
+	Quadtree_root.LongitudeEnd	=140;
+	Quadtree_root.LatitudeStart	=5;
+	Quadtree_root.LatitudeEnd	=55;
+	function insert_into_quadtree(Father,longitude,latitude,counter){
+		if(longitude>Father.LongitudeEnd) return;
+		if(longitude<Father.LongitudeStart) return;
+		if(latitude>Father.LatitudeEnd) return;
+		if(latitude<Father.LatitudeStart) return;
+		//console.log(Father.LongitudeStart+"->"+Father.LongitudeEnd+"\n"+Father.LatitudeStart+"->"+Father.LatitudeEnd+"\n==============================\n");
+		Father.counter+=counter;
+		if((Father.LongitudeEnd-Father.LongitudeStart>QuadTreeNode_Minimal_Longitude_Span)
+		&& (Father.LatitudeEnd-Father.LatitudeStart>QuadTreeNode_Minimal_Latitude_Span)){
+			var longitude_mid=(Father.LongitudeStart+Father.LongitudeEnd)/2;
+			var latitude_mid=(Father.LatitudeStart+Father.LatitudeEnd)/2;
+			var ch=null;
+			if((longitude<=longitude_mid)&&(latitude<=latitude_mid)){
+				if(Father.ch_left_down==null){
+					Father.ch_left_down=Object.create(QuadTreeNode);
+					Father.ch_left_down.LongitudeStart=Father.LongitudeStart;
+					Father.ch_left_down.LongitudeEnd=longitude_mid;
+					Father.ch_left_down.LatitudeStart=Father.LatitudeStart;
+					Father.ch_left_down.LatitudeEnd=latitude_mid;
+				}
+				ch=Father.ch_left_down;
+			}else if((longitude<=longitude_mid)&&(latitude>latitude_mid)){
+				if(Father.ch_left_up==null){
+					Father.ch_left_up=Object.create(QuadTreeNode);
+					Father.ch_left_up.LongitudeStart=Father.LongitudeStart;
+					Father.ch_left_up.LongitudeEnd=longitude_mid;
+					Father.ch_left_up.LatitudeStart=latitude_mid;
+					Father.ch_left_up.LatitudeEnd=Father.LatitudeEnd;
+				}
+				ch=Father.ch_left_up;
+			}else if((longitude>longitude_mid)&&(latitude<=latitude_mid)){
+				if(Father.ch_right_down==null){
+					Father.ch_right_down=Object.create(QuadTreeNode);
+					Father.ch_right_down.LongitudeStart=longitude_mid;
+					Father.ch_right_down.LongitudeEnd=Father.LongitudeEnd;
+					Father.ch_right_down.LatitudeStart=Father.LatitudeStart;
+					Father.ch_right_down.LatitudeEnd=latitude_mid;
+				}
+				ch=Father.ch_right_down;
+			}else if((longitude>longitude_mid)&&(latitude>latitude_mid)){
+				if(Father.ch_right_up==null){
+					Father.ch_right_up=Object.create(QuadTreeNode);
+					Father.ch_right_up.LongitudeStart=longitude_mid;
+					Father.ch_right_up.LongitudeEnd=Father.LongitudeEnd;
+					Father.ch_right_up.LatitudeStart=latitude_mid;
+					Father.ch_right_up.LatitudeEnd=Father.LatitudeEnd;
+				}
+				ch=Father.ch_right_up;
+			}
+			insert_into_quadtree(ch,longitude,latitude,counter);
+		}
+	}
+	var Quadtree_Max_Counter;
+	function Query_Quadtree_Max_Counter(Father,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd){
+		if(Father==null) return;
+		//console.log(Father.LongitudeStart+"->"+Father.LongitudeEnd+"\n"+Father.LatitudeStart+"->"+Father.LatitudeEnd+"\n==============================\n");
+		var row_num=(LatitudeEnd-LatitudeStart)/(Father.LatitudeEnd-Father.LatitudeStart);
+		var col_num=(LongitudeEnd-LongitudeStart)/(Father.LongitudeEnd-Father.LongitudeStart);
+		var ans=0;
+		if(((row_num+col_num>=200)&&(row_num+col_num<400))
+		||((Father.LongitudeEnd-Father.LongitudeStart<=QuadTreeNode_Minimal_Longitude_Span)
+				|| (Father.LatitudeEnd-Father.LatitudeStart<=QuadTreeNode_Minimal_Latitude_Span))){
+			if((Father.LongitudeEnd>LongitudeStart)&&(Father.LongitudeStart<LongitudeEnd)&&(Father.LatitudeEnd>LatitudeStart)&&(Father.LatitudeStart<LatitudeEnd)){
+				//console.log("Max==========>",Father.counter);
+				Quadtree_Max_Counter=Math.max(Quadtree_Max_Counter,Father.counter);
+			}
+		}else if(row_num+col_num<200){
+			Query_Quadtree_Max_Counter(Father.ch_left_down,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd);
+			Query_Quadtree_Max_Counter(Father.ch_left_up,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd);
+			Query_Quadtree_Max_Counter(Father.ch_right_down,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd);
+			Query_Quadtree_Max_Counter(Father.ch_right_up,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd);
+		}
+	}
+	function clear_quadtree(Father){
+		if(Father==null) return;
+		if(Father.ptr_grid!=null) GridLayers.removeLayer(Father.ptr_grid);
+		Father.ptr_grid=null;
+		if(Father.ch_left_down!=null) clear_quadtree(Father.ch_left_down);
+		Father.ch_left_down=null;
+		if(Father.ch_left_up!=null)	clear_quadtree(Father.ch_left_up);
+		Father.ch_left_up=null;
+		if(Father.ch_right_down!=null) clear_quadtree(Father.ch_right_down);
+		Father.ch_right_down=null;
+		if(Father.ch_right_up!=null) clear_quadtree(Father.ch_right_up);
+		Father.ch_right_up=null;
+	}
+	function ChooseAlphaColor(Max_Counter,Grid_Counter){
+		//console.log(Max_Counter,Grid_Counter);
+		var color = HeatCanvas.hsla2rgba.apply(null, HeatCanvas.defaultValue2Color(Grid_Counter/Max_Counter));
+		return "rgba("+Math.round(color[0])+","+Math.round(color[1])+","+Math.round(color[2])+","+(0.5+Grid_Counter/(2*Max_Counter))+")";
+	}
+	var Quadtree_Candraw;
+	function VisualizationQuadTree(Father,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,max_counter){
+		if(Father==null) return;
+		//console.log(Father.LongitudeStart+"->"+Father.LongitudeEnd+"\n"+Father.LatitudeStart+"->"+Father.LatitudeEnd+"\n==============================\n");
+		var row_num=(LatitudeEnd-LatitudeStart)/(Father.LatitudeEnd-Father.LatitudeStart);
+		var col_num=(LongitudeEnd-LongitudeStart)/(Father.LongitudeEnd-Father.LongitudeStart);
+		if(((row_num+col_num>=200)&&(row_num+col_num<400))
+		||(Quadtree_Candraw&&((Father.LongitudeEnd-Father.LongitudeStart<=QuadTreeNode_Minimal_Longitude_Span) || (Father.LatitudeEnd-Father.LatitudeStart<=QuadTreeNode_Minimal_Latitude_Span)))){
+			if((Father.LongitudeEnd>LongitudeStart)&&(Father.LongitudeStart<LongitudeEnd)&&(Father.LatitudeEnd>LatitudeStart)&&(Father.LatitudeStart<LatitudeEnd)){
+				if(Father.ptr_grid!=null) GridLayers.removeLayer(Father.ptr_grid);
+				Father.ptr_grid= L.rectangle([[Father.LatitudeStart,Father.LongitudeStart],[Father.LatitudeEnd,Father.LongitudeEnd]], {color: ChooseAlphaColor(max_counter,Father.counter), weight: 1, fillOpacity: 0.7});
+				Father.ptr_grid.addTo(GridLayers);
+				if((Father.LongitudeEnd-Father.LongitudeStart>QuadTreeNode_Minimal_Longitude_Span)
+						&& (Father.LatitudeEnd-Father.LatitudeStart>QuadTreeNode_Minimal_Latitude_Span)) Quadtree_Candraw=false;
+				//console.log(Father.LongitudeStart+"->"+Father.LongitudeEnd+"\n"+Father.LatitudeStart+"->"+Father.LatitudeEnd+"\n==============================\n");
+			}else{
+				if(Father.ptr_grid!=null) GridLayers.removeLayer(Father.ptr_grid);
+			}
+		}else{
+			if(Father.ptr_grid!=null) GridLayers.removeLayer(Father.ptr_grid);
+		}
+		VisualizationQuadTree(Father.ch_left_down,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,max_counter);
+		VisualizationQuadTree(Father.ch_left_up,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,max_counter);
+		VisualizationQuadTree(Father.ch_right_down,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,max_counter);
+		VisualizationQuadTree(Father.ch_right_up,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,max_counter);
+	}
+	function IntegerRound(num){
+		if(num>1000) return Math.round(num/1000)+"K";
+		if(num>100) return Math.round(num/100)*100;
+		if(num>10) return Math.round(num/10)*10;
+		return num;
+	}
+	function DisplayQuadTree(LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd){
+		Quadtree_Max_Counter=0;
+		Query_Quadtree_Max_Counter(Quadtree_root,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd);
+		Quadtree_Candraw=true;
+		VisualizationQuadTree(Quadtree_root,LongitudeStart,LongitudeEnd,LatitudeStart,LatitudeEnd,Quadtree_Max_Counter);
+		ShowColorBar();
+		document.getElementById("Scale0").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.1));
+		document.getElementById("Scale1").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.2));
+		document.getElementById("Scale2").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.3));
+		document.getElementById("Scale3").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.4));
+		document.getElementById("Scale4").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.5));
+		document.getElementById("Scale5").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.6));
+		document.getElementById("Scale6").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.7));
+		document.getElementById("Scale7").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.8));
+		document.getElementById("Scale8").innerText="<"+IntegerRound(Math.round(Quadtree_Max_Counter*0.9));
+		document.getElementById("Scale9").innerText="<"+IntegerRound(Quadtree_Max_Counter);
+	}
+	function ShowColorBar(){
+		document.getElementById("Scale0").innerText="<10%";
+		document.getElementById("Scale1").innerText="<20%";
+		document.getElementById("Scale2").innerText="<30%";
+		document.getElementById("Scale3").innerText="<40%";
+		document.getElementById("Scale4").innerText="<50%";
+		document.getElementById("Scale5").innerText="<60%";
+		document.getElementById("Scale6").innerText="<70%";
+		document.getElementById("Scale7").innerText="<80%";
+		document.getElementById("Scale8").innerText="<90%";
+		document.getElementById("Scale9").innerText="<100%";
+		document.getElementById("Color0").style.cssText="background-color:"+ChooseAlphaColor(10,1)+";";
+		document.getElementById("Color1").style.cssText="background-color:"+ChooseAlphaColor(10,2)+";";
+		document.getElementById("Color2").style.cssText="background-color:"+ChooseAlphaColor(10,3)+";";
+		document.getElementById("Color3").style.cssText="background-color:"+ChooseAlphaColor(10,4)+";";
+		document.getElementById("Color4").style.cssText="background-color:"+ChooseAlphaColor(10,5)+";";
+		document.getElementById("Color5").style.cssText="background-color:"+ChooseAlphaColor(10,6)+";";
+		document.getElementById("Color6").style.cssText="background-color:"+ChooseAlphaColor(10,7)+";";
+		document.getElementById("Color7").style.cssText="background-color:"+ChooseAlphaColor(10,8)+";";
+		document.getElementById("Color8").style.cssText="background-color:"+ChooseAlphaColor(10,9)+";";
+		document.getElementById("Color9").style.cssText="background-color:"+ChooseAlphaColor(10,10)+";";
+		document.getElementById("bar").style.cssText="visibility:visible;";
+	}
+//----------------------------------------------------------------------------------------------------
+var StackNode={
+	MaxZoom:	0,
+	MinZoom:	0,
+	Content:	null,
+	NextNode:	null
+}
+var StackNodeContent={
+	longitude	:0,
+	latitude	:0,
+	Name		:null,
+	Info		:null,
+	NextNode	:null,
+	VisualObj	:null
+}
+var StackHead=null;
+var StackTail=null;
+function AppendStack(MaxZoom,MinZoom){
+	if(StackTail==null){
+		StackHead=Object.create(StackNode);
+		StackTail=StackHead;
+	}else{
+		StackTail.NextNode=Object.create(StackNode);
+		StackTail=StackTail.NextNode;
+	}
+	if(MaxZoom!=null) StackTail.MaxZoom=MaxZoom;
+	if(MinZoom!=null) StackTail.MinZoom=MinZoom;
+}
+function InsertIntoStackTail(ContentNode){
+	if(StackTail==null)	AppendStack();
+	ContentNode.NextNode=StackTail.Content;
+	StackTail.Content=ContentNode;
+}
+function ClearStack(){
+	while(StackHead!=null){
+		var temp=null;
+		var ptr_content_node=StackHead.Content;
+		StackHead.Content=null;
+		while(ptr_content_node!=null){
+			temp=ptr_content_node.NextNode;
+			ptr_content_node.NextNode=null;
+			StackLayers.removeLayer(ptr_content_node.VisualObj);
+			ptr_content_node.VisualObj=null;
+			ptr_content_node=temp;
+		}
+		temp=StackHead.NextNode;
+		StackHead.NextNode=null;
+		StackHead=temp;
+	}
+}
+function GetGeoIcon(Name,Info){
+	return L.divIcon({iconSize:[100,20],popupAnchor:[0,-10],html:"<center><b>"+Name+"</b></center>"});
+}
+function DisplayStack(){
+	var ptr_stack=StackHead;
+	var now_zoom=map.getZoom();
+	while(ptr_stack!=null){
+		var result=(ptr_stack.MaxZoom-now_zoom)*(ptr_stack.MinZoom-now_zoom);
+		var ptr_content=ptr_stack.Content;
+		while(ptr_content!=null){
+			if(result<=0){
+				if(ptr_content.VisualObj==null){
+					ptr_content.VisualObj=L.marker([ptr_content.latitude,ptr_content.longitude],{title:ptr_content.Name});
+					//ptr_content.VisualObj=L.marker([ptr_content.latitude,ptr_content.longitude],{icon:GetGeoIcon(ptr_content.Name,ptr_content.Info),title:ptr_content.Name});
+				}
+				ptr_content.VisualObj.addTo(StackLayers).bindPopup(ptr_content.Name+"\t"+ptr_content.Info);
+			}else{
+				if(ptr_content.VisualObj!=null) StackLayers.removeLayer(ptr_content.VisualObj);
+			}
+			ptr_content=ptr_content.NextNode;
+		}
+		ptr_stack=ptr_stack.NextNode;
+	}
+}
+//----------------------------------------------------------------------------------------------------
+var popup = L.popup();
+function onMapClick(e) {
+	popup
+			.setLatLng(e.latlng)
+			.setContent("You clicked the map at " + e.latlng.toString())
+			.openOn(map);
+	//clear_quadtree(Quadtree_root);
+	//ClearStack();
+}
+var IsHeatExist=false;
+function onZoomEnd(e){
+	var bbx=map.getBounds();
+	if(map.hasLayer(GridLayers))
+		DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
+	if(map.hasLayer(StackLayers))
+		DisplayStack();
+	if(IsHeatExist){
+		map.addLayer(heatmap);
+	}
+}
+function onMoveEnd(e){
+	var bbx=map.getBounds();
+	if(map.hasLayer(GridLayers))
+		DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
+	if(IsHeatExist){
+		map.addLayer(heatmap);
+	}
+}
+function onOverLayerRemove(e){
+	//var bbx=map.getBounds();
+	//DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
+	//DisplayStack();
+	if((!map.hasLayer(GridLayers))&&(!map.hasLayer(heatmap)))
+		document.getElementById("bar").style.cssText="visibility:hidden;";
+	if(e.layer==heatmap){
+		IsHeatExist=false;
+	}
+}
+function onOverLayerAdd(e){
+	if(e.layer==GridLayers){
+		var bbx=map.getBounds();
+		DisplayQuadTree(bbx.getWest(),bbx.getEast(),bbx.getSouth(),bbx.getNorth());
+	}
+	if(e.layer==StackLayers){
+		DisplayStack();
+	}
+	if(e.layer==heatmap){
+		ShowColorBar();
+	}
+}
+function onDragStart(e){
+	if(map.hasLayer(heatmap)){
+		map.removeLayer(heatmap);
+		IsHeatExist=true;
+	}
+}
+function onZoomStart(e){
+	if(map.hasLayer(heatmap)){
+		map.removeLayer(heatmap);
+		IsHeatExist=true;
+	}
+}
+map.on('click', onMapClick);
+map.on('zoomend',onZoomEnd);
+map.on('moveend',onMoveEnd);
+map.on('overlayremove',onOverLayerRemove);
+map.on('overlayadd',onOverLayerAdd);
+map.on('dragstart',onDragStart);
+map.on('zoomstart',onZoomStart);
+L.control.scale().addTo(map);
+
+function init(){
+	document.getElementById("bar").style.cssText="visibility:hidden;";
+	CallJava("MapAccessed");
+}
+map.fitBounds([
+	[31.05, 121.25],
+	[31.45, 121.70]
+]);
+//To JavaWeb
+function MapBoundsToJavaWeb() {
+	CallJava("Bounds_x1_x2_y1_y2",map.getBounds().getWest(),map.getBounds().getEast(),map.getBounds().getSouth(),map.getBounds().getNorth());
+}
+function ResizeMap(ScreenWidth,ScreenHeight){
+	document.getElementById("map").style.width=ScreenWidth+"px";
+	document.getElementById("map").style.height=ScreenHeight+"px";
+	map.invalidateSize(true);
+}
+function SetDataDeviation() {
+	//if(map.hasLayer(bing_Road)) CallJava("SetDataDeviation",0.0045, -0.002);
+	if(map.hasLayer(bing_Road)) CallJava("SetDataDeviation",0, 0);
+	else if(map.hasLayer(bing_Aerial)) CallJava("SetDataDeviation",0, 0);
+	else if(map.hasLayer(bing_AerialWithLabels)) CallJava("SetDataDeviation",0, 0);
+	else if(map.hasLayer(osm)) CallJava("SetDataDeviation",0, 0);
+}
+function removeTags(tagName,tagClass){
+    var tagElements = document.getElementsByTagName( tagName );
+    for( var m = 0 ; m < tagElements.length ; m++ ){
+        if( tagElements[m].className == tagClass ){
+            tagElements[m].parentNode.removeChild( tagElements[m] );
+        }
+    }
+}
+function removeFourCornerToolkits(){
+	removeTags("div", "leaflet-top leaflet-right")
+	removeTags("div", "leaflet-top leaflet-left")
+	removeTags("div", "leaflet-bottom leaflet-left")
+	removeTags("div", "leaflet-bottom leaflet-right")
+}
+//----------------------------------------------------------------------------------------------------
+</script>
+</body>
+</html>

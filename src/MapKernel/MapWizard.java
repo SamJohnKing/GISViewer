@@ -31,14 +31,18 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.*;
 
+import LWJGLPackage.OriginalOpenGLWizard;
+import SecondaryScreen.SwtHtmlBrowser;
 import com.sun.image.codec.jpeg.*;
+import org.eclipse.swt.widgets.Display;
 
 public class MapWizard extends JFrame implements ActionListener {
 	// Default External Interface Definition
 	public ExternalListener BehaviorListener=null;
+	public String ClickBehaviorListened = null;
 	// Default Initiate Elements------------
 	public void DefualtInitiateOpenItem(String DIRPath){
-		if(DIRPath.isEmpty()) DIR=new File("D:\\DefaultDataSource");
+		if(DIRPath.isEmpty()) DIR=new File("DefaultDataSource");
 		else DIR=new File(DIRPath);
 		if(!DIR.exists()) DIR.mkdirs();
 		ImageDir=new File(DIR,"Image");
@@ -70,7 +74,7 @@ public class MapWizard extends JFrame implements ActionListener {
 			ClearAllStaticPoint, ClearLastPoint, ClearDirection;
 	JMenuItem CalibrateItem, ShowClockItem, ShowTaxiSearchItem,
 			RouteSearchItem, WashScreenItem, ShowCenterItem, VeilCenterItem;
-	JMenuItem LandMarkEditItem, AboutFrameItem, LandMarkOnScreenItem,
+	JMenuItem LandMarkEditItem, AboutFrameItem, LockResetItem, LandMarkOnScreenItem,
 			LandMarkVeilItem, LandMarkNameOnScreenItem, LandMarkNameVeilItem;
 	JMenuItem LandMarkQueryItem, MyTimerOn, MyTimerOff, ClearMemory;
 	public JMenuItem WizardForbidenOperationSwitch;
@@ -4148,8 +4152,11 @@ public class MapWizard extends JFrame implements ActionListener {
 						g_2d.setComposite(ac);
 						g_2d.setColor(HeatMapColorChooser(AlphaGridsValue[Row_i][Col_i]));
 						g_2d.fillRect((int) (Col_i * ScreenXstep),
-								(int) (Row_i * ScreenYstep), (int) ScreenXstep,
-								(int) ScreenYstep);
+								(int) (Row_i * ScreenYstep),
+								(int)((Col_i + 1) * ScreenXstep) - (int)(Col_i * ScreenXstep),//每个热力像素点紧密排布，不留空隙
+								(int)((Row_i + 1) * ScreenYstep) - (int)(Row_i * ScreenYstep));
+								//(int) ScreenXstep,//简单写法,double精度会导致整数转换取下整，热力点之间偶尔有一个像素的空隙
+								//(int) ScreenYstep);
 					}
 				}
 				AlphaComposite ac = AlphaComposite.getInstance(
@@ -4348,7 +4355,7 @@ public class MapWizard extends JFrame implements ActionListener {
 			DBpaint(g_2d, ScreenLongitude, ScreenLatitude, LongitudeScale, LatitudeScale, ScreenWidth, ScreenHeight);
 		}
 
-		public void MoveMiddle(double midx, double midy) {// 将屏幕的中心位置移动到给定的经纬度位置
+		public void MoveMiddle(final double midx, final double midy) {// 将屏幕的中心位置移动到给定的经纬度位置
 			double nowx = ScreenLongitude + LongitudeScale / 2;
 			double nowy = ScreenLatitude - LatitudeScale / 2;
 			double dx = midx - nowx;
@@ -4357,6 +4364,26 @@ public class MapWizard extends JFrame implements ActionListener {
 			ScreenLatitude += dy;
 			if (CheckScreen())
 				repaint();
+			if (OriginalOpenGLWizard.SingleItem != null)
+				OriginalOpenGLWizard.SingleItem.MoveMiddle(midx, midy);
+			if ((SwtHtmlBrowser.SingleItemThread != null) && SwtHtmlBrowser.Accessed) {
+				Display.getDefault().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							if (SwtHtmlBrowser.shell.isVisible())
+								SwtHtmlBrowser.MoveMiddle(midx, midy);
+						} catch (Exception ex){
+							ex.printStackTrace();
+						}
+					}
+				});
+				try {
+					Thread.sleep(500);
+				}catch (Exception ex){
+					ex.printStackTrace();
+				}
+			}
 		}
 
 		public void MiddleReSize(double width, double height) {// 实现屏幕的中心放大
@@ -4384,9 +4411,9 @@ public class MapWizard extends JFrame implements ActionListener {
 					/ ScreenWidth;
 			PressedLatitude = ScreenLatitude - (PressedY * LatitudeScale)
 					/ ScreenHeight;
-			if(((e.getModifiers() & InputEvent.BUTTON3_MASK)!=0)&&(BehaviorListener!=null)){
-				BehaviorListener.MousePressedListener(PressedLongitude, PressedLatitude);
-			}
+			//if(((e.getModifiers() & InputEvent.BUTTON3_MASK)!=0)&&(BehaviorListener!=null)){
+			//	BehaviorListener.MousePressedListener(PressedLongitude, PressedLatitude, -1, -1, true);
+			//}
 			if (lock)
 				return;
 		}
@@ -4537,7 +4564,7 @@ public class MapWizard extends JFrame implements ActionListener {
 						/ ScreenWidth;
 				double y = ScreenLatitude - e.getY() * LatitudeScale
 						/ ScreenHeight;
-				BehaviorListener.MousePressedListener(x, y);
+				BehaviorListener.MousePressedListener(x, y, -1, -1, (mods & InputEvent.BUTTON1_MASK) != 0);
 				return;
 			}
 			if ((mods & InputEvent.BUTTON1_MASK) == 0) {
@@ -5135,6 +5162,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		CacheRoadNetworkDatabase=new CacheRoadNetworkDatabaseClass();
 		CacheRoadNetworkDatabase.setHandle(Handle);
 		TaxiTrajectoryDatabase=new Database.TaxiTrajectoryDatabaseClass();
+
 //MenuItemInit---------------------------------------------------------------
 		OpenItem=new JMenuItem(LanguageDic.GetWords("打开地图                       "));
 		OpenItem.addActionListener(this);
@@ -5197,6 +5225,18 @@ public class MapWizard extends JFrame implements ActionListener {
 				if(SecondaryScreen.SwtHtmlBrowser.SingleItemThread==null) ForbidenOperationSwitch();
 				else JOptionPane.showMessageDialog(null, "Secondary Screen Closed");
 				*/
+				if(IsShowAlphaDistribution) {
+					IsShowAlphaDistribution=false;
+					Handle.VeilTextArea1();
+					Handle.VeilTextArea2();
+					Screen.LastLatitudeScale=-1;
+					Screen.LastLongitudeScale=-1;
+					Screen.LastScreenLatitude=-1000;
+					Screen.LastScreenLongitude=-1000;
+					Screen.LastAlphaPercentScale=0;
+					Screen.LastRadiationDistance=0;
+					JOptionPane.showMessageDialog(null, "已帮您关闭热力图");
+				}
 				ForbidenOperationSwitch();
 			}
 		});
@@ -5212,6 +5252,16 @@ public class MapWizard extends JFrame implements ActionListener {
 		
 		AboutFrameItem=new JMenuItem(LanguageDic.GetWords("关于软件"));
 		AboutFrameItem.addActionListener(this);
+
+		LockResetItem = new JMenuItem(LanguageDic.GetWords("数据库读写锁重置"));
+		LockResetItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DB_Reader_Number=0;
+				DB_Writing=false;
+				System.out.println("DB Lock Reset");
+			}
+		});
 		
 		LandMarkOnScreenItem=new JMenuItem(LanguageDic.GetWords("在地图上显示地标点"));
 		LandMarkOnScreenItem.addActionListener(this);
@@ -5697,6 +5747,10 @@ public class MapWizard extends JFrame implements ActionListener {
 					Screen.LastAlphaPercentScale=0;
 					Screen.LastRadiationDistance=0;
 				}else{
+					if ((SwtHtmlBrowser.SingleItemThread != null) && SwtHtmlBrowser.Accessed) {
+						JOptionPane.showMessageDialog(null,"网页地图已打开，热力图加载可能有冲突，请先关闭");
+						return;
+					}
 					String str_row=JOptionPane.showInputDialog(null,"AlphaDistributionRow");
 					String str_col=JOptionPane.showInputDialog(null,"AlphaDistributionColumn");
 					try{
@@ -5879,7 +5933,7 @@ public class MapWizard extends JFrame implements ActionListener {
 			}
 		});
 		
-		OpenSecondaryScreenItem=new JMenuItem(LanguageDic.GetWords("打开网页第二屏幕"));
+		OpenSecondaryScreenItem=new JMenuItem(LanguageDic.GetWords("打开网页第二屏幕[Win64 Only]"));
 		OpenSecondaryScreenItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -5987,128 +6041,129 @@ public class MapWizard extends JFrame implements ActionListener {
 		SettingMenu.add(AlignPointsTagItem);
 		SettingMenu.add(AlignLinesTagItem);
 		SettingMenu.add(AlignPolygonsTagItem);
-		SettingMenu.addMouseListener(new MouseListener(){
+		SettingMenu.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
 				// TODO Auto-generated method stub
 				String str;
-				
-				str=WizardForbidenOperationSwitch.getText();
-				if(Screen.isVisible()){
-					WizardForbidenOperationSwitch.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
+
+				str = WizardForbidenOperationSwitch.getText();
+				if (Screen.isVisible()) {
+					WizardForbidenOperationSwitch.setText("[Visible]" + (str.substring(str.indexOf(']') + 1)));
 					WizardForbidenOperationSwitch.setForeground(new Color(112, 170, 57));
-				}else{WizardForbidenOperationSwitch.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+				} else {
+					WizardForbidenOperationSwitch.setText("[Invisible]" + (str.substring(str.indexOf(']') + 1)));
 					WizardForbidenOperationSwitch.setForeground(Color.red);
 				}
 
-				str=AllElementInvisible.getText();
-				if(IsAllElementInvisible){
-					AllElementInvisible.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+				str = AllElementInvisible.getText();
+				if (IsAllElementInvisible) {
+					AllElementInvisible.setText("[Invisible]" + (str.substring(str.indexOf(']') + 1)));
 					AllElementInvisible.setForeground(Color.red);
-				}else{
-					AllElementInvisible.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
+				} else {
+					AllElementInvisible.setText("[Visible]" + (str.substring(str.indexOf(']') + 1)));
 					AllElementInvisible.setForeground(new Color(112, 170, 57));
 				}
-				
-				str=VisualFeatureSwitchItem.getText();
-				if(ShowVisualFeature){
-					VisualFeatureSwitchItem.setText("[Visual]"+(str.substring(str.indexOf(']')+1)));
+
+				str = VisualFeatureSwitchItem.getText();
+				if (ShowVisualFeature) {
+					VisualFeatureSwitchItem.setText("[Visual]" + (str.substring(str.indexOf(']') + 1)));
 					VisualFeatureSwitchItem.setForeground(new Color(112, 170, 57));
-				}else{
-					VisualFeatureSwitchItem.setText("[Original]"+(str.substring(str.indexOf(']')+1)));
+				} else {
+					VisualFeatureSwitchItem.setText("[Original]" + (str.substring(str.indexOf(']') + 1)));
 					VisualFeatureSwitchItem.setForeground(Color.red);
 				}
-				
-				str=AlphaFeatureSwitchItem.getText();
-				if(ShowAlphaFeature){
-					AlphaFeatureSwitchItem.setText("[Visual]"+(str.substring(str.indexOf(']')+1)));
+
+				str = AlphaFeatureSwitchItem.getText();
+				if (ShowAlphaFeature) {
+					AlphaFeatureSwitchItem.setText("[Visual]" + (str.substring(str.indexOf(']') + 1)));
 					AlphaFeatureSwitchItem.setForeground(new Color(112, 170, 57));
-				}else{
-					AlphaFeatureSwitchItem.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+				} else {
+					AlphaFeatureSwitchItem.setText("[Invisible]" + (str.substring(str.indexOf(']') + 1)));
 					AlphaFeatureSwitchItem.setForeground(Color.red);
 				}
-				
-				str=VisualObjectMaxNumSetItem.getText();
-				VisualObjectMaxNumSetItem.setText("["+VisualObjectMaxNum+"]"+(str.substring(str.indexOf(']')+1)));
-				
-				str=AllPointInvisible.getText();
-				if(IsAllPointInvisible){
-					AllPointInvisible.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+
+				str = VisualObjectMaxNumSetItem.getText();
+				VisualObjectMaxNumSetItem.setText("[" + VisualObjectMaxNum + "]" + (str.substring(str.indexOf(']') + 1)));
+
+				str = AllPointInvisible.getText();
+				if (IsAllPointInvisible) {
+					AllPointInvisible.setText("[Invisible]" + (str.substring(str.indexOf(']') + 1)));
 					AllPointInvisible.setForeground(Color.red);
-				}else{
-					AllPointInvisible.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
+				} else {
+					AllPointInvisible.setText("[Visible]" + (str.substring(str.indexOf(']') + 1)));
 					AllPointInvisible.setForeground(new Color(112, 170, 57));
 				}
-				
-				str=AllLineInvisible.getText();
-				if(IsAllLineInvisible){
-					AllLineInvisible.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+
+				str = AllLineInvisible.getText();
+				if (IsAllLineInvisible) {
+					AllLineInvisible.setText("[Invisible]" + (str.substring(str.indexOf(']') + 1)));
 					AllLineInvisible.setForeground(Color.red);
-				}else{
-					AllLineInvisible.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
+				} else {
+					AllLineInvisible.setText("[Visible]" + (str.substring(str.indexOf(']') + 1)));
 					AllLineInvisible.setForeground(new Color(112, 170, 57));
 				}
-				
-				str=AllPolygonInvisible.getText();
-				if(IsAllPolygonInvisible){
-					AllPolygonInvisible.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+
+				str = AllPolygonInvisible.getText();
+				if (IsAllPolygonInvisible) {
+					AllPolygonInvisible.setText("[Invisible]" + (str.substring(str.indexOf(']') + 1)));
 					AllPolygonInvisible.setForeground(Color.red);
-				}else{
-					AllPolygonInvisible.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
+				} else {
+					AllPolygonInvisible.setText("[Visible]" + (str.substring(str.indexOf(']') + 1)));
 					AllPolygonInvisible.setForeground(new Color(112, 170, 57));
 				}
-				
-				str=AllFontInvisible.getText();
-				if(IsAllFontInvisible){
-					AllFontInvisible.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+
+				str = AllFontInvisible.getText();
+				if (IsAllFontInvisible) {
+					AllFontInvisible.setText("[Invisible]" + (str.substring(str.indexOf(']') + 1)));
 					AllFontInvisible.setForeground(Color.red);
-				}else{
-					AllFontInvisible.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
+				} else {
+					AllFontInvisible.setText("[Visible]" + (str.substring(str.indexOf(']') + 1)));
 					AllFontInvisible.setForeground(new Color(112, 170, 57));
 				}
-				
-				str=AllPolygonColorInvisible.getText();
-				if(IsAllPolygonColorInvisible){
-					AllPolygonColorInvisible.setText("[Invisible]"+(str.substring(str.indexOf(']')+1)));
+
+				str = AllPolygonColorInvisible.getText();
+				if (IsAllPolygonColorInvisible) {
+					AllPolygonColorInvisible.setText("[Invisible]" + (str.substring(str.indexOf(']') + 1)));
 					AllPolygonColorInvisible.setForeground(Color.red);
-				}else{
-					AllPolygonColorInvisible.setText("[Visible]"+(str.substring(str.indexOf(']')+1)));
+				} else {
+					AllPolygonColorInvisible.setText("[Visible]" + (str.substring(str.indexOf(']') + 1)));
 					AllPolygonColorInvisible.setForeground(new Color(112, 170, 57));
 				}
-				
-				str=EngravePointShape.getText();
-				if(IsEngravePointShape){
-					EngravePointShape.setText("[Engraved]"+(str.substring(str.indexOf(']')+1)));
+
+				str = EngravePointShape.getText();
+				if (IsEngravePointShape) {
+					EngravePointShape.setText("[Engraved]" + (str.substring(str.indexOf(']') + 1)));
 					EngravePointShape.setForeground(new Color(112, 170, 57));
-				}else{
-					EngravePointShape.setText("[UnEngraved]"+(str.substring(str.indexOf(']')+1)));
+				} else {
+					EngravePointShape.setText("[UnEngraved]" + (str.substring(str.indexOf(']') + 1)));
 					EngravePointShape.setForeground(Color.red);
 				}
-				
-				str=AlignPointsTagItem.getText();
-				AlignPointsTagItem.setText("["+IsAlignPointsTag+"]"+(str.substring(str.indexOf(']')+1)));
-				
-				str=AlignLinesTagItem.getText();
-				if(IsAlignLinesTag){
-					AlignLinesTagItem.setText("[Aligned]"+(str.substring(str.indexOf(']')+1)));
+
+				str = AlignPointsTagItem.getText();
+				AlignPointsTagItem.setText("[" + IsAlignPointsTag + "]" + (str.substring(str.indexOf(']') + 1)));
+
+				str = AlignLinesTagItem.getText();
+				if (IsAlignLinesTag) {
+					AlignLinesTagItem.setText("[Aligned]" + (str.substring(str.indexOf(']') + 1)));
 					AlignLinesTagItem.setForeground(new Color(112, 170, 57));
-				}else{
-					AlignLinesTagItem.setText("[UnAligned]"+(str.substring(str.indexOf(']')+1)));
+				} else {
+					AlignLinesTagItem.setText("[UnAligned]" + (str.substring(str.indexOf(']') + 1)));
 					AlignLinesTagItem.setForeground(Color.red);
 				}
-				
-				str=AlignPolygonsTagItem.getText();
-				if(IsAlignPolygonsTag){
-					AlignPolygonsTagItem.setText("[Aligned]"+(str.substring(str.indexOf(']')+1)));
+
+				str = AlignPolygonsTagItem.getText();
+				if (IsAlignPolygonsTag) {
+					AlignPolygonsTagItem.setText("[Aligned]" + (str.substring(str.indexOf(']') + 1)));
 					AlignPolygonsTagItem.setForeground(new Color(112, 170, 57));
-				}else{
-					AlignPolygonsTagItem.setText("[UnAligned]"+(str.substring(str.indexOf(']')+1)));
+				} else {
+					AlignPolygonsTagItem.setText("[UnAligned]" + (str.substring(str.indexOf(']') + 1)));
 					AlignPolygonsTagItem.setForeground(Color.red);
 				}
 			}
@@ -6116,19 +6171,19 @@ public class MapWizard extends JFrame implements ActionListener {
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void mousePressed(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 		});
 		//----------------------------------------------
@@ -6145,6 +6200,7 @@ public class MapWizard extends JFrame implements ActionListener {
 		//------------------------------
 		HelpMenu.add(ShowClockItem);
 		HelpMenu.add(ClearMemory);
+		HelpMenu.add(LockResetItem);
 		HelpMenu.add(AboutFrameItem);
 		//---------------------------------
 		ExtendedAbility.add(GISCompletionPaneItem);
@@ -8421,13 +8477,21 @@ public class MapWizard extends JFrame implements ActionListener {
 			return PolygonDatabaseFile != null;
 		}
 
+		public boolean AdminBackendFixing = false;
+
+		public boolean CheckAdminBackendFixing() {
+			return AdminBackendFixing;
+		}
+
 		public void ForbidOperate() {
+			AdminBackendFixing = true;
 			ToolCard.show(Tool, "NULL");
 			menubar.setVisible(false);
 			ShrinkALittle();
 		}
 
 		public void AllowOperate() {
+			AdminBackendFixing = false;
 			ToolCard.show(Tool, NowPanel.getString());
 			menubar.setVisible(true);
 			RecoverSize();
@@ -9223,6 +9287,7 @@ public class MapWizard extends JFrame implements ActionListener {
 	public void JPGSplitOutput(String Prefix,int bold,boolean Split){
 		if (DIR == null)
 			return;
+		JOptionPane.showMessageDialog(null,"请确保地图的背景大图片曾经打开成功过，否则会报空指针错误");
 		if((Prefix==null)||Prefix.isEmpty()){
 			Prefix = JOptionPane.showInputDialog(null,
 					"Please Input Traget Directory Path",

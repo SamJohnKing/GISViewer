@@ -3,6 +3,8 @@ import java.io.*;
 public class GPSSet {
 	//专门用来处理数据的类
 	public void CleanUp(){//清空数组和指针
+		//System.out.println("MaxTaxiNum\t" + MaxTaxiNum);
+		//System.out.println("MaxTaxiInfoLength\t" + MaxTaxiInfoLength);
 		TaxiID=new String[MaxTaxiNum];
 		TaxiPtr=new int[MaxTaxiNum];
 		TaxiGPSStart=new int[MaxTaxiNum];
@@ -18,7 +20,7 @@ public class GPSSet {
 		TaxiGPSPointListLength=0;
 		LandMarkNum=0;
 		Grid=new LinkList[100][100];
-		Edge=new LinkList[500000];
+		Edge=new LinkList[50000];
 		TaxiHeap=new int[MaxTaxiNum];
 		HeapResult=new int[MaxTaxiNum];
 		System.gc();
@@ -72,17 +74,17 @@ public class GPSSet {
 	void FreshHash(){
 		for(int i=0;i<GPSPointAll;i++) hash[i]=false;
 	}
-	int MaxQueue=500000-5;
+	int MaxQueue=50000-5;
 	public GPSSet(){
 		Grid=new LinkList[100][100];
-		Edge=new LinkList[500000];
-		Candidate=new int[100000];
-		hash=new boolean[500000];
-		dist=new double[500000];
-		queue=new int[500000];
-		father=new int[500000];
-		Longitude=new double[500000];
-		Latitude=new double[500000];
+		Edge=new LinkList[50000];
+		Candidate=new int[10000];
+		hash=new boolean[50000];
+		dist=new double[50000];
+		queue=new int[50000];
+		father=new int[50000];
+		Longitude=new double[50000];
+		Latitude=new double[50000];
 	}
 	void EdgeAppend(int u,int v){//加入路网中的边
 		if(Edge[u]==null) Edge[u]=new LinkList();
@@ -313,8 +315,8 @@ public class GPSSet {
 //---------------------------------------------------------------------------
 //TaxiPart:
 //---------------------------------------------------------------------------
-	int MaxTaxiNum=5000;
-	int MaxTaxiInfoLength=100000;
+	int MaxTaxiNum=500;
+	int MaxTaxiInfoLength=10000;
 	String[] TaxiID=new String[MaxTaxiNum];
 	int[] TaxiPtr=new int[MaxTaxiNum];
 	int[] TaxiGPSStart=new int[MaxTaxiNum],TaxiGPSEnd=new int[MaxTaxiNum];

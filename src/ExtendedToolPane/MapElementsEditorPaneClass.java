@@ -366,9 +366,10 @@ public class MapElementsEditorPaneClass extends ToolPanel implements ExtendedToo
 			else str=JOptionPane.showInputDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("输入地理线路标签"),
 					MapKernel.MapWizard.LanguageDic.GetWords("确认提交"),JOptionPane.PLAIN_MESSAGE);
 			if(str!=null){
-				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("成功提交了")+"【"+str+"】");
 				MainHandle.LineDatabaseAppend(str);
 				MainHandle.PointEmpty();
+				Database.LineDataSet LineDB = MainHandle.getKernel().LineDatabase;
+				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("经纬度跨度" + ((float)LineDB.GetRealMeter(LineDB.LineNum - 1)) +"m,成功提交了")+"【"+str+"】");
 			}else{
 				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("放弃提交,仍然为您保留未提交数据"));
 			}

@@ -39,6 +39,7 @@ public interface MapControl {
 	abstract public ToolPanel getNowPanel();
 	abstract public void ForbidOperate();
 	abstract public void AllowOperate();
+	abstract public boolean CheckAdminBackendFixing();
 	abstract public void setKernel(MapWizard obj);
 	abstract public MapWizard getKernel();
 	abstract public int getSecond();

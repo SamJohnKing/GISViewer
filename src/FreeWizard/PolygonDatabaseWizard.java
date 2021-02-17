@@ -106,7 +106,7 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 		public void paintComponent(Graphics g){
 			Toolkit kit=getToolkit();
 			Image img=kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("Metal.jpg"));
-			g.drawImage(img,0,0,600,435,this);
+			g.drawImage(img,0,0,this.getWidth(),this.getHeight(),this);
 		}
 		public void ProcessQuery(){
 			Database.PolygonDataSet TempDatabase=MainHandle.getPolygonDatabase();
@@ -333,7 +333,7 @@ public class PolygonDatabaseWizard extends JFrame  implements FreeWizardInterfac
 					}
 				});
 			//}
-			setBounds(0,0,600,435);
+			setBounds(0,0,610,470);
 			setLocationRelativeTo(null);
 			Pic=new FacePic();
 			add(Pic,BorderLayout.CENTER);

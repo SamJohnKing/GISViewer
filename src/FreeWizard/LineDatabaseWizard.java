@@ -108,7 +108,7 @@ public class LineDatabaseWizard extends JFrame  implements FreeWizardInterface{
 	public void paintComponent(Graphics g){
 		Toolkit kit=getToolkit();
 		Image img=kit.getImage(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("Metal.jpg"));
-		g.drawImage(img,0,0,600,435,this);
+		g.drawImage(img,0,0,this.getWidth(),this.getHeight(),this);
 	}
 	public void ProcessQuery(){
 		Database.LineDataSet TempDatabase=MainHandle.getLineDatabase();
@@ -335,7 +335,7 @@ public class LineDatabaseWizard extends JFrame  implements FreeWizardInterface{
 			}
 		});
 		//}
-		setBounds(0,0,600,435);
+		setBounds(0,0,610,470);
 		setLocationRelativeTo(null);
 		Pic=new FacePic();
 		add(Pic,BorderLayout.CENTER);

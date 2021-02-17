@@ -2,11 +2,15 @@ package FreeWizard;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.util.Date;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 import FreeWizard.PolygonDatabaseWizard.FacePic;
+import LWJGLPackage.OriginalOpenGLWizard;
+import MapKernel.FileAccept;
 import MapKernel.MapControl;
 
 public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterface{
@@ -408,7 +412,7 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 		ExtendedUltility.add(Resize);
 		//-----------------------------------------------------
 		JButton ImageDirChange=new JButton("ImageDirChange");
-		ImageDirChange.addActionListener(new ActionListener(){
+		ImageDirChange.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
@@ -417,6 +421,152 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 		});
 		ExtendedUltility.add(ImageDirChange);
 		//-----------------------------------------------------
+		JButton MapMatchingFailedLineGet = new JButton("GetMatchingFailedLine");
+		MapMatchingFailedLineGet.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(JOptionPane.showConfirmDialog(null,"利用LineDB中所有的数据去和GPSLineDB中所有数据比较距离，一旦大于50m则捕获,确定则继续,并保留前后一个点") != JOptionPane.OK_OPTION) return;
+				Database.LineDataSet GPSLineDB = new Database.LineDataSet();
+				Database.LineDataSet LineDB = MainHandle.getLineDatabase();
+
+				String str = JOptionPane.showInputDialog(null, "请输出文件名前缀，不能为空", "导出折线库到文件", JOptionPane.PLAIN_MESSAGE);
+				if ((str == null) || (str.equals(""))) {
+					MainHandle.ChangeTitle("放弃了导出");
+					return;
+				}
+				java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+
+				Database.LineDataSet ResultLineDB = new Database.LineDataSet();
+				JOptionPane.showMessageDialog(null,"选择GPS折线csv文件集合的输入文件夹");
+				JFileChooser FileDialog = new JFileChooser();
+				int state = FileDialog.showOpenDialog(null);
+				if (state == JFileChooser.APPROVE_OPTION) {
+					MapKernel.FileAccept File_Accept = new FileAccept();
+					File_Accept.setExtendName("csv");
+					File[] File_list = FileDialog.getCurrentDirectory().listFiles(
+							File_Accept);
+					int FileIndex = 0;
+					double[] ResultX = new double[10000];
+					double[] ResultY = new double[10000];
+					int resultnum = 0;
+					for (File fin : File_list) {
+						// Single File------------------------------------
+						System.out.println("Loading LineDB from " + fin.getName());
+						GPSLineDB.DatabaseFileInput(fin);
+						for(int i = 0; i < GPSLineDB.LineNum; i++) {
+							int Ptr = GPSLineDB.LineHead[i];
+							int LastPtr = -1;
+							while(Ptr != -1) {
+								boolean Successed = false;
+								for(int j = 0; j < LineDB.LineNum; j++) {
+									if(LineDB.GetRealMeterFromPointtoLine(j, GPSLineDB.AllPointX[Ptr], GPSLineDB.AllPointY[Ptr]) < 50) {
+										Successed = true;
+										break;
+									}
+								}
+								if(!Successed) {
+									if((resultnum == 0) && (LastPtr != -1)) {
+										ResultX[resultnum] = GPSLineDB.AllPointX[LastPtr];
+										ResultY[resultnum] = GPSLineDB.AllPointY[LastPtr];
+										resultnum++;
+									}
+									ResultX[resultnum] = GPSLineDB.AllPointX[Ptr];
+									ResultY[resultnum] = GPSLineDB.AllPointY[Ptr];
+									resultnum++;
+								} else if(resultnum != 0){
+									ResultX[resultnum] = GPSLineDB.AllPointX[Ptr];
+									ResultY[resultnum] = GPSLineDB.AllPointY[Ptr];
+									resultnum++;
+									ResultLineDB.add(ResultX, ResultY, resultnum, GPSLineDB.LineHint[i]);
+									resultnum = 0;
+								}
+								LastPtr = Ptr;
+								Ptr = GPSLineDB.AllPointNext[Ptr];
+							}
+							if(resultnum != 0){
+								ResultLineDB.add(ResultX, ResultY, resultnum, GPSLineDB.LineHint[i]);
+								resultnum = 0;
+							}
+							if(i % 100000 == 0) System.out.println("Get " + ResultLineDB.GetElementNum() + " Lines \t File " + FileIndex + " [" + fin.getName() + "] Finished " + i + " Lines");
+						}
+						FileIndex++;
+						for(int i=0;i<GPSLineDB.LineNum; i++)
+							GPSLineDB.DatabaseRemove(i);
+						GPSLineDB.DatabaseResize();
+						System.out.println("LineDB Cleaning");
+						// ------------------------------------------------
+					}
+				}
+
+
+				ResultLineDB.DatabaseFileOutput(new File(str + "[MapMatchingFailed][LineDB][" + df.format(new Date()) + "].csv"));
+				ResultLineDB = null;
+				LineDB = null;
+				System.gc();
+				System.out.println("MapMatchingCheck Finished");
+			}
+		});
+		ExtendedUltility.add(MapMatchingFailedLineGet);
+		//-----------------------------------------------------
+		JButton MapMatchingFailedPointGet = new JButton("GetMapMatchingFailed");
+		MapMatchingFailedPointGet.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(JOptionPane.showConfirmDialog(null,"利用LineDB中所有的数据去和PointDB中所有数据比较距离，一旦大于50m则捕获,确定则继续") != JOptionPane.OK_OPTION) return;
+				Database.PointDataSet PointDB = new Database.PointDataSet(50000000);
+				Database.LineDataSet LineDB = MainHandle.getLineDatabase();
+
+				String str = JOptionPane.showInputDialog(null, "请输出文件名前缀，不能为空", "导出点库到文件", JOptionPane.PLAIN_MESSAGE);
+				if ((str == null) || (str.equals(""))) {
+					MainHandle.ChangeTitle("放弃了导出");
+					return;
+				}
+				java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+
+				Database.PointDataSet ResultPointDB = new Database.PointDataSet(5000000);
+				JOptionPane.showMessageDialog(null,"选择GPS点csv文件集合的输入文件夹");
+				JFileChooser FileDialog = new JFileChooser();
+				int state = FileDialog.showOpenDialog(null);
+				if (state == JFileChooser.APPROVE_OPTION) {
+					MapKernel.FileAccept File_Accept = new FileAccept();
+					File_Accept.setExtendName("csv");
+					File[] File_list = FileDialog.getCurrentDirectory().listFiles(
+							File_Accept);
+					int FileIndex = 0;
+					for (File fin : File_list) {
+						// Single File------------------------------------
+						System.out.println("Loading PointDB from " + fin.getName());
+						PointDB.DatabaseFileInput(fin);
+						for(int i = 0; i < PointDB.PointNum; i++) {
+							boolean Successed = false;
+							for(int j = 0; j < LineDB.LineNum; j++) {
+								if(LineDB.GetRealMeterFromPointtoLine(j, PointDB.AllPointX[i], PointDB.AllPointY[i]) < 50) {
+									Successed = true;
+									break;
+								}
+							}
+							if(!Successed) ResultPointDB.add(PointDB.AllPointX[i],PointDB.AllPointY[i],PointDB.PointVisible[i],PointDB.PointHint[i]);
+							if(i % 100000 == 0) System.out.println("Get " + ResultPointDB.GetElementNum() + " Pts \t File " + FileIndex + " [" + fin.getName() + "] Finished " + i + " Points");
+						}
+						FileIndex++;
+						System.out.println("PointDB Cleaning");
+						for(int i=0;i<PointDB.PointNum;i++)
+							PointDB.DatabaseRemove(i);
+						PointDB.DatabaseResize();
+						System.out.println("PointDB Cleared");
+						// ------------------------------------------------
+					}
+				}
+
+
+				ResultPointDB.DatabaseFileOutput(new File(str + "[MapMatchingFailed][PointDB][" + df.format(new Date()) + "].csv"));
+				ResultPointDB = null;
+				PointDB = null;
+				System.gc();
+				System.out.println("MapMatchingCheck Finished");
+			}
+		});
+		ExtendedUltility.add(MapMatchingFailedPointGet);
 		//-----------------------------------------------------
 		addMouseListener(this);
 		addMouseMotionListener(this);
@@ -462,8 +612,18 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 		String str="PointDB Total: "+MainHandle.getPointDatabase().PointNum;
 		str+="\nLineDB Total: <Line> "+MainHandle.getLineDatabase().LineNum;
 		str+=" <Point> "+MainHandle.getLineDatabase().PointUse;
+		str+="\nLineDB Total Length: " + (float)MainHandle.getLineDatabase().GetTotalLength() + " Meters";
 		str+="\nPolyDB Total: <Poly> "+MainHandle.getPolygonDatabase().PolygonNum;
 		str+=" <Point> "+MainHandle.getPolygonDatabase().PointUse;
+		if(OriginalOpenGLWizard.SingleItem != null) {
+			double st_x = OriginalOpenGLWizard.SingleItem.OriginLongitude;
+			double st_y = OriginalOpenGLWizard.SingleItem.OriginLatitude;
+			double en_x = st_x + OriginalOpenGLWizard.SingleItem.LongitudeScale;
+			double en_y = st_y - OriginalOpenGLWizard.SingleItem.LatitudeScale;
+			double width = MainHandle.getLineDatabase().GetRealMeter(st_x,st_y,en_x,st_y);
+			double height = MainHandle.getLineDatabase().GetRealMeter(st_x,st_y,st_x,en_y);
+			str+="\nOpenGLScreen WidthMeter * HeightMeter: "+ (float)width + "*" + (float)height;
+		}
 		if(JOptionPane.showConfirmDialog(null,str)==JOptionPane.YES_OPTION) this.setVisible(true);
 	}
 
@@ -494,7 +654,7 @@ public class GlobalPreferenceWizard extends JFrame implements FreeWizardInterfac
 		});
 		//}
 		setLocationRelativeTo(null);
-		Pic=new FacePic();
+		Pic = new FacePic();
 		add(Pic,BorderLayout.CENTER);
 	}
 	public void Move(int dx,int dy){

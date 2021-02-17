@@ -594,7 +594,7 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 		//-----------------
 	}
 	public void convey(double x,double y){
-		JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("ConveyPoint"));
+		JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("ConveyPoint ( " + x + " , " + y + " )"));
 	}
 	public void convey(double x1,double y1,double x2,double y2){
 		JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("ConveyRectangle"));

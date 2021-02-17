@@ -447,7 +447,7 @@ public class LanguageResources {
 		ChineseToEnglish.put("地图元素编辑面板","Map Editor Pane");
 		ChineseToEnglish.put("选择添加地标点状地图元素","Click to add Point Element");
 		ChineseToEnglish.put("选择添加连通线状地图元素","Click to add Line Element");
-		ChineseToEnglish.put("选择添加多边形状地图元素","Click to all Polygon Element");
+		ChineseToEnglish.put("选择添加多边形状地图元素","Click to add Polygon Element");
 		ChineseToEnglish.put("勾选则开始编辑，取消则不能编辑","Click to allow edition");
 		ChineseToEnglish.put("勾选则开始点点连接，取消则不连接","Click to allow Point Link");
 		ChineseToEnglish.put("勾选则开始首尾相连，取消则不相连","Click to allow Head Tail Link");
@@ -562,12 +562,14 @@ public class LanguageResources {
 		EnglishToChinese.put("VisualFeatureSwitch","元素可视化纹理开关");
 		ChineseToEnglish.put("DeepZoom高清分割","DeepZoom HD Split");
 		EnglishToChinese.put("DeepZoom HD Split","DeepZoom高清分割");
-		ChineseToEnglish.put("打开网页第二屏幕", "Open Webpage Secondary Screen");
+		ChineseToEnglish.put("打开网页第二屏幕[Win64 Only]", "Open Webpage Secondary Screen [Win64 Only]");
 		EnglishToChinese.put("Open Webpage Secondary Screen", "打开网页第二屏幕");
 		ChineseToEnglish.put("设定      ", "Setting    ");
 		ChineseToEnglish.put("色彩Alpha值透射开关", "AlphaFeatureSwitch");
 		ChineseToEnglish.put("打开OpenGL第二屏幕", "Open OpenGL Secondary Screen");
 		ChineseToEnglish.put("OpenGL第二屏幕放大镜参数设定", "OpenGL Screen Microscope Setting");
+		ChineseToEnglish.put("数据库读写锁重置","DB ReadWrite Lock Reset");
+		ChineseToEnglish.put("命令行输出SQL查询与结果","Show CMD SQL Query & Result");
 	}
 	public String GetWords(String str){
 		if(str==null) return "NULL";

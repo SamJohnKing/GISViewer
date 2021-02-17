@@ -18,7 +18,8 @@ import ExtendedToolPane.ServerSocketPaneClass;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser; 
 import org.eclipse.swt.browser.BrowserFunction;
-import org.eclipse.swt.widgets.Button; 
+import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display; 
 import org.eclipse.swt.widgets.Event; 
@@ -39,15 +40,6 @@ import java.util.Vector;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.PaletteData;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -60,6 +52,7 @@ public class SwtHtmlBrowser implements Runnable{
 	static double WebLongitudeStart,WebLongitudeEnd,WebLatitudeStart,WebLatitudeEnd;
 	static double DeviationLongitude,DeviationLatitude;
 	public static Browser browser = null;
+	public static Display display = null;
 	public static Canvas canvaspane = null;
 	public static Canvas Mask = null;
 	public static Shell shell = null;
@@ -106,6 +99,8 @@ public class SwtHtmlBrowser implements Runnable{
 					ScreenFlush();
 				}else if(FunctionType.equals("MapAccessed")){
 					Accessed = true;
+					shell.setText("GeoCity Secondary Screen | " + "JavaScript Called Java that Map is Accessed");
+					if(!SocketOpenWaiting) browser.execute("alert(\"JavaScript Called Java that Map is Accessed\");");
 				}
 				return null;
 			} catch (Exception ex) {
@@ -114,12 +109,13 @@ public class SwtHtmlBrowser implements Runnable{
 			}
 		}
 	}
+	public static boolean SocketOpenWaiting = false;
 	public static void GetInstance(){
 		if(SingleItemThread!=null) {
 			Display.getDefault().syncExec(new Runnable() {
 				@Override
 				public void run() {
-					if(shell.isVisible()) javax.swing.JOptionPane.showMessageDialog(null, "Another Instance is Running");
+					if(shell.isVisible()) System.out.println("Another Instance is Running");
 					else{
 						shell.setVisible(true);
 						Accessed = true;
@@ -242,6 +238,7 @@ public class SwtHtmlBrowser implements Runnable{
 			//-------------------------------------------------------------
 			Image SWT_Image = new Image(null, SWT_ImageData);
 			e.gc.drawImage(SWT_Image, 0, 0, MapWidth, MapHeight, 0, 0, MapWidth, MapHeight);
+			SWT_Image.dispose();
 			return;
 		}
 		// Draw for Extended Components
@@ -691,28 +688,34 @@ public class SwtHtmlBrowser implements Runnable{
 	public static boolean IsReady(){
 		return Accessed;
 	}
+	public static ShellListener CloseHandle = null;
 	public static void InitiateBrowser(){
-		Display display=new Display();
+		display=new Display();
 		try{
 			shell=new Shell(display);
 
-			shell.addShellListener(new ShellListener() {
+			shell.addShellListener(CloseHandle = new ShellListener() {
 				@Override
 				public void shellActivated(ShellEvent shellEvent) {
 
 				}
 
 				@Override
-				public void shellClosed(ShellEvent shellEvent) {
-					if(OSUtil.isWindows()) {
-						Accessed = false;
-                        if (ServerSocketPaneClass.ServerHandle.ServerOpen) { // 网络连接开启时不允许关闭
-                            shellEvent.doit = false;
-                            shell.setVisible(false);
-                        }
-					} else {
-                        shellEvent.doit = false;
-                        shell.setVisible(false);
+				public void shellClosed(ShellEvent shellEvent) { //如果 shellEvent 为null,说明socket线程申请关闭网页，否则是手动关闭
+					synchronized (SwtHtmlBrowser.class) {
+						if(OSUtil.isWindows()) {
+							Accessed = false;
+							if ((shellEvent != null) && (ServerSocketPaneClass.ServerHandle.ServerOpen)) { // 网络连接开启时不允许关闭
+								shellEvent.doit = false;
+								shell.setText("服务器端口开启时不允许关闭，只会隐藏地图浏览器！");
+								browser.execute("alert(\"服务器端口开启时不允许关闭，只会隐藏地图浏览器！\");");
+								shell.setVisible(false);
+							}
+							if(shellEvent == null) Running = false; //Socket线程下关闭指令
+						} else {
+							if(shellEvent != null) shellEvent.doit = false;
+							shell.setVisible(false);
+						}
 					}
 				}
 
@@ -732,7 +735,7 @@ public class SwtHtmlBrowser implements Runnable{
 				}
 			});
 
-	        shell.setText("GeoCity Secondary Screen");
+	        shell.setText("GeoCity Secondary Screen | " + MapWizard.SingleItem.getTitle());
 	        //----------------------------------------------------
 	        //Canvas
 	        canvaspane=new Canvas(shell,SWT.TRANSPARENT);
@@ -805,7 +808,7 @@ public class SwtHtmlBrowser implements Runnable{
 					if ((java.util.Calendar.getInstance().getInstance().getTimeInMillis() - DownTimestamp < 200)
 							&&(Math.abs(dx) + Math.abs(dy) == 0 )) {
 						if (MapWizard.SingleItem.BehaviorListener != null) {
-							MapKernel.MapWizard.SingleItem.BehaviorListener.MousePressedListener(GetLogicalX(arg0.x), GetLogicalY(arg0.y));
+							MapKernel.MapWizard.SingleItem.BehaviorListener.MousePressedListener(GetLogicalX(arg0.x), GetLogicalY(arg0.y), -1, -1, arg0.button == 1);
 						}else if (MapKernel.MapWizard.SingleItem.NowPanel.getString().equals("MapElementsEditorPane")) {
 							ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
 									(MapKernel.MapWizard.SingleItem.NowPanel);
@@ -909,12 +912,12 @@ public class SwtHtmlBrowser implements Runnable{
 	       	Setting_Alpha.setText("Setting Mask Alpha Value");
 
 	       	Button GoUrl=new Button(shell,SWT.NONE);
-	       	GoUrl.addListener(SWT.Selection,new Listener(){
-	            public void handleEvent(Event event)
-	            {
-	            	GoUrlAction(UrlAddressText.getText());
-	            }
-	       	});
+			UrlAddressText.setText(new File(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("OpenStreetMap_Sample.html")).getAbsolutePath());
+			GoUrl.addListener(SWT.Selection, new Listener() {
+				public void handleEvent(Event event) {
+					GoUrlAction(UrlAddressText.getText());
+				}
+			});
 	        GoUrl.setBounds(MapWidth+10, 235, 45, 30);
 	        GoUrl.setText("GoUrl");
 
@@ -927,12 +930,13 @@ public class SwtHtmlBrowser implements Runnable{
 					try{
 						DeviationLongitude=Double.parseDouble(LongitudeEastText.getText());
 						DeviationLatitude=Double.parseDouble(LatitudeNorthText.getText());
+						ScreenFlush();
 					}catch(Exception ex){
 						ex.printStackTrace();
 						return;
 					}
 				}
-	        });
+	  		      });
 	        LongitudeLatitudeDelta.setText("Data::(Lng→ || Lat↑)");
 
 
@@ -967,105 +971,161 @@ public class SwtHtmlBrowser implements Runnable{
 	        //HeatMap Compnent
 
 	        final Label GridsRowNumberLabel=new Label(shell,SWT.LEFT);
-	        GridsRowNumberLabel.setBounds(MapWidth+10,375,150,20);
+	        GridsRowNumberLabel.setBounds(MapWidth + 10, 375, 150, 20);
 	        GridsRowNumberLabel.setText("GridsRowNumber::");
-	        GridsRowNumberLabel.setFont(new Font(display,"Consolas",12,SWT.BOLD));//设置文字的字体字号
+	        GridsRowNumberLabel.setFont(new Font(display, "Consolas", 12, SWT.BOLD));//设置文字的字体字号
 	        GridsRowNumberLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 	        final Text GridsRowNumberText=new Text(shell,SWT.BORDER);
-	        GridsRowNumberText.setBounds(MapWidth+175,375,110,20);
+	        GridsRowNumberText.setBounds(MapWidth + 175, 375, 110, 20);
 
 	        final Label GridsColumnNumberLabel=new Label(shell,SWT.LEFT);
-	        GridsColumnNumberLabel.setBounds(MapWidth+10,400,150,20);
+	        GridsColumnNumberLabel.setBounds(MapWidth + 10, 400, 150, 20);
 	        GridsColumnNumberLabel.setText("GridsColNumber::");
-	        GridsColumnNumberLabel.setFont(new Font(display,"Consolas",12,SWT.BOLD));//设置文字的字体字号
+	        GridsColumnNumberLabel.setFont(new Font(display, "Consolas", 12, SWT.BOLD));//设置文字的字体字号
 	        GridsColumnNumberLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 	        final Text GridsColumnNumberText=new Text(shell,SWT.BORDER);
-	        GridsColumnNumberText.setBounds(MapWidth+175,400,110,20);
+	        GridsColumnNumberText.setBounds(MapWidth + 175, 400, 110, 20);
 
 	        final Label RadiationLabel=new Label(shell,SWT.LEFT);
-	        RadiationLabel.setBounds(MapWidth+10,425,150,20);
+	        RadiationLabel.setBounds(MapWidth + 10, 425, 150, 20);
 	        RadiationLabel.setText("RadiationLevel::");
-	        RadiationLabel.setFont(new Font(display,"Consolas",12,SWT.BOLD));//设置文字的字体字号
+	        RadiationLabel.setFont(new Font(display, "Consolas", 12, SWT.BOLD));//设置文字的字体字号
 	        RadiationLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 	        final Text RadiationText=new Text(shell,SWT.BORDER);
-	        RadiationText.setBounds(MapWidth+175,425,110,20);
+	        RadiationText.setBounds(MapWidth + 175, 425, 110, 20);
 
 	        Label FullAlphaLevelLabel=new Label(shell,SWT.LEFT);
-	        FullAlphaLevelLabel.setBounds(MapWidth+10,450,150,20);
+	        FullAlphaLevelLabel.setBounds(MapWidth + 10, 450, 150, 20);
 	        FullAlphaLevelLabel.setText("100% Alpha Level::");
-	        FullAlphaLevelLabel.setFont(new Font(display,"Consolas",12,SWT.BOLD));//设置文字的字体字号
+	        FullAlphaLevelLabel.setFont(new Font(display, "Consolas", 12, SWT.BOLD));//设置文字的字体字号
 	        FullAlphaLevelLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 	        final Text FullAlphaLevelText=new Text(shell,SWT.BORDER);
-	        FullAlphaLevelText.setBounds(MapWidth+175,450,110,20);
+	        FullAlphaLevelText.setBounds(MapWidth + 175, 450, 110, 20);
 
 	        final Button HeatMapCheckBox=new Button(shell,SWT.CHECK);
-	        HeatMapCheckBox.setBounds(MapWidth+10,340,250,30);
+	        HeatMapCheckBox.setBounds(MapWidth + 10, 340, 250, 30);
 	        HeatMapCheckBox.setText("Show HeatMap of Points in Screen");
-	        HeatMapCheckBox.addSelectionListener(new SelectionListener(){
+	        HeatMapCheckBox.addSelectionListener(new SelectionListener() {
 				@Override
 				public void widgetDefaultSelected(SelectionEvent arg0) {
 					// TODO Auto-generated method stub
 
 				}
+
 				@Override
 				public void widgetSelected(SelectionEvent arg0) {
 					// TODO Auto-generated method stub
 
-					if(HeatMapCheckBox.getSelection()){
-						try{
-							MapKernel.MapWizard.SingleItem.AlphaGridsRow=Integer.parseInt(GridsRowNumberText.getText());
-							MapKernel.MapWizard.SingleItem.AlphaGridsColumn=Integer.parseInt(GridsColumnNumberText.getText());
-							MapKernel.MapWizard.SingleItem.AlphaPercentScale=Integer.parseInt(FullAlphaLevelText.getText());
-							MapKernel.MapWizard.SingleItem.RadiationDistance=Integer.parseInt(RadiationText.getText());
-							Mask.redraw();
-							canvaspane.redraw();
-						}catch(Exception ex){
-							ex.printStackTrace();
+					if (HeatMapCheckBox.getSelection()) {
+						if(MapWizard.SingleItem.Screen.isVisible()) {
+							browser.execute("alert(\"请先将原始Swing界面屏幕设为不可见，即关闭【Setting】第一项,否则热力图计算冲突！\")");
 							HeatMapCheckBox.setSelection(false);
 							return;
 						}
-						MapKernel.MapWizard.SingleItem.IsShowAlphaDistribution=true;
-					}else{
-						MapKernel.MapWizard.SingleItem.IsShowAlphaDistribution=false;
+						try {
+							MapKernel.MapWizard.SingleItem.AlphaGridsRow = Integer.parseInt(GridsRowNumberText.getText());
+							MapKernel.MapWizard.SingleItem.AlphaGridsColumn = Integer.parseInt(GridsColumnNumberText.getText());
+							MapKernel.MapWizard.SingleItem.AlphaPercentScale = Integer.parseInt(FullAlphaLevelText.getText());
+							MapKernel.MapWizard.SingleItem.RadiationDistance = Integer.parseInt(RadiationText.getText());
+							MapKernel.MapWizard.SingleItem.IsShowAlphaDistribution = true;
+							Mask.redraw();
+							canvaspane.redraw();
+						} catch (Exception ex) {
+							ex.printStackTrace();
+							MapKernel.MapWizard.SingleItem.IsShowAlphaDistribution = false;
+							HeatMapCheckBox.setSelection(false);
+						}
+					} else {
+						MapKernel.MapWizard.SingleItem.IsShowAlphaDistribution = false;
 						MapKernel.MapWizard.SingleItem.Handle.VeilTextArea1();
 						MapKernel.MapWizard.SingleItem.Handle.VeilTextArea2();
-						MapKernel.MapWizard.SingleItem.Screen.LastLatitudeScale=-1;
-						MapKernel.MapWizard.SingleItem.Screen.LastLongitudeScale=-1;
-						MapKernel.MapWizard.SingleItem.Screen.LastScreenLatitude=-1000;
-						MapKernel.MapWizard.SingleItem.Screen.LastScreenLongitude=-1000;
-						MapKernel.MapWizard.SingleItem.Screen.LastAlphaPercentScale=0;
-						MapKernel.MapWizard.SingleItem.Screen.LastRadiationDistance=0;
+						MapKernel.MapWizard.SingleItem.Screen.LastLatitudeScale = -1;
+						MapKernel.MapWizard.SingleItem.Screen.LastLongitudeScale = -1;
+						MapKernel.MapWizard.SingleItem.Screen.LastScreenLatitude = -1000;
+						MapKernel.MapWizard.SingleItem.Screen.LastScreenLongitude = -1000;
+						MapKernel.MapWizard.SingleItem.Screen.LastAlphaPercentScale = 0;
+						MapKernel.MapWizard.SingleItem.Screen.LastRadiationDistance = 0;
 					}
 				}
-	        });
+			});
+
+			Button PNGButton = new Button(shell, SWT.PUSH);
+			PNGButton.setText("Capture Map To PNG");
+			PNGButton.pack();
+			PNGButton.setLocation(MapWidth + 10, 475);
+			PNGButton.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					CaptureMaptoPNG(true);
+				}
+			});
+
+			Button FlushButton = new Button(shell, SWT.PUSH);
+			FlushButton.setText("ScreenFlush");
+			FlushButton.pack();
+			FlushButton.setLocation(MapWidth + 150, 475);
+			FlushButton.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					ScreenFlush();
+				}
+			});
+
 	        //----------------------------------------------------------------
 	        browser=new Browser(shell,SWT.NONE);
 	        browser.setBounds(0,0,MapWidth,MapHeight);
 	        shell.setSize(browser.getSize().x+310,browser.getSize().y+40);
 	        new CallJava(browser,"CallJava");
 	        //----------------------------------------------------------------
-	        java.io.File HTML_fin=new java.io.File(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("OpenStreetMap_Sample.html"));
+	        //java.io.File HTML_fin=new java.io.File(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("OpenStreetMap_Sample.html"));
+			java.io.File HTML_fin=new java.io.File(MapKernel.GeoCityInfo_main.Append_Folder_Prefix("bing_Sample.html"));
 	        browser.setUrl(HTML_fin.getAbsolutePath());
-	        shell.open();
-	        JScode.setText(MapInitCommand = "ResizeMap("+MapWidth+","+MapHeight+");\nmap.fitBounds([[31.05, 121.25],[31.45, 121.70]]);\nMapBoundsToJavaWeb();\nSetDataDeviation();\n");
+			shell.open();
+			JScode.setText(MapInitCommand = "//删除四角清屏removeFourCornerToolkits();\nResizeMap(" + MapWidth + "," + MapHeight + ");\nmap.fitBounds([[31.05, 121.25],[31.45, 121.70]]);\nMapBoundsToJavaWeb();\nSetDataDeviation();\n");
+
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(3000);
+						browser.execute(JScode.getText());
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+			});
+
 
 	        long TimerCounter=java.util.Calendar.getInstance().getTimeInMillis();
 			Running = true;
 			Accessed = true;
 	        while ((Running)&&(!shell.isDisposed())) {
 	            if (!display.readAndDispatch()) 
-	              display.sleep(); 
-	            	if(ScreenFlushCheckbox.getSelection()){
-	            		if(java.util.Calendar.getInstance().getTimeInMillis()-TimerCounter>FlushInterval){
-	            			TimerCounter=java.util.Calendar.getInstance().getTimeInMillis();
-							Mask.redraw();
-	            			canvaspane.redraw();
-	            		}
-	            	}
+	              	display.sleep();
+					synchronized (SwtHtmlBrowser.class) {
+						if ((Accessed) && (ScreenFlushCheckbox.getSelection())) {
+							if (java.util.Calendar.getInstance().getTimeInMillis() - TimerCounter > FlushInterval) {
+								TimerCounter = java.util.Calendar.getInstance().getTimeInMillis();
+								Mask.redraw();
+								canvaspane.redraw();
+							}
+						}
+					}
 	          }
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}finally{
+			/** 防止热力图退出时未关闭 */
+			MapKernel.MapWizard.SingleItem.IsShowAlphaDistribution = false;
+			MapKernel.MapWizard.SingleItem.Handle.VeilTextArea1();
+			MapKernel.MapWizard.SingleItem.Handle.VeilTextArea2();
+			MapKernel.MapWizard.SingleItem.Screen.LastLatitudeScale = -1;
+			MapKernel.MapWizard.SingleItem.Screen.LastLongitudeScale = -1;
+			MapKernel.MapWizard.SingleItem.Screen.LastScreenLatitude = -1000;
+			MapKernel.MapWizard.SingleItem.Screen.LastScreenLongitude = -1000;
+			MapKernel.MapWizard.SingleItem.Screen.LastAlphaPercentScale = 0;
+			MapKernel.MapWizard.SingleItem.Screen.LastRadiationDistance = 0;
+
 			SingleItemThread=null;
 			Running = false;
 			Accessed = false;
@@ -1074,10 +1134,52 @@ public class SwtHtmlBrowser implements Runnable{
 			Mask.dispose();
 			shell.dispose();
 			display.dispose();
+			System.out.println("正常关闭了网页地图！");
 		}
+	}
+	public static String PNGPath = null;
+	public static String CaptureMaptoPNG(boolean ShowPNGFrame){
+		Point BrowserSize = browser.getSize();
+		GC gc = new GC(browser);
+		final Image image = new Image(display, BrowserSize.x, BrowserSize.y);
+		gc.copyArea(image, 0, 0);
+		gc.dispose();
+
+		String ImageName = "AlignedMap_" + WebLongitudeStart + "_" + WebLatitudeStart + "_" + WebLongitudeEnd + "_" + WebLatitudeEnd + "_.png";
+
+		if(ShowPNGFrame) {
+			Shell popup = new Shell(shell);
+			popup.setText("Save Image " + ImageName + " in " + MapWizard.SingleItem.ImageDir.getAbsolutePath());
+			popup.addListener(SWT.Close, new Listener() {
+				public void handleEvent(Event e) {
+					image.dispose();
+				}
+			});
+
+			Canvas canvas = new Canvas(popup, SWT.NONE);
+			canvas.setBounds(10, 10, BrowserSize.x + 10, BrowserSize.y + 10);
+			canvas.addPaintListener(new PaintListener() {
+				public void paintControl(PaintEvent e) {
+					e.gc.drawImage(image, 0, 0);
+				}
+			});
+			popup.pack();
+			popup.open();
+		}
+
+		ImageLoader imageLoader = new ImageLoader();
+		ImageData imageData = image.getImageData();
+		imageLoader.data = new ImageData[]{imageData};
+		//The reason the data field is an array of ImageData is to support
+		//image file formats with more than one frame such as animated GIFs or interlaced JPEG files.
+		PNGPath = new File(MapWizard.SingleItem.ImageDir, ImageName).getAbsolutePath();
+		imageLoader.save(PNGPath, SWT.IMAGE_PNG);
+		image.dispose();
+		return PNGPath;
 	}
 	public static void GoUrlAction(final String URL_str){
 		Accessed = false;
+		shell.setText("GeoCity Secondary Screen | " + "Browser Map is not Accessed!");
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {

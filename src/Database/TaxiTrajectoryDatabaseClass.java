@@ -10,10 +10,10 @@ public class TaxiTrajectoryDatabaseClass implements DatabaseInterface{
 	public double[] AllTaxiLongitude,AllTaxiLatitude;
 	public int[] AllTaxiID,AllTaxiSecond,TaxiPointPtr;
 	public int TaxiPointNum,TaxiNum;
-	public int[] TaxiST=new int[200000];
-	public int[] TaxiEN=new int[200000];
+	public int[] TaxiST=new int[20000];
+	public int[] TaxiEN=new int[20000];
 	public double deltaX,deltaY;
-	public String[] TrajectoryFile=new String[200000];
+	public String[] TrajectoryFile=new String[20000];
 	public double[] TaxiVelocity;
 	public TaxiTrajectoryDatabaseClass(){
 	}
@@ -198,7 +198,7 @@ public class TaxiTrajectoryDatabaseClass implements DatabaseInterface{
 	}
 	@Override
 	public void DatabaseInit() {
-		int TaxiPointLength=25000000;
+		int TaxiPointLength=25000;
 		TaxiNum=0;
 		TaxiPointNum=0;
 		AllTaxiLongitude=new double[TaxiPointLength];

@@ -1,5 +1,7 @@
 package Database;
 
+import LWJGLPackage.OriginalOpenGLWizard;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -10,6 +12,8 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.HashMap;
+import java.util.Vector;
 
 public class PointDataSet implements PointDatabaseInterface{
 	public double[] AllPointX;
@@ -20,6 +24,17 @@ public class PointDataSet implements PointDatabaseInterface{
 	
 	public PointDataSet(){
 		DatabaseInit();
+	}
+	public PointDataSet(int PredefinePointMaxNum) {
+		AllPointX=new double[PredefinePointMaxNum];
+		AllPointY=new double[PredefinePointMaxNum];
+		PointNum=0;
+		PointVisible=new int[PredefinePointMaxNum];
+		for(int i=0;i<PredefinePointMaxNum;i++){
+			PointVisible[i]=0;
+		}
+		PointHint=new String[PredefinePointMaxNum];
+		System.gc();
 	}
 	public void DatabaseFileInput(File Input){
 		if(Input==null) return;
@@ -49,7 +64,7 @@ public class PointDataSet implements PointDatabaseInterface{
 						}else if(signal.endsWith("longitude")){
 							AllPointX[PointNum]=Double.parseDouble(ValueList[i]);
 						}else if(signal.equals("hint")){
-							PointHint[PointNum]=ValueList[i];
+							PointHint[PointNum]+=ValueList[i];
 						}else if(signal.equals("visible")){
 							PointVisible[PointNum]=Integer.parseInt(ValueList[i]);
 						}else{
@@ -58,6 +73,7 @@ public class PointDataSet implements PointDatabaseInterface{
 							}
 						}
 					}
+					if(PointHint[PointNum].indexOf("AlignedMap_") != -1) PointVisible[PointNum] = 0;
 					PointNum++;
 				}
 			}else
@@ -155,12 +171,13 @@ public class PointDataSet implements PointDatabaseInterface{
 	public void add(TimeStampPointStructure p,String Hint){
 		add(p.x,p.y,Hint);
 	}
+	public int DefaultVisible = 7;
 	public void add(double PointX,double PointY,String Hint){
 		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		AllPointX[PointNum]=PointX;
 		AllPointY[PointNum]=PointY;
 		PointHint[PointNum]=Hint;
-		PointVisible[PointNum]=7;
+		PointVisible[PointNum]=Hint.indexOf("AlignedMap_") == -1 ? DefaultVisible : 0;
 		PointNum++;
 		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
@@ -169,7 +186,7 @@ public class PointDataSet implements PointDatabaseInterface{
 		AllPointX[PointNum]=PointX;
 		AllPointY[PointNum]=PointY;
 		PointHint[PointNum]=Hint;
-		PointVisible[PointNum]=Attribute;
+		PointVisible[PointNum]=Hint.indexOf("AlignedMap_") == -1 ? Attribute : 0;
 		PointNum++;
 		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
@@ -188,11 +205,18 @@ public class PointDataSet implements PointDatabaseInterface{
 	}
 	public void DatabaseRemove(int k){
 		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
-		PointVisible[k]=-1;
+		UnsafeDatabaseRemove(k);
 		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
+	}
+	public void UnsafeDatabaseRemove(int k){
+		PointVisible[k]=-1;
 	}
 	public void DatabaseResize(){
 		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
+		UnsafeDatabaseResize();
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
+	}
+	public void UnsafeDatabaseResize(){
 		int count=0;
 		for(int i=0;i<PointNum;i++){
 			if(PointVisible[i]<0) continue;
@@ -207,18 +231,18 @@ public class PointDataSet implements PointDatabaseInterface{
 			PointVisible[i]=0;
 		}
 		PointNum=count;
-		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public static int PointMaxNum=10000000;
 	public void DatabaseInit(){
-		AllPointX=new double[PointMaxNum];
-		AllPointY=new double[PointMaxNum];
+		System.out.println("初始化PointDB\nPointMaxNum = " + PointMaxNum);
+		if(AllPointX == null) AllPointX=new double[PointMaxNum];
+		if(AllPointY == null) AllPointY=new double[PointMaxNum];
 		PointNum=0;
-		PointVisible=new int[PointMaxNum];
+		if(PointVisible == null) PointVisible=new int[PointMaxNum];
 		for(int i=0;i<PointMaxNum;i++){
 			PointVisible[i]=0;
 		}
-		PointHint=new String[PointMaxNum];
+		if(PointHint == null) PointHint=new String[PointMaxNum];
 		System.gc();
 	}
 	public void Clear(int index){
@@ -243,32 +267,137 @@ public class PointDataSet implements PointDatabaseInterface{
 		if(en==-1) return MapKernel.MapWizard.LanguageDic.GetWords("无名称点");
 		return PointHint[k].substring(st+7,en);
 	}
-	public void DatabaseDelete(String KeyWord) {
+	public void DatabaseDelete(String KeyWord) { /**线程安全*/
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		// TODO Auto-generated method stub
 		int ptr=PointNum-1;
 		while(ptr!=-1){
 			if(PointHint[ptr].indexOf(KeyWord)!=-1){
-				DatabaseDelete(ptr);
+				UnsafeDatabaseRemove(ptr);
 			}
 			ptr--;
 		}
+		UnsafeDatabaseResize();
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
-	public void AttributeDelete(String Info0,String Info1,String Info2,String Info3,String Info4){
-		if(Info0==null) Info0="";else Info0="[Info:"+Info0+"]";
-		if(Info1==null) Info1="";else Info1="[Info:"+Info1+"]";
-		if(Info2==null) Info2="";else Info2="[Info:"+Info2+"]";
-		if(Info3==null) Info3="";else Info3="[Info:"+Info3+"]";
-		if(Info4==null) Info4="";else Info4="[Info:"+Info4+"]";
+	/** 老版本删除函数，现在建议用KeyValueDelete */
+	public void AttributeDelete(String Info0,String Info1,String Info2,String Info3,String Info4){ /**线程安全*/
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
+		if(Info0==null) Info0="";else Info0= (Info0.indexOf(":") == -1) ? ("[Info:"+Info0+"]") : Info0;
+		if(Info1==null) Info1="";else Info1= (Info1.indexOf(":") == -1) ? ("[Info:"+Info1+"]") : Info1;
+		if(Info2==null) Info2="";else Info2= (Info2.indexOf(":") == -1) ? ("[Info:"+Info2+"]") : Info2;
+		if(Info3==null) Info3="";else Info3= (Info3.indexOf(":") == -1) ? ("[Info:"+Info3+"]") : Info3;
+		if(Info4==null) Info4="";else Info4= (Info4.indexOf(":") == -1) ? ("[Info:"+Info4+"]") : Info4;
 		for(int i=PointNum-1;i>=0;i--){
 			if(PointHint[i].indexOf(Info0)==-1) continue;
 			if(PointHint[i].indexOf(Info1)==-1) continue;
 			if(PointHint[i].indexOf(Info2)==-1) continue;
 			if(PointHint[i].indexOf(Info3)==-1) continue;
 			if(PointHint[i].indexOf(Info4)==-1) continue;
-			DatabaseDelete(i);
+			UnsafeDatabaseRemove(i);
 		}
+		UnsafeDatabaseResize();
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
-	public boolean CheckInRegion(int ID, double RegionX1, double RegionY1, double RegionX2, double RegionY2){
+	private void UnsafeHintUpdate(int k, String UpdateWhat) {
+		HashMap<String, String> KeyValueHash = new HashMap<String, String>();
+		String[] OriginalKeyValue = PointHint[k].split("\\]\\[");
+		int OriginalLen = OriginalKeyValue.length;
+		OriginalKeyValue[0] = OriginalKeyValue[0].substring(1);
+		OriginalKeyValue[OriginalLen - 1] = OriginalKeyValue[OriginalLen - 1].substring(0, OriginalKeyValue[OriginalLen - 1].length() - 1);
+		String Key = null;
+		String Value =  null;
+		int pos = -1;
+		for(String str : OriginalKeyValue) {
+			pos = str.indexOf(":");
+			if(pos == -1) continue;
+			Key = str.substring(0 , pos);
+			Value = str.substring(pos + 1);
+			KeyValueHash.put(Key, Value);
+		}
+
+		String[] UpdateKeyValue = UpdateWhat.split("\\]\\[");
+		int UpdateLen = UpdateKeyValue.length;
+		UpdateKeyValue[0] = UpdateKeyValue[0].substring(1);
+		UpdateKeyValue[UpdateLen - 1] = UpdateKeyValue[UpdateLen - 1].substring(0, UpdateKeyValue[UpdateLen - 1].length() - 1);
+		for(String str : UpdateKeyValue) {
+			pos = str.indexOf(":");
+			if(pos == -1) continue;
+			Key = str.substring(0 , pos);
+			Value = str.substring(pos + 1);
+			KeyValueHash.put(Key, Value);
+		}
+
+		StringBuilder NewKeyValue = new StringBuilder();
+		for(String str : KeyValueHash.keySet()) {
+			NewKeyValue.append("[" + str + ":" + KeyValueHash.get(str) + "]");
+		}
+		PointHint[k] = NewKeyValue.toString();
+	}
+	public void KeyValueUpdate(double x1, double y1, double x2, double y2, String UpdateWhat){ /**线程安全*/
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
+		for(int i= PointNum-1;i>=0;i--){
+			if(CheckInRegion(i, x1, y1, x2, y2)) UnsafeHintUpdate(i, UpdateWhat);
+		}
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
+	}
+	public void PrimaryKeyValueUpdate(double x1, double y1, double x2, double y2, String PrimaryKey, String UpdateWhat){ /**线程安全*/
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
+		for(int i= PointNum-1;i>=0;i--){
+			if(CheckInRegion(i, x1, y1, x2, y2) && PointHint[i].contains(PrimaryKey)) UnsafeHintUpdate(i, UpdateWhat);
+		}
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
+	}
+	public void KeyValueDelete(double x1, double y1, double x2, double y2, String Info0,String Info1,String Info2,String Info3,String Info4){ /**线程安全*/
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
+		if(Info0==null) Info0="";
+		if(Info1==null) Info1="";
+		if(Info2==null) Info2="";
+		if(Info3==null) Info3="";
+		if(Info4==null) Info4="";
+		for(int i=PointNum-1;i>=0;i--){
+			if(PointHint[i].indexOf(Info0)==-1) continue;
+			if(PointHint[i].indexOf(Info1)==-1) continue;
+			if(PointHint[i].indexOf(Info2)==-1) continue;
+			if(PointHint[i].indexOf(Info3)==-1) continue;
+			if(PointHint[i].indexOf(Info4)==-1) continue;
+			if(CheckInRegion(i, x1, y1, x2, y2)) UnsafeDatabaseRemove(i);
+		}
+		UnsafeDatabaseResize();
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
+	}
+	public Vector<HashMap<String, Object>> KeyValueQuery(double x1, double y1, double x2, double y2, String Info0,String Info1,String Info2,String Info3,String Info4){ /**线程安全*/
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, true));
+		if(Info0==null) Info0="";
+		if(Info1==null) Info1="";
+		if(Info2==null) Info2="";
+		if(Info3==null) Info3="";
+		if(Info4==null) Info4="";
+		Vector<HashMap<String, Object>> QueryResult = new Vector<HashMap<String, Object>>();
+		for (int i =  PointNum -1; i>=0; i--){
+			if(PointHint[i].indexOf(Info0)==-1) continue;
+			if(PointHint[i].indexOf(Info1)==-1) continue;
+			if(PointHint[i].indexOf(Info2)==-1) continue;
+			if(PointHint[i].indexOf(Info3)==-1) continue;
+			if(PointHint[i].indexOf(Info4)==-1) continue;
+			if(CheckInRegion(i, x1, y1, x2, y2)){
+				String IDHashCode = Integer.toString(System.identityHashCode(PointHint[i]));
+				String Hint = PointHint[i];
+				Double X = AllPointX[i];
+				Double Y = AllPointY[i];
+				HashMap<String, Object> Result = new HashMap<String, Object>();
+				Result.put("IDHashCode", IDHashCode);
+				Result.put("Hint", Hint);
+				Result.put("X", X);
+				Result.put("Y", Y);
+				QueryResult.add(Result);
+			}
+		}
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, false));
+		System.out.println(">>>>>>" + QueryResult.size() + " items");
+		return QueryResult;
+	}
+	public boolean CheckInRegion(int ID, double RegionX1, double RegionY1, double RegionX2, double RegionY2){ /** 线程不安全 */
 		double Left		= GetMBRX1(ID);
 		double Right 	= GetMBRX2(ID);
 		double Up		= GetMBRY2(ID);

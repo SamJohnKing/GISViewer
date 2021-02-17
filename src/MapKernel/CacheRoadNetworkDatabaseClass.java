@@ -1,6 +1,6 @@
 package MapKernel;
 public class CacheRoadNetworkDatabaseClass {
-	final static int MaxPointVolume=500000;
+	final static int MaxPointVolume=10000;
 	MapControl MainHandle;
 	public int PointNum,LinkNum;
 	public boolean Loaded=false;

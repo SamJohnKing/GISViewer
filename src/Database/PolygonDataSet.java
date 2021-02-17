@@ -10,6 +10,8 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Vector;
 
 public class PolygonDataSet implements PolygonDatabaseInterface{
 	public double[] AllPointX;
@@ -62,7 +64,7 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 						} else if (signal.endsWith("longitude")) {
 							Longitude_Str = ValueList[i];
 						} else if (signal.equals("hint")) {
-							PolygonHint[PolygonNum] = ValueList[i];
+							PolygonHint[PolygonNum] += ValueList[i];
 						} else if (signal.equals("visible")) {
 							PolygonVisible[PolygonNum] = Integer
 									.parseInt(ValueList[i]);
@@ -244,6 +246,7 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 			PolygonTail[k]=temp;
 		}
 	}
+	public int DefaultVisible = 11;
 	public void add(double[] PointX,double[] PointY,int PointCount,String Hint){
 		if(PointCount==0) return;
 		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
@@ -253,7 +256,7 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 			append(PolygonNum,PointX[i],PointY[i]);
 		}
 		PolygonHint[PolygonNum]=Hint;
-		PolygonVisible[PolygonNum]=11;
+		PolygonVisible[PolygonNum]= DefaultVisible;
 		isVertical[PolygonNum]=false;
 		dx[PolygonNum]=0;
 		dy[PolygonNum]=0;
@@ -303,6 +306,13 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 		if(k>=PolygonNum) return;
 		if(k<0) return;
 		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
+		UnsafeDatabaseRemove(k);
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
+	}
+	public void UnsafeDatabaseRemove(int k){
+		if(k>=PolygonNum) return;
+		if(k<0) return;
+		//while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		int temp=PolygonHead[k];
 		int tmp;
 		while(temp!=-1){
@@ -312,10 +322,15 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 		}
 		PolygonVisible[k]=-1;
 		PolygonHead[k]=-1;
-		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
+		//while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public void DatabaseResize(){
 		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
+		UnsafeDatabaseResize();
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
+	}
+	public void UnsafeDatabaseResize(){
+		//while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		int count=0;
 		for(int i=0;i<PolygonNum;i++){
 			if(PolygonVisible[i]<0) continue;
@@ -338,22 +353,23 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 			dy[i]=0;
 		}
 		PolygonNum=count;
-		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
+		//while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public static int PolygonMaxNum=100000;
 	public static int PointMaxNum=10000000;
 	public void DatabaseInit(){
-		AllPointX=new double[PointMaxNum];
-		AllPointY=new double[PointMaxNum];
-		AllPointNext=new int[PointMaxNum];
+		System.out.println("初始化PolygonDB\nPolygonMaxNum = " + PolygonMaxNum + "\nPointMaxNum = " + PointMaxNum);
+		if(AllPointX == null) AllPointX=new double[PointMaxNum];
+		if(AllPointY == null) AllPointY=new double[PointMaxNum];
+		if(AllPointNext == null) AllPointNext=new int[PointMaxNum];
 		PointUse=0;
 		PolygonNum=0;
-		PolygonHead=new int[PolygonMaxNum];
-		PolygonTail=new int[PolygonMaxNum];
-		PolygonVisible=new int[PolygonMaxNum];
-		isVertical=new boolean[PolygonMaxNum];
-		dx=new double[PolygonMaxNum];
-		dy=new double[PolygonMaxNum];
+		if(PolygonHead == null) PolygonHead=new int[PolygonMaxNum];
+		if(PolygonTail == null) PolygonTail=new int[PolygonMaxNum];
+		if(PolygonVisible == null) PolygonVisible=new int[PolygonMaxNum];
+		if(isVertical == null) isVertical=new boolean[PolygonMaxNum];
+		if(dx == null) dx=new double[PolygonMaxNum];
+		if(dy == null) dy=new double[PolygonMaxNum];
 		for(int i=0;i<PolygonMaxNum;i++){
 			PolygonHead[i]=-1;
 			PolygonTail[i]=-1;
@@ -364,7 +380,7 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 			AllPointNext[i]=i+1;
 		}
 		AllPointNext[PointMaxNum-1]=-1;
-		PolygonHint=new String[PolygonMaxNum];
+		if(PolygonHint == null) PolygonHint=new String[PolygonMaxNum];
 		System.gc();
 	}
 	public void update(int index,int visible,String Hint){
@@ -383,15 +399,18 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 		if(en==-1) return MapKernel.MapWizard.LanguageDic.GetWords("无名称区域");
 		return PolygonHint[k].substring(st+7,en);
 	}
-	public void DatabaseDelete(String KeyWord) {
+	public void DatabaseDelete(String KeyWord) { /**线程安全*/
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
 		// TODO Auto-generated method stub
 		int ptr=PolygonNum-1;
 		while(ptr!=-1){
 			if(PolygonHint[ptr].indexOf(KeyWord)!=-1){
-				DatabaseDelete(ptr);
+				UnsafeDatabaseRemove(ptr);
 			}
 			ptr--;
 		}
+		UnsafeDatabaseResize();
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 	}
 	public double[] MBRMinX=new double[10000];
 	public double[] MBRMinY=new double[10000];
@@ -490,20 +509,128 @@ public class PolygonDataSet implements PolygonDatabaseInterface{
 		Ans.add(y);
 		return Ans;
 	}
-	public void AttributeDelete(String Info0,String Info1,String Info2,String Info3,String Info4){
-		if(Info0==null) Info0="";else Info0="[Info:"+Info0+"]";
-		if(Info1==null) Info1="";else Info1="[Info:"+Info1+"]";
-		if(Info2==null) Info2="";else Info2="[Info:"+Info2+"]";
-		if(Info3==null) Info3="";else Info3="[Info:"+Info3+"]";
-		if(Info4==null) Info4="";else Info4="[Info:"+Info4+"]";
+	/** 老版本删除函数，现在建议用KeyValueDelete */
+	public void AttributeDelete(String Info0,String Info1,String Info2,String Info3,String Info4){ /**线程安全*/
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
+		if(Info0==null) Info0="";else Info0= (Info0.indexOf(":") == -1) ? ("[Info:"+Info0+"]") : Info0;
+		if(Info1==null) Info1="";else Info1= (Info1.indexOf(":") == -1) ? ("[Info:"+Info1+"]") : Info1;
+		if(Info2==null) Info2="";else Info2= (Info2.indexOf(":") == -1) ? ("[Info:"+Info2+"]") : Info2;
+		if(Info3==null) Info3="";else Info3= (Info3.indexOf(":") == -1) ? ("[Info:"+Info3+"]") : Info3;
+		if(Info4==null) Info4="";else Info4= (Info4.indexOf(":") == -1) ? ("[Info:"+Info4+"]") : Info4;
 		for(int i=PolygonNum-1;i>=0;i--){
 			if(PolygonHint[i].indexOf(Info0)==-1) continue;
 			if(PolygonHint[i].indexOf(Info1)==-1) continue;
 			if(PolygonHint[i].indexOf(Info2)==-1) continue;
 			if(PolygonHint[i].indexOf(Info3)==-1) continue;
 			if(PolygonHint[i].indexOf(Info4)==-1) continue;
-			DatabaseDelete(i);
+			UnsafeDatabaseRemove(i);
 		}
+		UnsafeDatabaseResize();
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
+	}
+	private void UnsafeHintUpdate(int k, String UpdateWhat) {
+		HashMap<String, String> KeyValueHash = new HashMap<String, String>();
+		String[] OriginalKeyValue = PolygonHint[k].split("\\]\\[");
+		int OriginalLen = OriginalKeyValue.length;
+		OriginalKeyValue[0] = OriginalKeyValue[0].substring(1);
+		OriginalKeyValue[OriginalLen - 1] = OriginalKeyValue[OriginalLen - 1].substring(0, OriginalKeyValue[OriginalLen - 1].length() - 1);
+		String Key = null;
+		String Value =  null;
+		int pos = -1;
+		for(String str : OriginalKeyValue) {
+			pos = str.indexOf(":");
+			if(pos == -1) continue;
+			Key = str.substring(0 , pos);
+			Value = str.substring(pos + 1);
+			KeyValueHash.put(Key, Value);
+		}
+
+		String[] UpdateKeyValue = UpdateWhat.split("\\]\\[");
+		int UpdateLen = UpdateKeyValue.length;
+		UpdateKeyValue[0] = UpdateKeyValue[0].substring(1);
+		UpdateKeyValue[UpdateLen - 1] = UpdateKeyValue[UpdateLen - 1].substring(0, UpdateKeyValue[UpdateLen - 1].length() - 1);
+		for(String str : UpdateKeyValue) {
+			pos = str.indexOf(":");
+			if(pos == -1) continue;
+			Key = str.substring(0 , pos);
+			Value = str.substring(pos + 1);
+			KeyValueHash.put(Key, Value);
+		}
+
+		StringBuilder NewKeyValue = new StringBuilder();
+		for(String str : KeyValueHash.keySet()) {
+			NewKeyValue.append("[" + str + ":" + KeyValueHash.get(str) + "]");
+		}
+		PolygonHint[k] = NewKeyValue.toString();
+	}
+	public void KeyValueUpdate(double x1, double y1, double x2, double y2, String UpdateWhat){ /**线程安全*/
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
+		for(int i= PolygonNum-1;i>=0;i--){
+			if(CheckInRegion(i, x1, y1, x2, y2)) UnsafeHintUpdate(i, UpdateWhat);
+		}
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
+	}
+	public void PrimaryKeyValueUpdate(double x1, double y1, double x2, double y2, String PrimaryKey, String UpdateWhat){ /**线程安全*/
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
+		for(int i= PolygonNum-1;i>=0;i--){
+			if(CheckInRegion(i, x1, y1, x2, y2) && PolygonHint[i].contains(PrimaryKey)) UnsafeHintUpdate(i, UpdateWhat);
+		}
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
+	}
+	public void KeyValueDelete(double x1, double y1, double x2, double y2, String Info0,String Info1,String Info2,String Info3,String Info4){ /**线程安全*/
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, true));
+		if(Info0==null) Info0="";
+		if(Info1==null) Info1="";
+		if(Info2==null) Info2="";
+		if(Info3==null) Info3="";
+		if(Info4==null) Info4="";
+		for(int i= PolygonNum-1;i>=0;i--){
+			if(PolygonHint[i].indexOf(Info0)==-1) continue;
+			if(PolygonHint[i].indexOf(Info1)==-1) continue;
+			if(PolygonHint[i].indexOf(Info2)==-1) continue;
+			if(PolygonHint[i].indexOf(Info3)==-1) continue;
+			if(PolygonHint[i].indexOf(Info4)==-1) continue;
+			if(CheckInRegion(i, x1, y1, x2, y2)) UnsafeDatabaseRemove(i);
+		}
+		UnsafeDatabaseResize();
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
+	}
+	public Vector<HashMap<String, Object>> KeyValueQuery(double x1, double y1, double x2, double y2, String Info0,String Info1,String Info2,String Info3,String Info4){ /**线程安全*/
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, true));
+		if(Info0==null) Info0="";
+		if(Info1==null) Info1="";
+		if(Info2==null) Info2="";
+		if(Info3==null) Info3="";
+		if(Info4==null) Info4="";
+		Vector<HashMap<String, Object>> QueryResult = new Vector<HashMap<String, Object>>();
+		for (int i = PolygonNum -1; i>=0; i--){
+			if(PolygonHint[i].indexOf(Info0)==-1) continue;
+			if(PolygonHint[i].indexOf(Info1)==-1) continue;
+			if(PolygonHint[i].indexOf(Info2)==-1) continue;
+			if(PolygonHint[i].indexOf(Info3)==-1) continue;
+			if(PolygonHint[i].indexOf(Info4)==-1) continue;
+			if(CheckInRegion(i, x1, y1, x2, y2)){
+				String IDHashCode = Integer.toString(System.identityHashCode(PolygonHint[i]));
+				String Hint = PolygonHint[i];
+				Vector<Double> XArr = new Vector<Double>();
+				Vector<Double> YArr = new Vector<Double>();
+				HashMap<String, Object> Result = new HashMap<String, Object>();
+				Result.put("IDHashCode", IDHashCode);
+				Result.put("Hint", Hint);
+				int ptr = PolygonHead[i];
+				while(ptr != -1){
+					XArr.add(AllPointX[ptr]);
+					YArr.add(AllPointY[ptr]);
+					ptr = AllPointNext[ptr];
+				}
+				Result.put("X", XArr);
+				Result.put("Y", YArr);
+				QueryResult.add(Result);
+			}
+		}
+		while(!MapKernel.MapWizard.SingleItem.Set_DB_Read_Write_Lock(false, false));
+		System.out.println(">>>>>>" + QueryResult.size() + " items");
+		return QueryResult;
 	}
 	@Override
 	public double GetMBRX1(int index) {
