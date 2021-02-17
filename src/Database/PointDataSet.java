@@ -114,7 +114,7 @@ public class PointDataSet implements PointDatabaseInterface{
 			while(!MapWizard.SingleItem.Set_DB_Read_Write_Lock(true, false));
 		}
 	}
-	public void DatabaseFileOutput(File Output){ /** Unsafe in MultiThread */
+	public void DatabaseFileOutput(File Output){ /** 现在都改成了线程安全的形式 */
 		if(Output==null) return;
 		FileOutputStream fostream=null;
 		BufferedWriter out=null;

@@ -650,10 +650,10 @@ public class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPane
             } else if (Command.equals("SetBufferImageNumber")) {
                 OriginalOpenGLWizard.DefaultBufferImageNumber = Integer.parseInt(str);
                 return "Success::";
-            } else if (Command.equals("SetOpenGLAllowAbsPixel")) {
+            } else if (Command.equals("SetOpenGLAllowAbsPixel")) {  /**设为false可以加速图形处理，提高帧率*/
                 OriginalOpenGLWizard.AllowAbsPixelPoint = Boolean.parseBoolean(str);
                 return "Success::" + OriginalOpenGLWizard.AllowAbsPixelPoint;
-            } else if (Command.equals("SetOpenGLAllowPNG")) {
+            } else if (Command.equals("SetOpenGLAllowPNG")) {       /**设为false可以加速图形处理，提高帧率*/
                 OriginalOpenGLWizard.AllowPNGPoint = Boolean.parseBoolean(str);
                 return "Success::" + OriginalOpenGLWizard.AllowPNGPoint;
             } else if (Command.equals("Sleep")) {

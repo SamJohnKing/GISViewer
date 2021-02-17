@@ -879,6 +879,10 @@ public class SwtHtmlBrowser implements Runnable{
 	       	Button LockButton=new Button(shell,SWT.NONE);
 	       	LockButton.addListener(SWT.Selection, new Listener() {
 				public void handleEvent(Event event) {
+					if(MapWizard.SingleItem.Screen.isVisible() && MapWizard.SingleItem.IsShowAlphaDistribution){
+						browser.execute("alert(\"检测到Swing窗口正在显示热力图，请先隐藏SwingScreen或者关闭热力图！\")");
+						return;
+					}
 					canvaspane.setVisible(true);
 					Mask.setVisible(true);
 				}

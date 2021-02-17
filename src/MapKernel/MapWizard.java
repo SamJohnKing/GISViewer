@@ -5747,8 +5747,8 @@ public class MapWizard extends JFrame implements ActionListener {
 					Screen.LastAlphaPercentScale=0;
 					Screen.LastRadiationDistance=0;
 				}else{
-					if ((SwtHtmlBrowser.SingleItemThread != null) && SwtHtmlBrowser.Accessed) {
-						JOptionPane.showMessageDialog(null,"网页地图已打开，热力图加载可能有冲突，请先关闭");
+					if (SwtHtmlBrowser.SingleItemThread != null) {
+						JOptionPane.showMessageDialog(null,"网页地图已打开或处于不可见状态，\n热力图加载可能有冲突，请先关闭网页!");
 						return;
 					}
 					String str_row=JOptionPane.showInputDialog(null,"AlphaDistributionRow");
