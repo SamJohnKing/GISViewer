@@ -42,6 +42,7 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 	public void setLongitudeLatitude(double x,double y){}
 	public void setLongitude(double x){};
 	public void setLatitude(double y){};
+	String BrowserPath = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome";
 	public void actionPerformed(ActionEvent e){
 		try{
 		if(e.getSource()==ScreenLockButton){
@@ -117,7 +118,9 @@ public  class HtmlMapOutputPaneClass extends ToolPanel implements ExtendedToolPa
 			}
 		}else if(e.getSource()==InstantView){
 			//Process proc = Runtime.getRuntime().exec("C:\\\\Program Files\\Internet Explorer\\iexplore "+GenerateHTML("MapTemp.html"));
-			Process proc = Runtime.getRuntime().exec("C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome "+GenerateHTML("MapTemp.html"));
+			BrowserPath = JOptionPane.showInputDialog("BrowserPath?", BrowserPath);
+			BrowserPath = BrowserPath.isEmpty() ? "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome" : BrowserPath;
+			Process proc = Runtime.getRuntime().exec(BrowserPath + " " + GenerateHTML("MapTemp.html"));
 			StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "Error");
 			StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "Output");
 			errorGobbler.start();
