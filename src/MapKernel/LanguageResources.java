@@ -562,7 +562,7 @@ public class LanguageResources {
 		EnglishToChinese.put("VisualFeatureSwitch","元素可视化纹理开关");
 		ChineseToEnglish.put("DeepZoom高清分割","DeepZoom HD Split");
 		EnglishToChinese.put("DeepZoom HD Split","DeepZoom高清分割");
-		ChineseToEnglish.put("打开网页第二屏幕[Win64 Only]", "Open Webpage Secondary Screen [Win64 Only]");
+		ChineseToEnglish.put("打开网页第二屏幕", "Open Webpage Secondary Screen");
 		EnglishToChinese.put("Open Webpage Secondary Screen", "打开网页第二屏幕");
 		ChineseToEnglish.put("设定      ", "Setting    ");
 		ChineseToEnglish.put("色彩Alpha值透射开关", "AlphaFeatureSwitch");

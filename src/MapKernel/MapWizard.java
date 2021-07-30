@@ -5933,7 +5933,7 @@ public class MapWizard extends JFrame implements ActionListener {
 			}
 		});
 		
-		OpenSecondaryScreenItem=new JMenuItem(LanguageDic.GetWords("打开网页第二屏幕[Win64 Only]"));
+		OpenSecondaryScreenItem=new JMenuItem(LanguageDic.GetWords("打开网页第二屏幕"));
 		OpenSecondaryScreenItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {

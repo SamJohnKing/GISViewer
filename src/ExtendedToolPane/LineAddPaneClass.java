@@ -189,8 +189,11 @@ public class LineAddPaneClass extends ToolPanel implements ExtendedToolPaneInter
 		String str;
 		if(MainHandle.getPreference().ValidizeCommonString.isSelected()) 
 			str=MainHandle.getPreference().CommonString.getText();
-		else str=JOptionPane.showInputDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("输入地理线路标签"),
-				MapKernel.MapWizard.LanguageDic.GetWords("确认提交"),JOptionPane.PLAIN_MESSAGE);
+		else {
+			MainHandle.getKernel().setVisible(true);
+			str=JOptionPane.showInputDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("输入地理线路标签"),
+					MapKernel.MapWizard.LanguageDic.GetWords("确认提交"),JOptionPane.PLAIN_MESSAGE);
+		}
 		if(str!=null){
 			MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("成功提交了")+"【"+str+"】");
 			MainHandle.LineDatabaseAppend(str);
