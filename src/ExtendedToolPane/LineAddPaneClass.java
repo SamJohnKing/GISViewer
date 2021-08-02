@@ -16,8 +16,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
+import LWJGLPackage.OriginalOpenGLWizard;
 import MapKernel.MapControl;
+import MapKernel.MapWizard;
 import MapKernel.ToolPanel;
+import SecondaryScreen.SwtHtmlBrowser;
 
 public class LineAddPaneClass extends ToolPanel implements ExtendedToolPaneInterface,ActionListener,ItemListener{
 	MapControl MainHandle;
@@ -84,7 +87,7 @@ public class LineAddPaneClass extends ToolPanel implements ExtendedToolPaneInter
 		}
 	}
 	//Specific Part--------------------------------------------
-	JCheckBox ConfirmLink,ShowConsecutiveLink,ShowHeadTailLink,ShowPointHint;
+	JCheckBox ConfirmLink,ShowConsecutiveLink,ShowHeadTailLink,ShowPointHint,QueryAllow;
 	JButton CancelLastOne,CancelAll,Submit;
 	public void SpecificProcess(){
 		ConfirmLink=new JCheckBox(MapKernel.MapWizard.LanguageDic.GetWords("勾选则开始创建线路，取消则放弃"));
@@ -111,6 +114,10 @@ public class LineAddPaneClass extends ToolPanel implements ExtendedToolPaneInter
 		Submit=new JButton(MapKernel.MapWizard.LanguageDic.GetWords("提交信息"));
 		Submit.addActionListener(this);
 		add(Submit);
+		QueryAllow = new JCheckBox(MapWizard.LanguageDic.GetWords("允许左键点击询问周围数据元素"));
+		QueryAllow.setOpaque(false);
+		QueryAllow.setForeground(Color.orange);
+		add(QueryAllow);
 	}
 	public void itemStateChanged(ItemEvent e) {
 		if(e.getSource()==ConfirmLink){
@@ -164,6 +171,17 @@ public class LineAddPaneClass extends ToolPanel implements ExtendedToolPaneInter
 			}
 			//--------------------------------------------
 			MainHandle.PointPush(x,y,"L"+MainHandle.getPointCount());
+		} else if(QueryAllow.isSelected()){
+			double xscale = MainHandle.getKernel().Screen.LongitudeScale;
+			xscale = OriginalOpenGLWizard.SingleItem != null ? Math.min(xscale, OriginalOpenGLWizard.SingleItem.LongitudeScale) : xscale;
+			xscale = SwtHtmlBrowser.SingleItemThread != null ? Math.min(xscale, SwtHtmlBrowser.GetLongitudeEnd() - SwtHtmlBrowser.GetLongitudeStart()) : xscale;
+			double yscale = MainHandle.getKernel().Screen.LatitudeScale;
+			yscale = OriginalOpenGLWizard.SingleItem != null ? Math.min(yscale, OriginalOpenGLWizard.SingleItem.LatitudeScale) : yscale;
+			yscale = SwtHtmlBrowser.SingleItemThread != null ? Math.min(yscale, SwtHtmlBrowser.GetLatitudeEnd() - SwtHtmlBrowser.GetLatitudeStart()) : yscale;
+			xscale = xscale/100;
+			yscale = yscale/100;
+			System.out.println("QueryRegion:\t ( " + (x - xscale) + " , " + (y - yscale) + " , " + (x + xscale) + " , " + (y + yscale) + " )");
+			System.out.println(MainHandle.getKernel().LineDatabase.KeyValueQuery(x - xscale, y - yscale, x + xscale, y + yscale, null, null, null, null, null));
 		}else MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("没有开始构建线路，点击无效"));
 	}
 	public void convey(double x1,double y1,double x2,double y2){

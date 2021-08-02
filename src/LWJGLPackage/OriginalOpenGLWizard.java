@@ -1355,6 +1355,9 @@ public class OriginalOpenGLWizard {
                     } else {
                         if(MapWizard.SingleItem.Screen.IsTextArea1Visible) MapWizard.SingleItem.Screen.TextArea1Content = "You Clicked At Location ( " + GetLogicalX() + " , " + GetLogicalY() + " )";
                         else System.out.println("You Clicked At Location ( " + GetLogicalX() + " , " + GetLogicalY() + " )");
+                        ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
+                                (MapKernel.MapWizard.SingleItem.NowPanel);
+                        DBEditor.convey(GetLogicalX(), GetLogicalY());
                     }
                 }
 
@@ -1365,6 +1368,12 @@ public class OriginalOpenGLWizard {
                     if (MapWizard.SingleItem.BehaviorListener != null) {
                         MapKernel.MapWizard.SingleItem.BehaviorListener.MousePressedListener(GetLogicalX(), GetLogicalY(), org.lwjgl.input.Mouse.getX(), org.lwjgl.input.Mouse.getY(), false);;
                     } else if (MapKernel.MapWizard.SingleItem.NowPanel.getString().equals("MapElementsEditorPane")) {
+                        ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
+                                (MapKernel.MapWizard.SingleItem.NowPanel);
+                        DBEditor.confirm();
+                    } else {
+                        if(MapWizard.SingleItem.Screen.IsTextArea1Visible) MapWizard.SingleItem.Screen.TextArea1Content = "You Right Clicked At Location ( " + GetLogicalX() + " , " + GetLogicalY() + " )";
+                        else System.out.println("You Right Clicked At Location ( " + GetLogicalX() + " , " + GetLogicalY() + " )");
                         ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
                                 (MapKernel.MapWizard.SingleItem.NowPanel);
                         DBEditor.confirm();

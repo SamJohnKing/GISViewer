@@ -570,6 +570,7 @@ public class LanguageResources {
 		ChineseToEnglish.put("OpenGL第二屏幕放大镜参数设定", "OpenGL Screen Microscope Setting");
 		ChineseToEnglish.put("数据库读写锁重置","DB ReadWrite Lock Reset");
 		ChineseToEnglish.put("命令行输出SQL查询与结果","Show CMD SQL Query & Result");
+		ChineseToEnglish.put("允许左键点击询问周围数据元素","Allow Left Click to Query Data");
 	}
 	public String GetWords(String str){
 		if(str==null) return "NULL";
