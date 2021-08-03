@@ -338,6 +338,7 @@ public class MapElementsEditorPaneClass extends ToolPanel implements ExtendedToo
 		// TODO Auto-generated method stub
 		if(PolygonElement.isSelected()){
 			if(MainHandle.getPointCount()<3){
+				MainHandle.getKernel().setVisible(true);
 				JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("少于三个点不予提交"),
 						MapKernel.MapWizard.LanguageDic.GetWords("拒绝提交"),JOptionPane.WARNING_MESSAGE);
 				return;
@@ -359,6 +360,7 @@ public class MapElementsEditorPaneClass extends ToolPanel implements ExtendedToo
 			}
 		}else if(LineElement.isSelected()){
 			if(MainHandle.getPointCount()<2){
+				MainHandle.getKernel().setVisible(true);
 				JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("少于两个点不予提交"),
 						MapKernel.MapWizard.LanguageDic.GetWords("拒绝提交"),JOptionPane.WARNING_MESSAGE);
 				return;
@@ -381,6 +383,7 @@ public class MapElementsEditorPaneClass extends ToolPanel implements ExtendedToo
 			}
 		}else{
 			if(MainHandle.getPointCount()<1){
+				MainHandle.getKernel().setVisible(true);
 				JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("不允许空提交"),
 						MapKernel.MapWizard.LanguageDic.GetWords("拒绝提交"),JOptionPane.WARNING_MESSAGE);
 				return;
@@ -390,7 +393,7 @@ public class MapElementsEditorPaneClass extends ToolPanel implements ExtendedToo
 				str=MainHandle.getPreference().CommonString.getText();
 			else {
 				MainHandle.getKernel().setVisible(true);
-				str=JOptionPane.showInputDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("输入地理线路标签"),
+				str=JOptionPane.showInputDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("输入地理兴趣点标签"),
 						MapKernel.MapWizard.LanguageDic.GetWords("确认提交"),JOptionPane.PLAIN_MESSAGE);
 			}
 			if(str!=null){

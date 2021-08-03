@@ -104,6 +104,12 @@ public class PolygonAddPaneClass extends ToolPanel implements ExtendedToolPaneIn
 		add(Submit);
 		QueryAllow = new JCheckBox(MapWizard.LanguageDic.GetWords("允许左键点击询问周围数据元素"));
 		QueryAllow.setOpaque(false);
+		QueryAllow.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (QueryAllow.isSelected()) ConfirmLink.setSelected(false);
+			}
+		});
 		add(QueryAllow);
 	}
 	public void itemStateChanged(ItemEvent e) {
@@ -112,6 +118,7 @@ public class PolygonAddPaneClass extends ToolPanel implements ExtendedToolPaneIn
 				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("多边形生成中"));
 				MainHandle.PointEmpty();
 				MainHandle.setPointVisible(true);
+				QueryAllow.setSelected(false);
 			}else{
 				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("放弃了多边形生成"));
 				MainHandle.PointEmpty();
@@ -200,6 +207,7 @@ public class PolygonAddPaneClass extends ToolPanel implements ExtendedToolPaneIn
 	public void confirm() {
 		// TODO Auto-generated method stub
 		if(MainHandle.getPointCount()<3){
+			MainHandle.getKernel().setVisible(true);
 			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("少于三个点不予提交"),
 					MapKernel.MapWizard.LanguageDic.GetWords("拒绝提交"),JOptionPane.WARNING_MESSAGE);
 			return;

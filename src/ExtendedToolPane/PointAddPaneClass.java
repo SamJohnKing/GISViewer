@@ -12,10 +12,7 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 import LWJGLPackage.OriginalOpenGLWizard;
 import MapKernel.MapControl;
@@ -76,7 +73,7 @@ public class PointAddPaneClass extends ToolPanel implements ExtendedToolPaneInte
 			String str;
 			if(MainHandle.getPreference().ValidizeCommonString.isSelected()) 
 				str=MainHandle.getPreference().CommonString.getText();
-			else str=JOptionPane.showInputDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("输入地理线路标签"),
+			else str=JOptionPane.showInputDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("输入地理兴趣点标签"),
 					MapKernel.MapWizard.LanguageDic.GetWords("确认提交"),JOptionPane.PLAIN_MESSAGE);
 			if(str!=null){
 				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("成功提交了")+"【"+str+"】");
@@ -113,6 +110,12 @@ public class PointAddPaneClass extends ToolPanel implements ExtendedToolPaneInte
 		QueryAllow = new JCheckBox(MapWizard.LanguageDic.GetWords("允许左键点击询问周围数据元素"));
 		QueryAllow.setOpaque(false);
 		QueryAllow.setForeground(Color.red);
+		QueryAllow.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if(QueryAllow.isSelected()) ConfirmLink.setSelected(false);
+			}
+		});
 		add(QueryAllow);
 	}
 	public void itemStateChanged(ItemEvent e) {
@@ -121,6 +124,7 @@ public class PointAddPaneClass extends ToolPanel implements ExtendedToolPaneInte
 				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("兴趣点批量插入中"));
 				MainHandle.PointEmpty();
 				MainHandle.setPointVisible(true);
+				QueryAllow.setSelected(false);
 			}else{
 				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("放弃了兴趣点批量插入"));
 				MainHandle.PointEmpty();
@@ -179,6 +183,7 @@ public class PointAddPaneClass extends ToolPanel implements ExtendedToolPaneInte
 	public void confirm() {
 		// TODO Auto-generated method stub
 		if(MainHandle.getPointCount()<1){
+			MainHandle.getKernel().setVisible(true);
 			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("不允许空提交"),
 					MapKernel.MapWizard.LanguageDic.GetWords("拒绝提交"),JOptionPane.WARNING_MESSAGE);
 			return;
@@ -188,7 +193,7 @@ public class PointAddPaneClass extends ToolPanel implements ExtendedToolPaneInte
 			str=MainHandle.getPreference().CommonString.getText();
 		else {
 			MainHandle.getKernel().setVisible(true);
-			str=JOptionPane.showInputDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("输入地理线路标签"),
+			str=JOptionPane.showInputDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("输入地理兴趣点标签"),
 					MapKernel.MapWizard.LanguageDic.GetWords("确认提交"),JOptionPane.PLAIN_MESSAGE);
 		}
 		if(str!=null){

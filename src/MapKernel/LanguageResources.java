@@ -481,7 +481,7 @@ public class LanguageResources {
 		ChineseToEnglish.put("输入地理线路标签","Input Line Label");
 		ChineseToEnglish.put("不允许空提交","Empty is not allowed");
 		ChineseToEnglish.put("兴趣点批量插入面板","Points Editor Pane");
-		ChineseToEnglish.put("输入地理线路标签","Input Line Lable");
+		ChineseToEnglish.put("输入地理兴趣点标签","Input Point Lable");
 		ChineseToEnglish.put("勾选则开始创建兴趣点，取消则放弃","Click to allow Point addition");
 		ChineseToEnglish.put("勾选则显示添加顺序，取消则不显示","Click to allow sequence visible");
 		ChineseToEnglish.put("提交信息","Submit Info");

@@ -118,6 +118,12 @@ public class LineAddPaneClass extends ToolPanel implements ExtendedToolPaneInter
 		QueryAllow = new JCheckBox(MapWizard.LanguageDic.GetWords("允许左键点击询问周围数据元素"));
 		QueryAllow.setOpaque(false);
 		QueryAllow.setForeground(Color.orange);
+		QueryAllow.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (QueryAllow.isSelected()) ConfirmLink.setSelected(false);
+			}
+		});
 		add(QueryAllow);
 	}
 	public void itemStateChanged(ItemEvent e) {
@@ -126,6 +132,7 @@ public class LineAddPaneClass extends ToolPanel implements ExtendedToolPaneInter
 				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("线路生成中"));
 				MainHandle.PointEmpty();
 				MainHandle.setPointVisible(true);
+				QueryAllow.setSelected(false);
 			}else{
 				MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("放弃了线路生成"));
 				MainHandle.PointEmpty();
@@ -205,6 +212,7 @@ public class LineAddPaneClass extends ToolPanel implements ExtendedToolPaneInter
 	public void confirm() {
 		// TODO Auto-generated method stub
 		if(MainHandle.getPointCount()<2){
+			MainHandle.getKernel().setVisible(true);
 			JOptionPane.showMessageDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("少于两个点不予提交"),
 					MapKernel.MapWizard.LanguageDic.GetWords("拒绝提交"),JOptionPane.WARNING_MESSAGE);
 			return;

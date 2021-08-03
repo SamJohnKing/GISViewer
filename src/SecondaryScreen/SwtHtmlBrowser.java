@@ -11,8 +11,7 @@ import java.io.OutputStreamWriter;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
-import javax.swing.Timer;
+import javax.swing.*;
 
 import ExtendedToolPane.ServerSocketPaneClass;
 import org.eclipse.swt.SWT;
@@ -816,8 +815,10 @@ public class SwtHtmlBrowser implements Runnable{
 								double DBLongitude = WebLongitudeStart + (WebLongitudeEnd - WebLongitudeStart) * arg0.x / MapWidth - DeviationLongitude;
 								double DBLatitude = WebLatitudeEnd - (WebLatitudeEnd - WebLatitudeStart) * arg0.y / MapHeight - DeviationLatitude;
 								DBEditor.convey(DBLongitude, DBLatitude);
+								MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);
 							} else {
 								DBEditor.confirm();
+								MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);
 							}
 						} else {
 							double DBLongitude = WebLongitudeStart + (WebLongitudeEnd - WebLongitudeStart) * arg0.x / MapWidth - DeviationLongitude;
@@ -828,6 +829,7 @@ public class SwtHtmlBrowser implements Runnable{
 									(MapKernel.MapWizard.SingleItem.NowPanel);
 							if(arg0.button == 1) DBEditor.convey(DBLongitude, DBLatitude);
 							else DBEditor.confirm();
+							MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);
 						}
 
 					} else {

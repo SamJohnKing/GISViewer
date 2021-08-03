@@ -1352,12 +1352,14 @@ public class OriginalOpenGLWizard {
                         ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
                                 (MapKernel.MapWizard.SingleItem.NowPanel);
                         DBEditor.convey(GetLogicalX(), GetLogicalY());
+                        MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);
                     } else {
                         if(MapWizard.SingleItem.Screen.IsTextArea1Visible) MapWizard.SingleItem.Screen.TextArea1Content = "You Clicked At Location ( " + GetLogicalX() + " , " + GetLogicalY() + " )";
                         else System.out.println("You Clicked At Location ( " + GetLogicalX() + " , " + GetLogicalY() + " )");
                         ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
                                 (MapKernel.MapWizard.SingleItem.NowPanel);
                         DBEditor.convey(GetLogicalX(), GetLogicalY());
+                        MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);
                     }
                 }
 
@@ -1371,12 +1373,14 @@ public class OriginalOpenGLWizard {
                         ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
                                 (MapKernel.MapWizard.SingleItem.NowPanel);
                         DBEditor.confirm();
+                        MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);
                     } else {
                         if(MapWizard.SingleItem.Screen.IsTextArea1Visible) MapWizard.SingleItem.Screen.TextArea1Content = "You Right Clicked At Location ( " + GetLogicalX() + " , " + GetLogicalY() + " )";
                         else System.out.println("You Right Clicked At Location ( " + GetLogicalX() + " , " + GetLogicalY() + " )");
                         ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
                                 (MapKernel.MapWizard.SingleItem.NowPanel);
                         DBEditor.confirm();
+                        MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);
                     }
                 }
 
