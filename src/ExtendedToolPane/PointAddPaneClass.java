@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -153,8 +154,12 @@ public class PointAddPaneClass extends ToolPanel implements ExtendedToolPaneInte
 			yscale = SwtHtmlBrowser.SingleItemThread != null ? Math.min(yscale, SwtHtmlBrowser.GetLatitudeEnd() - SwtHtmlBrowser.GetLatitudeStart()) : yscale;
 			xscale = xscale/100;
 			yscale = yscale/100;
+			Vector res;
 			System.out.println("QueryRegion:\t ( " + (x - xscale) + " , " + (y - yscale) + " , " + (x + xscale) + " , " + (y + yscale) + " )");
-			System.out.println(MainHandle.getKernel().PointDatabase.KeyValueQuery(x - xscale, y - yscale, x + xscale, y + yscale, null, null, null, null, null));
+			System.out.println(res = MainHandle.getKernel().PointDatabase.KeyValueQuery(x - xscale, y - yscale, x + xscale, y + yscale, null, null, null, null, null));
+			MainHandle.getKernel().setVisible(true);
+			String resstr = res.toString();
+			JOptionPane.showMessageDialog(null, resstr.length() > 188 ? resstr.substring(0, 188) : resstr);
 		} else MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("没有开始插入兴趣点，点击无效"));
 	}
 	public void convey(double x1,double y1,double x2,double y2){

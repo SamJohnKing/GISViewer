@@ -6,6 +6,7 @@ import SecondaryScreen.SwtHtmlBrowser;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -174,8 +175,12 @@ public class PolygonAddPaneClass extends ToolPanel implements ExtendedToolPaneIn
 			yscale = SwtHtmlBrowser.SingleItemThread != null ? Math.min(yscale, SwtHtmlBrowser.GetLatitudeEnd() - SwtHtmlBrowser.GetLatitudeStart()) : yscale;
 			xscale = xscale/100;
 			yscale = yscale/100;
+			Vector res;
 			System.out.println("QueryRegion:\t ( " + (x - xscale) + " , " + (y - yscale) + " , " + (x + xscale) + " , " + (y + yscale) + " )");
-			System.out.println(MainHandle.getKernel().PolygonDatabase.KeyValueQuery(x - xscale, y - yscale, x + xscale, y + yscale, null, null, null, null, null));
+			System.out.println(res = MainHandle.getKernel().PolygonDatabase.KeyValueQuery(x - xscale, y - yscale, x + xscale, y + yscale, null, null, null, null, null));
+			MainHandle.getKernel().setVisible(true);
+			String resstr = res.toString();
+			JOptionPane.showMessageDialog(null, resstr.length() > 188 ? resstr.substring(0, 188) : resstr);
 		}else MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("没有开始构建多边形，点击无效"));
 	}
 	public void convey(double x1,double y1,double x2,double y2){
