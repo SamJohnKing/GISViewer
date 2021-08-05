@@ -168,7 +168,7 @@ public class PointAddPaneClass extends ToolPanel implements ExtendedToolPaneInte
 	}
 	public void convey(double x1,double y1,double x2,double y2){
 		MainHandle.PointSelect(x1,y1,x2,y2);
-		int n=JOptionPane.showConfirmDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("是则删除，否则区域截图生成"),
+		int n=JOptionPane.showConfirmDialog(null,MapKernel.MapWizard.LanguageDic.GetWords("是则编辑点删除，否则区域截图生成"),
 				MapKernel.MapWizard.LanguageDic.GetWords("确认删除"),JOptionPane.YES_NO_OPTION);
 		if(n==JOptionPane.YES_OPTION){
 			MainHandle.PointSelectDelete();
