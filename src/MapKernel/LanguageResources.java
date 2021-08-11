@@ -442,7 +442,7 @@ public class LanguageResources {
 		ChineseToEnglish.put("显示轮廓点创建顺序","Show the sequence of boundary points");
 		ChineseToEnglish.put("不显示轮廓点创建顺序","View the sequence of boundary points");
 		ChineseToEnglish.put("没有开始构建线路，点击无效","Please click to allow line generation");
-		ChineseToEnglish.put("是则删除，否则区域截图生成","Yes for delete, No for Screen Capture");
+		ChineseToEnglish.put("是则编辑点删除，否则区域截图生成","Yes for editing points delete, No for Screen Capture");
 		ChineseToEnglish.put("确认删除","Delete commit");
 		ChineseToEnglish.put("地图元素编辑面板","Map Editor Pane");
 		ChineseToEnglish.put("选择添加地标点状地图元素","Click to add Point Element");
