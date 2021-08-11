@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import ExtendedToolPane.ServerSocketPaneClass;
+import LWJGLPackage.OriginalOpenGLWizard;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser; 
 import org.eclipse.swt.browser.BrowserFunction;
@@ -820,7 +821,7 @@ public class SwtHtmlBrowser implements Runnable{
 								DBEditor.confirm();
 								MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);
 							}
-						} else {
+						} else if (OriginalOpenGLWizard.ConveyValidPaneSet.contains(MapKernel.MapWizard.SingleItem.NowPanel.getString())){
 							double DBLongitude = WebLongitudeStart + (WebLongitudeEnd - WebLongitudeStart) * arg0.x / MapWidth - DeviationLongitude;
 							double DBLatitude = WebLatitudeEnd - (WebLatitudeEnd - WebLatitudeStart) * arg0.y / MapHeight - DeviationLatitude;
 							if(MapWizard.SingleItem.Screen.IsTextArea1Visible) MapWizard.SingleItem.Screen.TextArea1Content = "You Clicked At Location ( " + DBLongitude + " , " + DBLatitude + " )";
@@ -830,8 +831,12 @@ public class SwtHtmlBrowser implements Runnable{
 							if(arg0.button == 1) DBEditor.convey(DBLongitude, DBLatitude);
 							else DBEditor.confirm();
 							MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);
+						} else {
+							double DBLongitude = WebLongitudeStart + (WebLongitudeEnd - WebLongitudeStart) * arg0.x / MapWidth - DeviationLongitude;
+							double DBLatitude = WebLatitudeEnd - (WebLatitudeEnd - WebLatitudeStart) * arg0.y / MapHeight - DeviationLatitude;
+							if(MapWizard.SingleItem.Screen.IsTextArea1Visible) MapWizard.SingleItem.Screen.TextArea1Content = "You Clicked At Location ( " + DBLongitude + " , " + DBLatitude + " )";
+							else System.out.println("You Clicked At Location ( " + DBLongitude + " , " + DBLatitude + " )");
 						}
-
 					} else {
 						double DLongitude = -dx * (WebLongitudeEnd - WebLongitudeStart) / MapWidth;
 						double DLatitude = +dy * (WebLatitudeEnd - WebLatitudeStart) / MapHeight;
