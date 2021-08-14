@@ -9,4 +9,5 @@ Oracle jre 7, 8 or Openjdk 7, 8
 同时对于PNG元素根据窗口大小做自适应缩放采用Python脚本的方法
 
 shanzhangqing@fudan.edu.cn
+SamJohnKingChina@gmail.com with Github
 
