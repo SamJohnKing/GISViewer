@@ -12,10 +12,7 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 import LWJGLPackage.OriginalOpenGLWizard;
 import MapKernel.MapControl;
@@ -193,8 +190,18 @@ public class LineAddPaneClass extends ToolPanel implements ExtendedToolPaneInter
 			System.out.println(res = MainHandle.getKernel().LineDatabase.KeyValueQuery(x - xscale, y - yscale, x + xscale, y + yscale, null, null, null, null, null));
 			MainHandle.getKernel().setVisible(true);
 			String resstr = res.toString();
-			JOptionPane.showMessageDialog(null, resstr.length() > 188 ? resstr.substring(0, 188) : resstr);
-		}else MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("没有开始构建线路，点击无效"));
+			JFrame jf = new JFrame("QueryRegion:\t ( " + (x - xscale) + " , " + (y - yscale) + " , " + (x + xscale) + " , " + (y + yscale) + " )");
+			java.awt.Container contentPane = jf.getContentPane();
+			contentPane.setLayout(new java.awt.BorderLayout());
+			JTextArea jta = new JTextArea(resstr);
+			jta.setLineWrap(true);// 激活自动换行功能
+			jta.setWrapStyleWord(true);// 激活断行不断字功能
+			JScrollPane jscrollPane = new JScrollPane(jta);
+			contentPane.add(jscrollPane, java.awt.BorderLayout.CENTER);
+			jf.setSize(800, 600);
+			jf.setLocationRelativeTo(null);
+			jf.setVisible(true);
+		} else MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("没有开始构建线路，点击无效"));
 	}
 	public void convey(double x1,double y1,double x2,double y2){
 		MainHandle.PointSelect(x1,y1,x2,y2);

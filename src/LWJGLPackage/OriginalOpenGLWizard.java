@@ -1365,6 +1365,7 @@ public class OriginalOpenGLWizard {
                         else System.out.println("You Clicked At Location ( " + GetLogicalX() + " , " + GetLogicalY() + " )");
                         ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
                                 (MapKernel.MapWizard.SingleItem.NowPanel);
+                        MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);//防止非阻塞性数据弹窗被后续最小化程序误伤，故最小化
                         DBEditor.convey(GetLogicalX(), GetLogicalY());
                         MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);
                     } else {
@@ -1389,6 +1390,7 @@ public class OriginalOpenGLWizard {
                         else System.out.println("You Right Clicked At Location ( " + GetLogicalX() + " , " + GetLogicalY() + " )");
                         ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
                                 (MapKernel.MapWizard.SingleItem.NowPanel);
+                        MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);//防止非阻塞性数据弹窗被后续最小化程序误伤，故最小化
                         DBEditor.confirm();
                         MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);
                     }

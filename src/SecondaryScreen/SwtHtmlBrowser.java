@@ -828,9 +828,10 @@ public class SwtHtmlBrowser implements Runnable{
 							else System.out.println("You Clicked At Location ( " + DBLongitude + " , " + DBLatitude + " )");
 							ExtendedToolPane.ExtendedToolPaneInterface DBEditor = (ExtendedToolPane.ExtendedToolPaneInterface)
 									(MapKernel.MapWizard.SingleItem.NowPanel);
+							MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);//防止非阻塞性数据弹窗被后续最小化程序误伤，故最小化
 							if(arg0.button == 1) DBEditor.convey(DBLongitude, DBLatitude);
 							else DBEditor.confirm();
-							MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED);
+							MapWizard.SingleItem.setExtendedState(JFrame.ICONIFIED); //防止阻塞性消息弹窗带出swing界面阻碍当前窗口，故最小化
 						} else {
 							double DBLongitude = WebLongitudeStart + (WebLongitudeEnd - WebLongitudeStart) * arg0.x / MapWidth - DeviationLongitude;
 							double DBLatitude = WebLatitudeEnd - (WebLatitudeEnd - WebLatitudeStart) * arg0.y / MapHeight - DeviationLatitude;

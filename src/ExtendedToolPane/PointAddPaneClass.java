@@ -163,7 +163,17 @@ public class PointAddPaneClass extends ToolPanel implements ExtendedToolPaneInte
 			System.out.println(res = MainHandle.getKernel().PointDatabase.KeyValueQuery(x - xscale, y - yscale, x + xscale, y + yscale, null, null, null, null, null));
 			MainHandle.getKernel().setVisible(true);
 			String resstr = res.toString();
-			JOptionPane.showMessageDialog(null, resstr.length() > 188 ? resstr.substring(0, 188) : resstr);
+			JFrame jf = new JFrame("QueryRegion:\t ( " + (x - xscale) + " , " + (y - yscale) + " , " + (x + xscale) + " , " + (y + yscale) + " )");
+			java.awt.Container contentPane = jf.getContentPane();
+			contentPane.setLayout(new java.awt.BorderLayout());
+			JTextArea jta = new JTextArea(resstr);
+			jta.setLineWrap(true);// 激活自动换行功能
+			jta.setWrapStyleWord(true);// 激活断行不断字功能
+			JScrollPane jscrollPane = new JScrollPane(jta);
+			contentPane.add(jscrollPane, java.awt.BorderLayout.CENTER);
+			jf.setSize(800, 600);
+			jf.setLocationRelativeTo(null);
+			jf.setVisible(true);
 		} else MainHandle.ChangeTitle(MapKernel.MapWizard.LanguageDic.GetWords("没有开始插入兴趣点，点击无效"));
 	}
 	public void convey(double x1,double y1,double x2,double y2){
