@@ -681,12 +681,13 @@ public class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPane
             } else if (Command.equals("ListenClick")) {
                 Double WaitSecond = 30.0;
                 if(!str.isEmpty()) WaitSecond = Double.parseDouble(str);
-                ExternalListener OriginalListener = MapWizard.SingleItem.BehaviorListener;
+                final ExternalListener OriginalListener = MapWizard.SingleItem.BehaviorListener;
                 MapWizard.SingleItem.ClickBehaviorListened = null;
                 MapWizard.SingleItem.BehaviorListener = new ExternalListener() {
                     @Override
                     public void MousePressedListener(double x, double y, int xPixel, int yPixel, boolean isLeft) {
                         MapWizard.SingleItem.ClickBehaviorListened = Double.toString(x) + "#" + Double.toString(y) + "#" + Integer.toString(xPixel) + "#" + Integer.toString(yPixel) + "#" + (isLeft?"L":"R") + "#";
+                        MapWizard.SingleItem.BehaviorListener = null; //OriginalListener; 此处不用OriginalListener的原因是怕长时间超时后，新的Listener会指向上一个旧的ClickListener进行复原，从而形成长传导链，挤爆内存，但带来隐患是原来的OriginalListener丢失，会造成其他业务失效
                     }
                 };
                 int SleepCount = 0;
@@ -696,14 +697,13 @@ public class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPane
                     if(SleepCount * 20 > WaitSecond * 1000) break;
                 }
                 String res = "NoClick::";
-                MapWizard.SingleItem.BehaviorListener = OriginalListener;
                 if(SleepCount * 20 <= WaitSecond * 1000) res = "Click::" + MapWizard.SingleItem.ClickBehaviorListened;
                 MapWizard.SingleItem.ClickBehaviorListened = null;
                 return res;
             } else if (Command.equals("ListenClick&Key")) {
                 Double WaitSecond = 30.0;
                 if(!str.isEmpty()) WaitSecond = Double.parseDouble(str);
-                ExternalListener OriginalListener = MapWizard.SingleItem.BehaviorListener;
+                final ExternalListener OriginalListener = MapWizard.SingleItem.BehaviorListener;
                 MapWizard.SingleItem.ClickBehaviorListened = null;
 
                 if(OriginalOpenGLWizard.SingleItem != null) OriginalOpenGLWizard.SingleItem.isSocketKeyListen = true;
@@ -712,6 +712,7 @@ public class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPane
                     @Override
                     public void MousePressedListener(double x, double y, int xPixel, int yPixel, boolean isLeft) {
                         MapWizard.SingleItem.ClickBehaviorListened = Double.toString(x) + "#" + Double.toString(y) + "#" + Integer.toString(xPixel) + "#" + Integer.toString(yPixel) + "#" + (isLeft?"L":"R") + "#";
+                        MapWizard.SingleItem.BehaviorListener = null; //OriginalListener; 此处不用OriginalListener的原因是怕长时间超时后，新的Listener会指向上一个旧的ClickListener进行复原，从而形成长传导链，挤爆内存，但带来隐患是原来的OriginalListener丢失，会造成其他业务失效
                     }
                 };
                 int SleepCount = 0;
@@ -721,7 +722,6 @@ public class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPane
                     if(SleepCount * 20 > WaitSecond * 1000) break;
                 }
                 String res = "NoClick&Key::";
-                MapWizard.SingleItem.BehaviorListener = OriginalListener;
                 if(SleepCount * 20 <= WaitSecond * 1000) {
                     if(MapWizard.SingleItem.ClickBehaviorListened != null) res = "Click::" + MapWizard.SingleItem.ClickBehaviorListened;
                     else res = "Key::" + OriginalOpenGLWizard.SingleItem.SocketKeyID + "#" + OriginalOpenGLWizard.SingleItem.SocketKeyChar;
