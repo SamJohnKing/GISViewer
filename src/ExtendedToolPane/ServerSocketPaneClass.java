@@ -662,7 +662,7 @@ public class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPane
             } else if (Command.equals("SetTitle")) {
                 MapWizard.SingleItem.setTitle(str);
                 return "Success::";
-            } else if (Command.equals("ListenLWJGLKey")) {
+            } else if (Command.equals("ListenLWJGLKey")) {//要注意多线程冲突
                 Double WaitSecond = 30.0;
                 if(!str.isEmpty()) WaitSecond = Double.parseDouble(str);
                 if(OriginalOpenGLWizard.SingleItem == null) return "Fail::No LWJGL Instance!";
@@ -678,7 +678,7 @@ public class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPane
                 OriginalOpenGLWizard.SingleItem.SocketKeyChar = '!';
                 OriginalOpenGLWizard.SingleItem.SocketKeyID = -1;
                 return res ;
-            } else if (Command.equals("ListenClick")) {
+            } else if (Command.equals("ListenClick")) {//要注意多线程冲突
                 Double WaitSecond = 30.0;
                 if(!str.isEmpty()) WaitSecond = Double.parseDouble(str);
                 final ExternalListener OriginalListener = MapWizard.SingleItem.BehaviorListener;
@@ -700,7 +700,7 @@ public class ServerSocketPaneClass extends ToolPanel implements ExtendedToolPane
                 if(SleepCount * 20 <= WaitSecond * 1000) res = "Click::" + MapWizard.SingleItem.ClickBehaviorListened;
                 MapWizard.SingleItem.ClickBehaviorListened = null;
                 return res;
-            } else if (Command.equals("ListenClick&Key")) {
+            } else if (Command.equals("ListenClick&Key")) {//要注意多线程冲突
                 Double WaitSecond = 30.0;
                 if(!str.isEmpty()) WaitSecond = Double.parseDouble(str);
                 final ExternalListener OriginalListener = MapWizard.SingleItem.BehaviorListener;
